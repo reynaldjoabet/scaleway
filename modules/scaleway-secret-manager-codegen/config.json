@@ -1,0 +1,29 @@
+{
+  "generatorName": "scala-sttp4-jsoniter",
+  "templateDir": "modules/custom-template",
+  "inputSpec": "modules/scaleway-secret-manager-codegen/scaleway.secret_manager.v1beta1.Api.yml",
+  "outputDir": "modules/scaleway-secret-manager-codegen/src/main/scala",
+  "apiPackage": "scaleway.secretmanager.api",
+  "modelPackage": "scaleway.secretmanager.models",
+  "invokerPackage": "scaleway.secretmanager",
+  "globalProperties": {
+    "apis": "",
+    "models": "",
+    "supportingFiles": ""
+  },
+  "modelPropertyNaming": "camelCase",
+  "ensureUniqueParams": "true",
+  "sortParamsByRequiredFlag": "true",
+  "sortModelPropertiesByRequiredFlag": "true",
+  "allowUnicodeIdentifiers": "false",
+  "prependFormOrBodyParameters": "false",
+  "enumUnknownDefaultCase": "true",
+  "disallowAdditionalPropertiesIfNotPresent": "false",
+  "separateErrorChannel": "true",
+  "additionalProperties": {
+    "artifactVersion": "1.0.0",
+    "sourceFolder": "",
+    "apiNameSuffix": "Api",
+    "hideGenerationTimestamp": "true"
+  }
+}

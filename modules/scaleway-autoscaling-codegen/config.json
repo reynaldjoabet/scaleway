@@ -1,0 +1,29 @@
+{
+  "generatorName": "scala-sttp4-jsoniter",
+  "templateDir": "modules/custom-template",
+  "inputSpec": "modules/scaleway-autoscaling-codegen/scaleway.autoscaling.v1alpha1.Api.yml",
+  "outputDir": "modules/scaleway-autoscaling-codegen/src/main/scala",
+  "apiPackage": "scaleway.autoscaling.api",
+  "modelPackage": "scaleway.autoscaling.models",
+  "invokerPackage": "scaleway.autoscaling",
+  "globalProperties": {
+    "apis": "",
+    "models": "",
+    "supportingFiles": ""
+  },
+  "modelPropertyNaming": "camelCase",
+  "ensureUniqueParams": "true",
+  "sortParamsByRequiredFlag": "true",
+  "sortModelPropertiesByRequiredFlag": "true",
+  "allowUnicodeIdentifiers": "false",
+  "prependFormOrBodyParameters": "false",
+  "enumUnknownDefaultCase": "true",
+  "disallowAdditionalPropertiesIfNotPresent": "false",
+  "separateErrorChannel": "true",
+  "additionalProperties": {
+    "artifactVersion": "1.0.0",
+    "sourceFolder": "",
+    "apiNameSuffix": "",
+    "hideGenerationTimestamp": "true"
+  }
+}

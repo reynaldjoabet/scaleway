@@ -1,0 +1,29 @@
+{
+  "generatorName": "scala-sttp4-jsoniter",
+  "templateDir": "modules/custom-template",
+  "inputSpec": "modules/scaleway-ipam-codegen/scaleway.ipam.v1.Api.yml",
+  "outputDir": "modules/scaleway-ipam-codegen/src/main/scala",
+  "apiPackage": "scaleway.ipam.api",
+  "modelPackage": "scaleway.ipam.models",
+  "invokerPackage": "scaleway.ipam",
+  "globalProperties": {
+    "apis": "",
+    "models": "",
+    "supportingFiles": ""
+  },
+  "modelPropertyNaming": "camelCase",
+  "ensureUniqueParams": "true",
+  "sortParamsByRequiredFlag": "true",
+  "sortModelPropertiesByRequiredFlag": "true",
+  "allowUnicodeIdentifiers": "false",
+  "prependFormOrBodyParameters": "false",
+  "enumUnknownDefaultCase": "true",
+  "disallowAdditionalPropertiesIfNotPresent": "false",
+  "separateErrorChannel": "true",
+  "additionalProperties": {
+    "artifactVersion": "1.0.0",
+    "sourceFolder": "",
+    "apiNameSuffix": "",
+    "hideGenerationTimestamp": "true"
+  }
+}

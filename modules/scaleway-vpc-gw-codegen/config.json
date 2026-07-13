@@ -1,0 +1,29 @@
+{
+  "generatorName": "scala-sttp4-jsoniter",
+  "templateDir": "modules/custom-template",
+  "inputSpec": "modules/scaleway-vpc-gw-codegen/scaleway.vpc_gw.v2.Api.yml",
+  "outputDir": "modules/scaleway-vpc-gw-codegen/src/main/scala",
+  "apiPackage": "scaleway.vpcgw.api",
+  "modelPackage": "scaleway.vpcgw.models",
+  "invokerPackage": "scaleway.vpcgw",
+  "globalProperties": {
+    "apis": "",
+    "models": "",
+    "supportingFiles": ""
+  },
+  "modelPropertyNaming": "camelCase",
+  "ensureUniqueParams": "true",
+  "sortParamsByRequiredFlag": "true",
+  "sortModelPropertiesByRequiredFlag": "true",
+  "allowUnicodeIdentifiers": "false",
+  "prependFormOrBodyParameters": "false",
+  "enumUnknownDefaultCase": "true",
+  "disallowAdditionalPropertiesIfNotPresent": "false",
+  "separateErrorChannel": "true",
+  "additionalProperties": {
+    "artifactVersion": "1.0.0",
+    "sourceFolder": "",
+    "apiNameSuffix": "Api",
+    "hideGenerationTimestamp": "true"
+  }
+}
