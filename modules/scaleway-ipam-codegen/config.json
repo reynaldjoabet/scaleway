@@ -1,6 +1,6 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "inputSpec": "modules/scaleway-ipam-codegen/scaleway.ipam.v1.Api.yml",
+  "inputSpec": "modules/scaleway-ipam-codegen/scaleway.ipam.yml",
   "outputDir": "modules/scaleway-ipam-codegen/src/main/scala",
   "apiPackage": "scaleway.ipam.api",
   "modelPackage": "scaleway.ipam.models",

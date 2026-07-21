@@ -1,6 +1,6 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "inputSpec": "modules/scaleway-kubernetes-codegen/scaleway.kubernetes.v1.Api.yml",
+  "inputSpec": "modules/scaleway-kubernetes-codegen/scaleway.kubernetes.yml",
   "outputDir": "modules/scaleway-kubernetes-codegen/src/main/scala",
   "apiPackage": "scaleway.kubernetes.api",
   "modelPackage": "scaleway.kubernetes.models",

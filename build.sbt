@@ -143,7 +143,7 @@ lazy val `scaleway-autoscaling-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-autoscaling-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.autoscaling.v1alpha1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.autoscaling.yml").getPath,
       openApiApiPackage := "scaleway.autoscaling.api",
       openApiModelPackage := "scaleway.autoscaling.models",
       openApiInvokerPackage := "scaleway.autoscaling"
@@ -155,7 +155,7 @@ lazy val `scaleway-containers-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-containers-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.containers.v1beta1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.containers.yml").getPath,
       openApiApiPackage := "scaleway.containers.api",
       openApiModelPackage := "scaleway.containers.models",
       openApiInvokerPackage := "scaleway.containers"
@@ -167,7 +167,7 @@ lazy val `scaleway-iam-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-iam-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.iam.v1alpha1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.iam.yml").getPath,
       openApiApiPackage := "scaleway.iam.api",
       openApiModelPackage := "scaleway.iam.models",
       openApiInvokerPackage := "scaleway.iam"
@@ -179,7 +179,7 @@ lazy val `scaleway-ipam-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-ipam-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.ipam.v1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.ipam.yml").getPath,
       openApiApiPackage := "scaleway.ipam.api",
       openApiModelPackage := "scaleway.ipam.models",
       openApiInvokerPackage := "scaleway.ipam"
@@ -191,7 +191,7 @@ lazy val `scaleway-key-manager-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-key-manager-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.key_manager.v1alpha1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.key_manager.yml").getPath,
       openApiApiPackage := "scaleway.keymanager.api",
       openApiModelPackage := "scaleway.keymanager.models",
       openApiInvokerPackage := "scaleway.keymanager"
@@ -202,7 +202,7 @@ lazy val `scaleway-mongodb-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-mongodb-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.mongodb.v1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.mongodb.yml").getPath,
       openApiApiPackage := "scaleway.mongodb.api",
       openApiModelPackage := "scaleway.mongodb.models",
       openApiInvokerPackage := "scaleway.mongodb"
@@ -214,7 +214,7 @@ lazy val `scaleway-secret-manager-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-secret-manager-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.secret_manager.v1beta1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.secret_manager.yml").getPath,
       openApiApiPackage := "scaleway.secretmanager.api",
       openApiModelPackage := "scaleway.secretmanager.models",
       openApiInvokerPackage := "scaleway.secretmanager"
@@ -226,7 +226,7 @@ lazy val `scaleway-vpc-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-vpc-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.vpc.v2.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.vpc.yml").getPath,
       openApiApiPackage := "scaleway.vpc.api",
       openApiModelPackage := "scaleway.vpc.models",
       openApiInvokerPackage := "scaleway.vpc"
@@ -238,7 +238,7 @@ lazy val `scaleway-vpc-gw-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-vpc-gw-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.vpc_gw.v2.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.vpc_gw.yml").getPath,
       openApiApiPackage := "scaleway.vpcgw.api",
       openApiModelPackage := "scaleway.vpcgw.models",
       openApiInvokerPackage := "scaleway.vpcgw"
@@ -250,7 +250,7 @@ lazy val `scaleway-instance-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-instance-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.instance.v1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.instance.yml").getPath,
       openApiApiPackage := "scaleway.instance.api",
       openApiModelPackage := "scaleway.instance.models",
       openApiInvokerPackage := "scaleway.instance"
@@ -262,7 +262,7 @@ lazy val `scaleway-kubernetes-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-kubernetes-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.kubernetes.v1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.kubernetes.yml").getPath,
       openApiApiPackage := "scaleway.kubernetes.api",
       openApiModelPackage := "scaleway.kubernetes.models",
       openApiInvokerPackage := "scaleway.kubernetes"
@@ -274,7 +274,7 @@ lazy val `scaleway-kafka-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-kafka-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.kafka.v1alpha1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.kafka.yml").getPath,
       openApiApiPackage := "scaleway.kafka.api",
       openApiModelPackage := "scaleway.kafka.models",
       openApiInvokerPackage := "scaleway.kafka"
@@ -286,7 +286,7 @@ lazy val `scaleway-redis-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-redis-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.redis.v1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.redis.yml").getPath,
       openApiApiPackage := "scaleway.redis.api",
       openApiModelPackage := "scaleway.redis.models",
       openApiInvokerPackage := "scaleway.redis"
@@ -298,7 +298,7 @@ lazy val `scaleway-serverless-databases-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-serverless-databases-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.serverless_databases.v1alpha1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.serverless_databases.yml").getPath,
       openApiApiPackage := "scaleway.serverlessdatabases.api",
       openApiModelPackage := "scaleway.serverlessdatabases.models",
       openApiInvokerPackage := "scaleway.serverlessdatabases"
@@ -310,7 +310,7 @@ lazy val `scaleway-postgre-mysql-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-postgre-mysql-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.postgre_mysql.v1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.postgre_mysql.yml").getPath,
       openApiApiPackage := "scaleway.postgremysql.api",
       openApiModelPackage := "scaleway.postgremysql.models",
       openApiInvokerPackage := "scaleway.postgremysql"
@@ -322,7 +322,7 @@ lazy val `scaleway-lb-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-lb-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.lb.zoned.v1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.lb.zoned.yml").getPath,
       openApiApiPackage := "scaleway.lb.api",
       openApiModelPackage := "scaleway.lb.models",
       openApiInvokerPackage := "scaleway.lb"
@@ -334,7 +334,7 @@ lazy val `scaleway-s2s-vpn-codegen` =
     .settings(commonSettings *)
     .settings(
       name := "scaleway-s2s-vpn-codegen",
-      openApiInputSpec := (baseDirectory.value / "scaleway.s2s_vpn.v1alpha1.Api.yml").getPath,
+      openApiInputSpec := (baseDirectory.value / "scaleway.s2s_vpn.yml").getPath,
       openApiApiPackage := "scaleway.s2svpn.api",
       openApiModelPackage := "scaleway.s2svpn.models",
       openApiInvokerPackage := "scaleway.s2svpn"

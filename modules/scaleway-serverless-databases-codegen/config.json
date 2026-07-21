@@ -1,6 +1,6 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "inputSpec": "modules/scaleway-serverless-databases-codegen/scaleway.serverless_databases.v1alpha1.Api.yml",
+  "inputSpec": "modules/scaleway-serverless-databases-codegen/scaleway.serverless_databases.yml",
   "outputDir": "modules/scaleway-serverless-databases-codegen/src/main/scala",
   "apiPackage": "scaleway.serverlessdatabases.api",
   "modelPackage": "scaleway.serverlessdatabases.models",

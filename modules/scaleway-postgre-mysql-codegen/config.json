@@ -1,6 +1,6 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "inputSpec": "modules/scaleway-postgre-mysql-codegen/scaleway.postgre_mysql.v1.Api.yml",
+  "inputSpec": "modules/scaleway-postgre-mysql-codegen/scaleway.postgre_mysql.yml",
   "outputDir": "modules/scaleway-postgre-mysql-codegen/src/main/scala",
   "apiPackage": "scaleway.postgremysql.api",
   "modelPackage": "scaleway.postgremysql.models",

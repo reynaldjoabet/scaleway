@@ -1,6 +1,6 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "inputSpec": "modules/scaleway-redis-codegen/scaleway.redis.v1.Api.yml",
+  "inputSpec": "modules/scaleway-redis-codegen/scaleway.redis.yml",
   "outputDir": "modules/scaleway-redis-codegen/src/main/scala",
   "apiPackage": "scaleway.redis.api",
   "modelPackage": "scaleway.redis.models",

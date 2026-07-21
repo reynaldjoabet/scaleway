@@ -1,6 +1,6 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "inputSpec": "modules/scaleway-secret-manager-codegen/scaleway.secret_manager.v1beta1.Api.yml",
+  "inputSpec": "modules/scaleway-secret-manager-codegen/scaleway.secret_manager.yml",
   "outputDir": "modules/scaleway-secret-manager-codegen/src/main/scala",
   "apiPackage": "scaleway.secretmanager.api",
   "modelPackage": "scaleway.secretmanager.models",

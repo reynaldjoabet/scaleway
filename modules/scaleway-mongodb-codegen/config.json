@@ -1,6 +1,6 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "inputSpec": "modules/scaleway-mongodb-codegen/scaleway.mongodb.v1.Api.yml",
+  "inputSpec": "modules/scaleway-mongodb-codegen/scaleway.mongodb.yml",
   "outputDir": "modules/scaleway-mongodb-codegen/src/main/scala",
   "apiPackage": "scaleway.mongodb.api",
   "modelPackage": "scaleway.mongodb.models",

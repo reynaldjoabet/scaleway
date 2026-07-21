@@ -1,6 +1,6 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "inputSpec": "modules/scaleway-vpc-gw-codegen/scaleway.vpc_gw.v2.Api.yml",
+  "inputSpec": "modules/scaleway-vpc-gw-codegen/scaleway.vpc_gw.yml",
   "outputDir": "modules/scaleway-vpc-gw-codegen/src/main/scala",
   "apiPackage": "scaleway.vpcgw.api",
   "modelPackage": "scaleway.vpcgw.models",
