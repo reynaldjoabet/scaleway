@@ -1,0 +1,28 @@
+{
+  "generatorName": "scala-sttp4-jsoniter",
+  "inputSpec": "modules/scaleway-instance-codegen/scaleway.instance.v1.Api.yml",
+  "outputDir": "modules/scaleway-instance-codegen/src/main/scala",
+  "apiPackage": "scaleway.instance.api",
+  "modelPackage": "scaleway.instance.models",
+  "invokerPackage": "scaleway.instance",
+  "globalProperties": {
+    "apis": "",
+    "models": "",
+    "supportingFiles": ""
+  },
+  "modelPropertyNaming": "camelCase",
+  "ensureUniqueParams": "true",
+  "sortParamsByRequiredFlag": "true",
+  "sortModelPropertiesByRequiredFlag": "true",
+  "allowUnicodeIdentifiers": "false",
+  "prependFormOrBodyParameters": "false",
+  "enumUnknownDefaultCase": "true",
+  "disallowAdditionalPropertiesIfNotPresent": "false",
+  "separateErrorChannel": "true",
+  "additionalProperties": {
+    "artifactVersion": "1.0.0",
+    "sourceFolder": "",
+    "apiNameSuffix": "Api",
+    "hideGenerationTimestamp": "true"
+  }
+}

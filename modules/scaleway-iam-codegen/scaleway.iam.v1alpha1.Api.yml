@@ -211,6 +211,12 @@ tags:
     access to their accounts via Single Sign-On (SSO). Depending on your organization's
     requirements, you can use either built-in OAuth2 providers or configure SAML for
     centralized identity management.
+- name: SCIM
+  description: System for Cross-domain Identity Management (SCIM) is an open standard
+    that allows you to automate the exchange of user identity information between
+    your identity provider and Scaleway. With SCIM, you can manage user provisioning
+    and deprovisioning, as well as group management, directly from your identity provider,
+    ensuring that your IAM users and groups are always up to date.
 - name: Security Settings
   description: Security settings are organization-wide configurations that apply to
     all users in an organization. These settings enforce restrictions on how users
@@ -423,6 +429,44 @@ components:
       x-properties-order:
       - organization
       - user
+    scaleway.iam.v1alpha1.CreateScimTokenResponse:
+      type: object
+      properties:
+        token:
+          type: object
+          description: The SCIM token metadata.
+          properties:
+            id:
+              type: string
+              description: (UUID format)
+              example: 6170692e-7363-616c-6577-61792e636f6d
+            scim_id:
+              type: string
+              description: (UUID format)
+              example: 6170692e-7363-616c-6577-61792e636f6d
+            created_at:
+              type: string
+              description: (RFC 3339 format)
+              format: date-time
+              example: "2022-03-22T12:34:56.123456Z"
+              nullable: true
+            expires_at:
+              type: string
+              description: (RFC 3339 format)
+              format: date-time
+              example: "2022-03-22T12:34:56.123456Z"
+              nullable: true
+          x-properties-order:
+          - id
+          - scim_id
+          - created_at
+          - expires_at
+        bearer_token:
+          type: string
+          description: The Bearer Token to use to authenticate to SCIM endpoints.
+      x-properties-order:
+      - token
+      - bearer_token
     scaleway.iam.v1alpha1.GetUserConnectionsResponse:
       type: object
       properties:
@@ -751,6 +795,21 @@ components:
             $ref: '#/components/schemas/scaleway.iam.v1alpha1.SamlCertificate'
       x-properties-order:
       - certificates
+    scaleway.iam.v1alpha1.ListScimTokensResponse:
+      type: object
+      properties:
+        scim_tokens:
+          type: array
+          description: List of SCIM tokens.
+          items:
+            $ref: '#/components/schemas/scaleway.iam.v1alpha1.ScimToken'
+        total_count:
+          type: integer
+          description: Total count of SCIM tokens.
+          format: uint64
+      x-properties-order:
+      - scim_tokens
+      - total_count
     scaleway.iam.v1alpha1.ListUsersResponse:
       type: object
       properties:
@@ -830,7 +889,7 @@ components:
           default: unknown_resource_type
         resource_id:
           type: string
-          description: ID of the resource linked  to the log.
+          description: ID of the resource linked to the log.
       x-properties-order:
       - id
       - created_at
@@ -1347,6 +1406,49 @@ components:
       - type
       - origin
       - content
+      - expires_at
+    scaleway.iam.v1alpha1.Scim:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the SCIM configuration.
+        created_at:
+          type: string
+          description: Date and time of SCIM configuration creation. (RFC 3339 format)
+          format: date-time
+          example: "2022-03-22T12:34:56.123456Z"
+          nullable: true
+      x-properties-order:
+      - id
+      - created_at
+    scaleway.iam.v1alpha1.ScimToken:
+      type: object
+      properties:
+        id:
+          type: string
+          description: (UUID format)
+          example: 6170692e-7363-616c-6577-61792e636f6d
+        scim_id:
+          type: string
+          description: (UUID format)
+          example: 6170692e-7363-616c-6577-61792e636f6d
+        created_at:
+          type: string
+          description: (RFC 3339 format)
+          format: date-time
+          example: "2022-03-22T12:34:56.123456Z"
+          nullable: true
+        expires_at:
+          type: string
+          description: (RFC 3339 format)
+          format: date-time
+          example: "2022-03-22T12:34:56.123456Z"
+          nullable: true
+      x-properties-order:
+      - id
+      - scim_id
+      - created_at
       - expires_at
     scaleway.iam.v1alpha1.SetRulesResponse:
       type: object
@@ -3076,18 +3178,22 @@ paths:
                   type: boolean
                   description: Defines whether login with a password is enabled for
                     the Organization.
+                  nullable: true
                 login_oauth2_enabled:
                   type: boolean
                   description: Defines whether login through OAuth2 is enabled for
                     the Organization.
+                  nullable: true
                 login_magic_code_enabled:
                   type: boolean
                   description: Defines whether login with an authentication code is
                     enabled for the Organization.
+                  nullable: true
                 login_saml_enabled:
                   type: boolean
                   description: Defines whether login through SAML is enabled for the
                     Organization.
+                  nullable: true
               x-properties-order:
               - login_password_enabled
               - login_oauth2_enabled
@@ -3178,6 +3284,76 @@ paths:
         source: |-
           http POST "https://api.scaleway.com/iam/v1alpha1/organizations/{organization_id}/saml" \
             X-Auth-Token:$SCW_SECRET_KEY
+  /iam/v1alpha1/organizations/{organization_id}/scim:
+    get:
+      tags:
+      - SCIM
+      operationId: GetOrganizationScim
+      summary: Get SCIM configuration of an Organization
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scaleway.iam.v1alpha1.Scim'
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X GET \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            "https://api.scaleway.com/iam/v1alpha1/organizations/{organization_id}/scim"
+      - lang: HTTPie
+        source: |-
+          http GET "https://api.scaleway.com/iam/v1alpha1/organizations/{organization_id}/scim" \
+            X-Auth-Token:$SCW_SECRET_KEY
+    post:
+      tags:
+      - SCIM
+      operationId: EnableOrganizationScim
+      summary: Enable SCIM for an Organization
+      parameters:
+      - in: path
+        name: organization_id
+        description: ID of the Organization.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scaleway.iam.v1alpha1.Scim'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X POST \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            "https://api.scaleway.com/iam/v1alpha1/organizations/{organization_id}/scim"
+      - lang: HTTPie
+        source: |-
+          http POST "https://api.scaleway.com/iam/v1alpha1/organizations/{organization_id}/scim" \
+            X-Auth-Token:$SCW_SECRET_KEY
   /iam/v1alpha1/organizations/{organization_id}/security-settings:
     get:
       tags:
@@ -3242,6 +3418,7 @@ paths:
                   type: boolean
                   description: Defines whether password renewal is enforced during
                     first login.
+                  nullable: true
                 grace_period_duration:
                   type: string
                   description: Duration of the grace period to renew password or enable
@@ -3252,6 +3429,7 @@ paths:
                   type: integer
                   description: Number of login attempts before the account is locked.
                   format: uint32
+                  nullable: true
                 max_login_session_duration:
                   type: string
                   description: Maximum duration a login session will stay active before
@@ -4053,9 +4231,11 @@ paths:
                 entity_id:
                   type: string
                   description: Entity ID of the SAML Identity Provider.
+                  nullable: true
                 single_sign_on_url:
                   type: string
                   description: Single Sign-On URL of the SAML Identity Provider.
+                  nullable: true
               x-properties-order:
               - entity_id
               - single_sign_on_url
@@ -4196,6 +4376,146 @@ paths:
             X-Auth-Token:$SCW_SECRET_KEY \
             content="string" \
             type="unknown_certificate_type"
+  /iam/v1alpha1/scim-tokens/{token_id}:
+    delete:
+      tags:
+      - SCIM
+      operationId: DeleteScimToken
+      summary: Delete a SCIM token
+      parameters:
+      - in: path
+        name: token_id
+        description: The SCIM token ID.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: ""
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X DELETE \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            "https://api.scaleway.com/iam/v1alpha1/scim-tokens/{token_id}"
+      - lang: HTTPie
+        source: |-
+          http DELETE "https://api.scaleway.com/iam/v1alpha1/scim-tokens/{token_id}" \
+            X-Auth-Token:$SCW_SECRET_KEY
+  /iam/v1alpha1/scim/{scim_id}:
+    delete:
+      tags:
+      - SCIM
+      operationId: DeleteScim
+      summary: Disable SCIM for an Organization
+      parameters:
+      - in: path
+        name: scim_id
+        description: ID of the SCIM configuration.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: ""
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X DELETE \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            "https://api.scaleway.com/iam/v1alpha1/scim/{scim_id}"
+      - lang: HTTPie
+        source: |-
+          http DELETE "https://api.scaleway.com/iam/v1alpha1/scim/{scim_id}" \
+            X-Auth-Token:$SCW_SECRET_KEY
+  /iam/v1alpha1/scim/{scim_id}/tokens:
+    get:
+      tags:
+      - SCIM
+      operationId: ListScimTokens
+      summary: List SCIM tokens
+      parameters:
+      - in: path
+        name: scim_id
+        description: ID of the SCIM configuration.
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: order_by
+        description: Sort order of SCIM tokens.
+        schema:
+          type: string
+          enum:
+          - created_at_asc
+          - created_at_desc
+          default: created_at_asc
+      - in: query
+        name: page
+        description: Requested page number. Value must be greater or equal to 1.
+        schema:
+          type: integer
+          format: int32
+      - in: query
+        name: page_size
+        description: Number of items per page. Value must be between 1 and 100.
+        schema:
+          type: integer
+          format: uint32
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scaleway.iam.v1alpha1.ListScimTokensResponse'
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X GET \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            "https://api.scaleway.com/iam/v1alpha1/scim/{scim_id}/tokens"
+      - lang: HTTPie
+        source: |-
+          http GET "https://api.scaleway.com/iam/v1alpha1/scim/{scim_id}/tokens" \
+            X-Auth-Token:$SCW_SECRET_KEY
+    post:
+      tags:
+      - SCIM
+      operationId: CreateScimToken
+      summary: Create a SCIM token
+      parameters:
+      - in: path
+        name: scim_id
+        description: ID of the SCIM configuration.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scaleway.iam.v1alpha1.CreateScimTokenResponse'
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X POST \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            "https://api.scaleway.com/iam/v1alpha1/scim/{scim_id}/tokens"
+      - lang: HTTPie
+        source: |-
+          http POST "https://api.scaleway.com/iam/v1alpha1/scim/{scim_id}/tokens" \
+            X-Auth-Token:$SCW_SECRET_KEY
   /iam/v1alpha1/ssh-keys:
     get:
       tags:

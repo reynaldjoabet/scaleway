@@ -49,7 +49,15 @@ lazy val root = (project in file("."))
     `scaleway-mongodb-codegen` % "compile->compile;test->test",
     `scaleway-secret-manager-codegen` % "compile->compile;test->test",
     `scaleway-vpc-codegen` % "compile->compile;test->test",
-    `scaleway-vpc-gw-codegen` % "compile->compile;test->test"
+    `scaleway-vpc-gw-codegen` % "compile->compile;test->test",
+    `scaleway-instance-codegen` % "compile->compile;test->test",
+    `scaleway-kubernetes-codegen` % "compile->compile;test->test",
+    `scaleway-kafka-codegen` % "compile->compile;test->test",
+    `scaleway-redis-codegen` % "compile->compile;test->test",
+    `scaleway-serverless-databases-codegen` % "compile->compile;test->test",
+    `scaleway-postgre-mysql-codegen` % "compile->compile;test->test",
+    `scaleway-lb-codegen` % "compile->compile;test->test",
+    `scaleway-s2s-vpn-codegen` % "compile->compile;test->test"
   )
   .enablePlugins(BuildInfoPlugin)
   .aggregate(
@@ -61,7 +69,15 @@ lazy val root = (project in file("."))
     `scaleway-mongodb-codegen`,
     `scaleway-secret-manager-codegen`,
     `scaleway-vpc-codegen`,
-    `scaleway-vpc-gw-codegen`
+    `scaleway-vpc-gw-codegen`,
+    `scaleway-instance-codegen`,
+    `scaleway-kubernetes-codegen`,
+    `scaleway-kafka-codegen`,
+    `scaleway-redis-codegen`,
+    `scaleway-serverless-databases-codegen`,
+    `scaleway-postgre-mysql-codegen`,
+    `scaleway-lb-codegen`,
+    `scaleway-s2s-vpn-codegen`
   )
 
 val commonSettings = Seq(
@@ -226,4 +242,100 @@ lazy val `scaleway-vpc-gw-codegen` =
       openApiApiPackage := "scaleway.vpcgw.api",
       openApiModelPackage := "scaleway.vpcgw.models",
       openApiInvokerPackage := "scaleway.vpcgw"
+    )
+
+lazy val `scaleway-instance-codegen` =
+  (project in file("modules/scaleway-instance-codegen"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(commonSettings *)
+    .settings(
+      name := "scaleway-instance-codegen",
+      openApiInputSpec := (baseDirectory.value / "scaleway.instance.v1.Api.yml").getPath,
+      openApiApiPackage := "scaleway.instance.api",
+      openApiModelPackage := "scaleway.instance.models",
+      openApiInvokerPackage := "scaleway.instance"
+    )
+
+lazy val `scaleway-kubernetes-codegen` =
+  (project in file("modules/scaleway-kubernetes-codegen"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(commonSettings *)
+    .settings(
+      name := "scaleway-kubernetes-codegen",
+      openApiInputSpec := (baseDirectory.value / "scaleway.kubernetes.v1.Api.yml").getPath,
+      openApiApiPackage := "scaleway.kubernetes.api",
+      openApiModelPackage := "scaleway.kubernetes.models",
+      openApiInvokerPackage := "scaleway.kubernetes"
+    )
+
+lazy val `scaleway-kafka-codegen` =
+  (project in file("modules/scaleway-kafka-codegen"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(commonSettings *)
+    .settings(
+      name := "scaleway-kafka-codegen",
+      openApiInputSpec := (baseDirectory.value / "scaleway.kafka.v1alpha1.Api.yml").getPath,
+      openApiApiPackage := "scaleway.kafka.api",
+      openApiModelPackage := "scaleway.kafka.models",
+      openApiInvokerPackage := "scaleway.kafka"
+    )
+
+lazy val `scaleway-redis-codegen` =
+  (project in file("modules/scaleway-redis-codegen"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(commonSettings *)
+    .settings(
+      name := "scaleway-redis-codegen",
+      openApiInputSpec := (baseDirectory.value / "scaleway.redis.v1.Api.yml").getPath,
+      openApiApiPackage := "scaleway.redis.api",
+      openApiModelPackage := "scaleway.redis.models",
+      openApiInvokerPackage := "scaleway.redis"
+    )
+
+lazy val `scaleway-serverless-databases-codegen` =
+  (project in file("modules/scaleway-serverless-databases-codegen"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(commonSettings *)
+    .settings(
+      name := "scaleway-serverless-databases-codegen",
+      openApiInputSpec := (baseDirectory.value / "scaleway.serverless_databases.v1alpha1.Api.yml").getPath,
+      openApiApiPackage := "scaleway.serverlessdatabases.api",
+      openApiModelPackage := "scaleway.serverlessdatabases.models",
+      openApiInvokerPackage := "scaleway.serverlessdatabases"
+    )
+
+lazy val `scaleway-postgre-mysql-codegen` =
+  (project in file("modules/scaleway-postgre-mysql-codegen"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(commonSettings *)
+    .settings(
+      name := "scaleway-postgre-mysql-codegen",
+      openApiInputSpec := (baseDirectory.value / "scaleway.postgre_mysql.v1.Api.yml").getPath,
+      openApiApiPackage := "scaleway.postgremysql.api",
+      openApiModelPackage := "scaleway.postgremysql.models",
+      openApiInvokerPackage := "scaleway.postgremysql"
+    )
+
+lazy val `scaleway-lb-codegen` =
+  (project in file("modules/scaleway-lb-codegen"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(commonSettings *)
+    .settings(
+      name := "scaleway-lb-codegen",
+      openApiInputSpec := (baseDirectory.value / "scaleway.lb.zoned.v1.Api.yml").getPath,
+      openApiApiPackage := "scaleway.lb.api",
+      openApiModelPackage := "scaleway.lb.models",
+      openApiInvokerPackage := "scaleway.lb"
+    )
+
+lazy val `scaleway-s2s-vpn-codegen` =
+  (project in file("modules/scaleway-s2s-vpn-codegen"))
+    .enablePlugins(OpenApiGeneratorPlugin)
+    .settings(commonSettings *)
+    .settings(
+      name := "scaleway-s2s-vpn-codegen",
+      openApiInputSpec := (baseDirectory.value / "scaleway.s2s_vpn.v1alpha1.Api.yml").getPath,
+      openApiApiPackage := "scaleway.s2svpn.api",
+      openApiModelPackage := "scaleway.s2svpn.models",
+      openApiInvokerPackage := "scaleway.s2svpn"
     )

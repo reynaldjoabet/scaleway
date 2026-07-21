@@ -633,10 +633,12 @@ components:
           type: integer
           description: Number of flexible IPv4 addresses to attach to the new Instance.
           format: uint32
+          nullable: true
         public_ips_v6_count:
           type: integer
           description: Number of flexible IPv6 addresses to attach to the new Instance.
           format: uint32
+          nullable: true
         project_id:
           type: string
           description: ID of the Project containing the Instance template resource.
@@ -667,6 +669,7 @@ components:
             files are special scripts designed to be run by the cloud-init process.
             These are generally used for initial configuration on the very first boot
             of a server.
+          nullable: true
         created_at:
           type: string
           description: Date on which the Instance template was created. (RFC 3339
@@ -1128,7 +1131,7 @@ paths:
       tags:
       - Instance Groups
       operationId: DeleteInstanceGroup
-      summary: Delete  Instance group
+      summary: Delete Instance group
       description: Delete an existing Instance group, specified by its `instance_group_id`.
         Deleting an Instance group is permanent, and cannot be undone.
       parameters:
@@ -2012,11 +2015,13 @@ paths:
                   description: Number of flexible IPv4 addresses to attach to the
                     new Instance.
                   format: uint32
+                  nullable: true
                 public_ips_v6_count:
                   type: integer
                   description: Number of flexible IPv6 addresses to attach to the
                     new Instance.
                   format: uint32
+                  nullable: true
                 project_id:
                   type: string
                   description: ID of the Project containing the Instance template
@@ -2035,6 +2040,7 @@ paths:
                     Cloud-config files are special scripts designed to be run by the
                     cloud-init process. These are generally used for initial configuration
                     on the very first boot of a server.
+                  nullable: true
               required:
               - commercial_type
               - image_id
@@ -2297,11 +2303,13 @@ paths:
                   description: Number of flexible IPv4 addresses to attach to the
                     new Instance.
                   format: uint32
+                  nullable: true
                 public_ips_v6_count:
                   type: integer
                   description: Number of flexible IPv6 addresses to attach to the
                     new Instance.
                   format: uint32
+                  nullable: true
                 name:
                   type: string
                   description: Name of Instance template.
@@ -2318,6 +2326,7 @@ paths:
                     Cloud-config files are special scripts designed to be run by the
                     cloud-init process. These are generally used for initial configuration
                     on the very first boot of a server.
+                  nullable: true
               x-properties-order:
               - commercial_type
               - image_id

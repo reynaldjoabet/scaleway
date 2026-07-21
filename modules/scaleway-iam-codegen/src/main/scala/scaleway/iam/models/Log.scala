@@ -31,7 +31,7 @@ case class Log(
   @named("organization_id") organizationId: Option[String] = scala.None,
   /* Type of the resource linked to the log. */
   @named("resource_type") resourceType: Option[LogEnums.ResourceType] = scala.None,
-  /* ID of the resource linked  to the log. */
+  /* ID of the resource linked to the log. */
   @named("resource_id") resourceId: Option[String] = scala.None
 )
 

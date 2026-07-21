@@ -23,6 +23,7 @@ object JsonSupport extends AdditionalTypeSerializers:
   inline def deriveJsonCodec[A](using inline config: CodecMakerConfig): JsonValueCodec[A] =
     JsonCodecMaker.make(config)
 
+  given createScimTokenResponseCodec: JsonValueCodec[CreateScimTokenResponse] = deriveJsonCodec
   given listSamlCertificatesResponseCodec: JsonValueCodec[ListSamlCertificatesResponse] = deriveJsonCodec
   given policyCodec: JsonValueCodec[Policy] = deriveJsonCodec
   given addGroupMembersRequestCodec: JsonValueCodec[AddGroupMembersRequest] = deriveJsonCodec
@@ -31,10 +32,12 @@ object JsonSupport extends AdditionalTypeSerializers:
   given organizationCodec: JsonValueCodec[Organization] = deriveJsonCodec
   given initiateUserConnectionResponseCodec: JsonValueCodec[InitiateUserConnectionResponse] = deriveJsonCodec
   given samlCertificateCodec: JsonValueCodec[SamlCertificate] = deriveJsonCodec
+  given listScimTokensResponseCodec: JsonValueCodec[ListScimTokensResponse] = deriveJsonCodec
   given listSSHKeysResponseCodec: JsonValueCodec[ListSSHKeysResponse] = deriveJsonCodec
   given listGroupsResponseCodec: JsonValueCodec[ListGroupsResponse] = deriveJsonCodec
   given createApplicationRequestCodec: JsonValueCodec[CreateApplicationRequest] = deriveJsonCodec
   given userCodec: JsonValueCodec[User] = deriveJsonCodec
+  given scimCodec: JsonValueCodec[Scim] = deriveJsonCodec
   given checkPermissionsRequestCodec: JsonValueCodec[CheckPermissionsRequest] = deriveJsonCodec
   given removeGroupMemberRequestCodec: JsonValueCodec[RemoveGroupMemberRequest] = deriveJsonCodec
   given listPoliciesResponseCodec: JsonValueCodec[ListPoliciesResponse] = deriveJsonCodec

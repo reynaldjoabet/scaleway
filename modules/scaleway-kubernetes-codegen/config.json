@@ -1,0 +1,28 @@
+{
+  "generatorName": "scala-sttp4-jsoniter",
+  "inputSpec": "modules/scaleway-kubernetes-codegen/scaleway.kubernetes.v1.Api.yml",
+  "outputDir": "modules/scaleway-kubernetes-codegen/src/main/scala",
+  "apiPackage": "scaleway.kubernetes.api",
+  "modelPackage": "scaleway.kubernetes.models",
+  "invokerPackage": "scaleway.kubernetes",
+  "globalProperties": {
+    "apis": "",
+    "models": "",
+    "supportingFiles": ""
+  },
+  "modelPropertyNaming": "camelCase",
+  "ensureUniqueParams": "true",
+  "sortParamsByRequiredFlag": "true",
+  "sortModelPropertiesByRequiredFlag": "true",
+  "allowUnicodeIdentifiers": "false",
+  "prependFormOrBodyParameters": "false",
+  "enumUnknownDefaultCase": "true",
+  "disallowAdditionalPropertiesIfNotPresent": "false",
+  "separateErrorChannel": "true",
+  "additionalProperties": {
+    "artifactVersion": "1.0.0",
+    "sourceFolder": "",
+    "apiNameSuffix": "Api",
+    "hideGenerationTimestamp": "true"
+  }
+}

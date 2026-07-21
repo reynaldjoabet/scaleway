@@ -72,6 +72,9 @@ object CreateKeyRequestUsageEnums:
     case `rsa_pkcs1_2048_sha256`
     case `rsa_pkcs1_3072_sha256`
     case `rsa_pkcs1_4096_sha256`
+    case `ml_dsa_44`
+    case `ml_dsa_65`
+    case `ml_dsa_87`
 
   object AsymmetricSigning:
     import com.github.plokhotnyuk.jsoniter_scala.macros.*
@@ -89,6 +92,9 @@ object CreateKeyRequestUsageEnums:
             case "rsa_pkcs1_2048_sha256" => "rsa_pkcs1_2048_sha256"
             case "rsa_pkcs1_3072_sha256" => "rsa_pkcs1_3072_sha256"
             case "rsa_pkcs1_4096_sha256" => "rsa_pkcs1_4096_sha256"
+            case "ml_dsa_44" => "ml_dsa_44"
+            case "ml_dsa_65" => "ml_dsa_65"
+            case "ml_dsa_87" => "ml_dsa_87"
         }
         .withDiscriminatorFieldName(scala.None)
     }

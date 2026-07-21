@@ -1,0 +1,439 @@
+/**
+ * Instance API
+ * Scaleway Instances are virtual machines in the cloud. Different [Instance types](https://www.scaleway.com/en/docs/instances/reference-content/choosing-instance-type/) offer different technical specifications in terms of vCPU, RAM, bandwidth and storage. Once you have created your Instance and installed your image of choice (e.g. an operating system), you can [connect to your Instance via SSH](https://www.scaleway.com/en/docs/instances/how-to/connect-to-instance/) to use it as you wish. When you are done using the Instance, you can delete it from your account.   <Message type=\"tip\"> To retrieve information about the different [images](#path-images) available to install on Scaleway Instances, check out our [Marketplace API](https://www.scaleway.com/en/developers/api/marketplace/). </Message>    ## Concepts  Refer to our [dedicated concepts page](https://www.scaleway.com/en/docs/instances/concepts/) to find definitions of all concepts and terminology related to Instances.     ## Quickstart  1. Configure your environment variables      <Message type=\"note\">     This is an optional step that seeks to simplify your usage of the Instances API. See [Availability Zones](#availability-zones) below for help choosing an Availability Zone. You can find your Project ID in the [Scaleway console](https://console.scaleway.com/project/settings).     </Message>      ```bash     export SCW_SECRET_KEY=\"<API secret key>\"     export SCW_DEFAULT_ZONE=\"<Scaleway Availability Zone>\"     export SCW_PROJECT_ID=\"<Scaleway Project ID>\"     ```  2. **Create an Instance**: Run the following command to create an Instance. You can customize the details in the payload (name, description, type, tags etc) to your needs: use the information below to adjust the payload as necessary.      ```bash     curl -X POST \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -H \"Content-Type: application/json\" \\       \"https://api.scaleway.com/instance/v1/zones/$SCW_DEFAULT_ZONE/servers\" \\         -d '{           \"name\": \"my-new-instance\",           \"project\": \"'\"$SCW_PROJECT_ID\"'\",           \"commercial_type\": \"GP1-S\",           \"image\": \"ubuntu_noble\",           \"enable_ipv6\": true,           \"volumes\": {             \"0\":{               \"size\": 300000000000,               \"volume_type\": \"l_ssd\"             }           }         }'     ```     | Parameter         | Description                                                                                                                                                                                                                       | Valid values                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |    |:------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|    | `name`            | A name of your choice for the Instance (string)                                                                                                                                                                                   | Any string containing only alphanumeric characters, dots, spaces and dashes, e.g. `\"my-new-instance\"`.                                                                                                                                                                                                                                                                                                                                                                                                   |    | `project`         | The Project in which the Instance should be created (string)                                                                                                                                                                      | Any valid Scaleway Project ID (see above), e.g. `\"b4bd99e0-b389-11ed-afa1-0242ac120002\"`                                                                                                                                                                                                                                                                                                                                                                                                                 |    | `commercial-type` | The commercial Instance type to create (string)                                                                                                                                                                                   | Any valid ID of a Scaleway commercial Instance type, e.g. `\"GP1-S\"`, `\"PRO2-M\"`. Use the [List Instance Types](#path-instance-types-list-instance-types) endpoint to get a list of all valid Instance types and their IDs.                                                                                                                                                                                                                                                                               |    | `image`           | The image to install on the Instance, e.g. a particular OS (string)                                                                                                                                                               | Any Scaleway image label, e.g. `\"ubuntu_noble\"`, or any valid Scaleway image ID, e.g. `\"6fc0ade6-d6a3-4fb9-87ab-2444ac71e5c0\"` which is the ID for the `Ubuntu 24.04 Noble Numbat` image. Use the [List Instance Images](#path-images-list-instance-images) endpoint to get a list of all available images with their IDs and labels, or check out the [Scaleway Marketplace API](https://www.scaleway.com/en/developers/api/marketplace/).                                                              |    | `enable_ipv6`     | Whether to enable IPv6 on the Instance (boolean)                                                                                                                                                                                  | `true` or `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |    | `volumes`         | An object that specifies the storage volumes to attach to the Instance. For more information, see **Creating an Instance: the volumes object** in the [Technical information](#technical-information) section of this quickstart. | A (dictionary) object with a minimum of one key (`\"0\"`) whose value is another object containing the parameters `\"name\"` (a name for the volume), `\"size\"` (the size for the volume, in bytes), and `\"volume_type\"` (`\"l_ssd\"`). Additional keys for additional volumes should increment by 1 each time (the second volume would have a key of `1`.) Further parameters are available, and it is possible to attach existing volumes rather than creating a new one, or create a volume from a snapshot. |  3. **List your Instances**: run the following command to get a list of all the Instances in your account, with their details:      ```bash     curl -X GET \\       -H \"Content-Type: application/json\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       \"https://api.scaleway.com/instance/v1/zones/$SCW_DEFAULT_ZONE/servers/\"     ```  4. **Delete an Instance**: run the following command to delete an Instance, specified by its Instance ID:      ```bash     curl -X DELETE \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -H \"Content-Type: application/json\" \\       \"https://api.scaleway.com/instance/v1/zones/$SCW_DEFAULT_ZONE/servers/<Instance-ID>\"     ```      The expected successful response is empty.   <Message type=\"requirement\"> - You have a [Scaleway account](https://console.scaleway.com/) - You have created an [API key](https://www.scaleway.com/en/docs/iam/how-to/create-api-keys/) and that the API key has sufficient [IAM permissions](https://www.scaleway.com/en/docs/iam/reference-content/permission-sets/) to perform the actions described on this page - You have [installed `curl`](https://curl.se/download.html) </Message>   ## Technical information  ### Availability Zones  Instances can be deployed in the following Availability Zones:  | Name      | API ID                | |-----------|-----------------------| | Paris     | `fr-par-1` `fr-par-2` `fr-par-3` | | Amsterdam | `nl-ams-1` `nl-ams-2` `nl-ams-3` | | Warsaw    | `pl-waw-1` `pl-waw-2` `pl-waw-3` |     ### Pagination  Most listing requests receive a paginated response. Requests against paginated endpoints accept two `query` arguments:  - `page`, a positive integer to choose which page to return. - `per_page`, an positive integer lower or equal to 100 to select the number of items to return per page. The default value is `50`.  Paginated endpoints usually also accept filters to search and sort results.These filters are documented along each endpoint documentation.  The `X-Total-Count` header contains the total number of items returned.     ### Creating an Instance: the volumes object  When [creating an Instance](#path-instances-create-an-instance) using the Scaleway API, the `volumes` object is **not strictly required**. However, the defaults vary depending on certain conditions:  1. If an image label is used:    - The default will be an `sbs_volume` volume.    - The size of this volume will be the OS size (typically 10GB in most cases).  2. If an image ID from the marketplace is used:    - If the Instance supports local storage:      - The default will be an `l_ssd` volume.      - The size of this volume will be the instance's maximum local storage capacity.    - Else, the volume created will depend on the marketplace's local_image type:      - SBS volume for instance_sbs type.      - l_ssd volume for instance_local type.  If you want to customize the storage configuration or add additional volumes, you will need to include the volumes object in your API request. This object should contain at least one (dictionary) object with a minimum of one key (`\"0\"`) whose value is another object containing the parameters `\"name\"` (a name for the volume), `\"size\"` (the size for the volume, in bytes), and `\"volume_type\"` (`\"sbs_volume\"` or `\"l_ssd\"`). Additional keys for additional volumes should increment by 1 each time (the second volume would have a key of `\"1\"`.)  Note that volume `size` must respect the volume constraints of the Instance's `commercial_type`: for each type of Instance, a minimum amount of storage is required, and there is also a maximum that cannot be exceeded. All Instance types support Block Storage (`sbs_volume`), some also support local storage (`l_ssd`). Read more about these constraints in the [List Instance types](#path-instance-types-list-instance-types) documentation, specifically the `volume_constraints` parameter for each type listed in the response  You can use the `volumes` object in different ways. The table below shows which parameters are required for each of the following use cases:  | Use case                | Required params       | Optional params     | Notes                                  | |-------------------------|-----------------------|---------------------|----------------------------------------| | Create a volume (`l_ssd`, `sbs_volume`) from a snapshot of an image  |  | `volume_type`, `size`, `boot` | If the `size` parameter is not set, the size of the volume will equal the size of the corresponding snapshot of the image. The image snapshot type should be compatible with the `volume_type`. | | Create a volume (`l_ssd`) from a snapshot     | `base_snapshot`, `name`, `volume_type` | `boot` |  | | Create a volume of type `sbs_volume` from a snapshot     | `base_snapshot`, `name`, `volume_type` | `size`, `boot` |  | | Create an empty volume      | `name`, `volume_type`, `size` | `boot` |  | | Attach an existing volume (`l_ssd`)  | `id` | `boot` |  | | Attach an existing volume of type `sbs_volume`   | `id`, `volume_type` | `boot` |  |   <Message type=\"note\"> This information is designed to help you correctly configure the `volumes` object when using the [Create an Instance](#path-instances-create-an-instance) or [Update an Instance](#path-instances-update-an-instance) methods. </Message>   ## Going further  For more help using Scaleway Instances, check out the following resources: - Our [main documentation](https://www.scaleway.com/en/docs/instances/) - The #instance channel on our [Slack Community](https://www.scaleway.com/en/docs/tutorials/scaleway-slack-community/) - Our [support ticketing system](https://www.scaleway.com/en/docs/account/how-to/open-a-support-ticket/).
+ *
+ * The version of the OpenAPI document: v1
+ * 
+ *
+ * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
+ * https://openapi-generator.tech
+ * Do not edit the class manually.
+ */
+package scaleway.instance.api
+
+import scaleway.instance.models.CreateSecurityGroupRequest
+import scaleway.instance.models.CreateSecurityGroupResponse
+import scaleway.instance.models.CreateSecurityGroupRuleRequest
+import scaleway.instance.models.CreateSecurityGroupRuleResponse
+import scaleway.instance.models.GetSecurityGroupResponse
+import scaleway.instance.models.GetSecurityGroupRuleResponse
+import scaleway.instance.models.ListSecurityGroupRulesResponse
+import scaleway.instance.models.ListSecurityGroupsResponse
+import scaleway.instance.models.SetSecurityGroupRequest
+import scaleway.instance.models.SetSecurityGroupResponse
+import scaleway.instance.models.SetSecurityGroupRuleRequest
+import scaleway.instance.models.SetSecurityGroupRuleResponse
+import scaleway.instance.models.SetSecurityGroupRulesRequest
+import scaleway.instance.models.SetSecurityGroupRulesResponse
+import scaleway.instance.models.UpdateSecurityGroupRequest
+import scaleway.instance.models.UpdateSecurityGroupResponse
+import scaleway.instance.models.UpdateSecurityGroupRuleRequest
+import scaleway.instance.models.UpdateSecurityGroupRuleResponse
+import scaleway.instance.JsonSupport.{*, given}
+import scaleway.instance.FormSerializable
+import scaleway.instance.FormStyleFormat
+import scaleway.instance.HeaderSerializable
+import scaleway.instance.ApiKeyLocation
+import scaleway.instance.PathStyleFormat
+import scaleway.instance.PathSerializable
+import scaleway.instance.CookieSerializable
+import scaleway.instance.Helpers.*
+import sttp.client4.jsoniter.*
+import sttp.client4.*
+import sttp.model.Method
+
+object SecurityGroupsApi:
+  def apply(baseUrl: String = "https://api.scaleway.com"): SecurityGroupsApi[scaleway.instance.Authorization.NoAuthorization.type] = SecurityGroupsApi(baseUrl, scaleway.instance.Authorization.NoAuthorization)
+  def withBasicAuth(baseUrl: String, username: String, password: String): SecurityGroupsApi[scaleway.instance.Authorization.BasicAuth] =
+    SecurityGroupsApi(baseUrl, scaleway.instance.Authorization.BasicAuth(username, password))
+
+  def withApiKeyAuth(baseUrl: String, apiKey: String): SecurityGroupsApi[scaleway.instance.Authorization.ApiKey] =
+    SecurityGroupsApi(baseUrl, scaleway.instance.Authorization.ApiKey(apiKey))
+
+  def withBearerTokenAuth(baseUrl: String, token: String): SecurityGroupsApi[scaleway.instance.Authorization.BearerToken] =
+    SecurityGroupsApi(baseUrl, scaleway.instance.Authorization.BearerToken(token))
+
+case class SecurityGroupsApi[Auth <: scaleway.instance.Authorization] private (baseUrl: String, authConfig: scaleway.instance.Authorization):
+  def withBasicAuth(username: String, password: String): SecurityGroupsApi[scaleway.instance.Authorization.BasicAuth] =
+    copy(authConfig = scaleway.instance.Authorization.BasicAuth(username, password))
+
+  def withApiKeyAuth(apiKey: String): SecurityGroupsApi[scaleway.instance.Authorization.ApiKey] =
+    copy(authConfig = scaleway.instance.Authorization.ApiKey(apiKey))
+
+  def withNoAuth: SecurityGroupsApi[scaleway.instance.Authorization.NoAuthorization.type] =
+    copy(authConfig = scaleway.instance.Authorization.NoAuthorization)
+
+  def withBearerTokenAuth(token: String): SecurityGroupsApi[scaleway.instance.Authorization.BearerToken] =
+    copy(authConfig = scaleway.instance.Authorization.BearerToken(token))
+
+  /**
+   * Create a security group with a specified name and description.
+   * 
+   * Expected answers:
+   *   code 201 : CreateSecurityGroupResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param createSecurityGroupRequest 
+   */
+  def createSecurityGroup(zone: String, createSecurityGroupRequest: CreateSecurityGroupRequest)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], CreateSecurityGroupResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups"
+
+    basicRequest
+      .method(Method.POST, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .body(asJson(createSecurityGroupRequest))
+      .response(asJson[CreateSecurityGroupResponse])
+
+  /**
+   * Create a rule in the specified security group ID.
+   * 
+   * Expected answers:
+   *   code 201 : CreateSecurityGroupRuleResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId UUID of the security group.
+   * @param createSecurityGroupRuleRequest 
+   */
+  def createSecurityGroupRule(zone: String, securityGroupId: String, createSecurityGroupRuleRequest: CreateSecurityGroupRuleRequest)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], CreateSecurityGroupRuleResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}/rules"
+
+    basicRequest
+      .method(Method.POST, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .body(asJson(createSecurityGroupRuleRequest))
+      .response(asJson[CreateSecurityGroupRuleResponse])
+
+  /**
+   * Delete a security group with the specified ID.
+   * 
+   * Expected answers:
+   *   code 204 :  ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId UUID of the security group you want to delete.
+   */
+  def deleteSecurityGroup(zone: String, securityGroupId: String)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], Unit]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}"
+
+    basicRequest
+      .method(Method.DELETE, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .response(asString.mapWithMetadata(ResponseAs.deserializeRightWithError(_ => Right(()))))
+
+  /**
+   * Delete a security group rule with the specified ID.
+   * 
+   * Expected answers:
+   *   code 204 :  ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId 
+   * @param securityGroupRuleId 
+   */
+  def deleteSecurityGroupRule(zone: String, securityGroupId: String, securityGroupRuleId: String)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], Unit]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val securityGroupRuleIdPathParam = PathSerializable.serialize("security_group_rule_id", securityGroupRuleId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}/rules/${securityGroupRuleIdPathParam}"
+
+    basicRequest
+      .method(Method.DELETE, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .response(asString.mapWithMetadata(ResponseAs.deserializeRightWithError(_ => Right(()))))
+
+  /**
+   * Get the details of a security group with the specified ID.
+   * 
+   * Expected answers:
+   *   code 200 : GetSecurityGroupResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId UUID of the security group you want to get.
+   */
+  def getSecurityGroup(zone: String, securityGroupId: String)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], GetSecurityGroupResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}"
+
+    basicRequest
+      .method(Method.GET, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .response(asJson[GetSecurityGroupResponse])
+
+  /**
+   * Get details of a security group rule with the specified ID.
+   * 
+   * Expected answers:
+   *   code 200 : GetSecurityGroupRuleResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId 
+   * @param securityGroupRuleId 
+   */
+  def getSecurityGroupRule(zone: String, securityGroupId: String, securityGroupRuleId: String)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], GetSecurityGroupRuleResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val securityGroupRuleIdPathParam = PathSerializable.serialize("security_group_rule_id", securityGroupRuleId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}/rules/${securityGroupRuleIdPathParam}"
+
+    basicRequest
+      .method(Method.GET, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .response(asJson[GetSecurityGroupRuleResponse])
+
+  /**
+   * Lists the default rules applied to all the security groups.
+   * 
+   * Expected answers:
+   *   code 200 : ListSecurityGroupRulesResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   */
+  def listDefaultSecurityGroupRules(zone: String)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], ListSecurityGroupRulesResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/default/rules"
+
+    basicRequest
+      .method(Method.GET, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .response(asJson[ListSecurityGroupRulesResponse])
+
+  /**
+   * List the rules of the a specified security group ID.
+   * 
+   * Expected answers:
+   *   code 200 : ListSecurityGroupRulesResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId UUID of the security group.
+   * @param perPage A positive integer lower or equal to 100 to select the number of items to return.
+   * @param page A positive integer to choose the page to return.
+   */
+  def listSecurityGroupRules(zone: String, securityGroupId: String, perPage: Option[Int] = scala.None, page: Option[Int] = scala.None)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], ListSecurityGroupRulesResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}/rules"
+        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
+
+    basicRequest
+      .method(Method.GET, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .response(asJson[ListSecurityGroupRulesResponse])
+
+  /**
+   * List all existing security groups.
+   * 
+   * Expected answers:
+   *   code 200 : ListSecurityGroupsResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param name Name of the security group.
+   * @param organization Security group Organization ID.
+   * @param project Security group Project ID.
+   * @param tags List security groups with these exact tags (to filter with several tags, use commas to separate them).
+   * @param projectDefault Filter security groups with this value for project_default.
+   * @param perPage A positive integer lower or equal to 100 to select the number of items to return.
+   * @param page A positive integer to choose the page to return.
+   */
+  def listSecurityGroups(zone: String, name: Option[String] = scala.None, organization: Option[String] = scala.None, project: Option[String] = scala.None, tags: Option[String] = scala.None, projectDefault: Option[Boolean] = scala.None, perPage: Option[Int] = scala.None, page: Option[Int] = scala.None)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], ListSecurityGroupsResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups"
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("organization", organization, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("project", project, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("project_default", projectDefault, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
+
+    basicRequest
+      .method(Method.GET, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .response(asJson[ListSecurityGroupsResponse])
+
+  /**
+   * Replace all security group properties with a security group message.
+   * 
+   * Expected answers:
+   *   code 200 : SetSecurityGroupResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param id UUID of the security group.
+   * @param setSecurityGroupRequest 
+   */
+  def setSecurityGroup(zone: String, id: String, setSecurityGroupRequest: SetSecurityGroupRequest)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], SetSecurityGroupResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val idPathParam = PathSerializable.serialize("id", id, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${idPathParam}"
+
+    basicRequest
+      .method(Method.PUT, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .body(asJson(setSecurityGroupRequest))
+      .response(asJson[SetSecurityGroupResponse])
+
+  /**
+   * Replace all the properties of a rule from a specified security group.
+   * 
+   * Expected answers:
+   *   code 200 : SetSecurityGroupRuleResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId 
+   * @param securityGroupRuleId 
+   * @param setSecurityGroupRuleRequest 
+   */
+  def setSecurityGroupRule(zone: String, securityGroupId: String, securityGroupRuleId: String, setSecurityGroupRuleRequest: SetSecurityGroupRuleRequest)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], SetSecurityGroupRuleResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val securityGroupRuleIdPathParam = PathSerializable.serialize("security_group_rule_id", securityGroupRuleId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}/rules/${securityGroupRuleIdPathParam}"
+
+    basicRequest
+      .method(Method.PUT, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .body(asJson(setSecurityGroupRuleRequest))
+      .response(asJson[SetSecurityGroupRuleResponse])
+
+  /**
+   * Replaces the existing rules of the security group with the rules provided. This endpoint supports the update of existing rules, creation of new rules and deletion of existing rules when they are not passed in the request.
+   * 
+   * Expected answers:
+   *   code 200 : SetSecurityGroupRulesResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId UUID of the security group to update the rules on.
+   * @param setSecurityGroupRulesRequest 
+   */
+  def setSecurityGroupRules(zone: String, securityGroupId: String, setSecurityGroupRulesRequest: SetSecurityGroupRulesRequest)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], SetSecurityGroupRulesResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}/rules"
+
+    basicRequest
+      .method(Method.PUT, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .body(asJson(setSecurityGroupRulesRequest))
+      .response(asJson[SetSecurityGroupRulesResponse])
+
+  /**
+   * Update the properties of security group.
+   * 
+   * Expected answers:
+   *   code 200 : UpdateSecurityGroupResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId UUID of the security group. (UUID format)
+   * @param updateSecurityGroupRequest 
+   */
+  def updateSecurityGroup(zone: String, securityGroupId: String, updateSecurityGroupRequest: UpdateSecurityGroupRequest)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], UpdateSecurityGroupResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}"
+
+    basicRequest
+      .method(Method.PATCH, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .body(asJson(updateSecurityGroupRequest))
+      .response(asJson[UpdateSecurityGroupResponse])
+
+  /**
+   * Update the properties of a rule from a specified security group.
+   * 
+   * Expected answers:
+   *   code 200 : UpdateSecurityGroupRuleResponse ()
+   * 
+   * Available security schemes:
+   *   scaleway (apiKey)
+   * 
+   * @param zone The zone you want to target
+   * @param securityGroupId UUID of the security group. (UUID format)
+   * @param securityGroupRuleId UUID of the rule. (UUID format)
+   * @param updateSecurityGroupRuleRequest 
+   */
+  def updateSecurityGroupRule(zone: String, securityGroupId: String, securityGroupRuleId: String, updateSecurityGroupRuleRequest: UpdateSecurityGroupRuleRequest)(using Auth <:< scaleway.instance.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], UpdateSecurityGroupRuleResponse]] =
+    val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
+    val securityGroupIdPathParam = PathSerializable.serialize("security_group_id", securityGroupId, PathStyleFormat.SIMPLE, false)
+    val securityGroupRuleIdPathParam = PathSerializable.serialize("security_group_rule_id", securityGroupRuleId, PathStyleFormat.SIMPLE, false)
+    val requestURL =
+      uri"$baseUrl/instance/v1/zones/${zonePathParam}/security_groups/${securityGroupIdPathParam}/rules/${securityGroupRuleIdPathParam}"
+
+    basicRequest
+      .method(Method.PATCH, requestURL)
+      .contentType("application/json")
+      .auth(authConfig, scaleway.instance.ApiKeyLocation.HEADER, "X-Auth-Token")
+      .body(asJson(updateSecurityGroupRuleRequest))
+      .response(asJson[UpdateSecurityGroupRuleResponse])
+
+end SecurityGroupsApi

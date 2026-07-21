@@ -94,12 +94,12 @@ info:
     about Public Gateway limitations see our [dedicated documentation](https://www.scaleway.com/en/docs/public-gateways/troubleshooting/gw-limitations/).\n\n\n##
     Technical information\n\n### Availability Zones\n\nPublic Gateways can be deployed
     in the following Availability Zones:\n\n| Name      | API ID                |\n|-----------|-----------------------|\n|
-    Paris     | `fr-par-1` `fr-par-2` |\n| Amsterdam | `nl-ams-1` `nl-ams-2` `nl-ams-3`
-    |\n| Warsaw    | `pl-waw-1` `pl-waw-2` `pl-waw-3` |\n\nThe Scaleway Public Gateways
-    API is a **zoned** API, meaning that each call must specify in its path parameters
-    the Availability Zone for the resources concerned by the call.\n\n\n## Going further\n\nFor
-    more help using Scaleway Public Gateways, check out the following resources:\n-
-    Our [main documentation](https://www.scaleway.com/en/docs/public-gateways/)\n-
+    Paris     | `fr-par-1` `fr-par-2` |\n| Milan     | `it-mil-1` |\n| Amsterdam |
+    `nl-ams-1` `nl-ams-2` `nl-ams-3` |\n| Warsaw    | `pl-waw-1` `pl-waw-2` `pl-waw-3`
+    |\n\nThe Scaleway Public Gateways API is a **zoned** API, meaning that each call
+    must specify in its path parameters the Availability Zone for the resources concerned
+    by the call.\n\n\n## Going further\n\nFor more help using Scaleway Public Gateways,
+    check out the following resources:\n- Our [main documentation](https://www.scaleway.com/en/docs/public-gateways/)\n-
     The #public-gateway channel on our [Slack Community](https://www.scaleway.com/en/docs/tutorials/scaleway-slack-community/)\n-
     Our [support ticketing system](https://www.scaleway.com/en/docs/account/how-to/open-a-support-ticket/)."
   version: v2
@@ -235,10 +235,12 @@ components:
             reverse:
               type: string
               description: Reverse domain name for the IP address.
+              nullable: true
             gateway_id:
               type: string
               description: Public Gateway associated with the IP address. (UUID format)
               example: 6170692e-7363-616c-6577-61792e636f6d
+              nullable: true
             zone:
               type: string
               description: Zone of the IP address.
@@ -262,10 +264,12 @@ components:
         version:
           type: string
           description: Version of the running gateway software.
+          nullable: true
         can_upgrade_to:
           type: string
           description: Newly available gateway software version that can be updated
             to.
+          nullable: true
         bastion_enabled:
           type: boolean
           description: Defines whether SSH bastion is enabled on the gateway.
@@ -357,6 +361,7 @@ components:
           type: string
           description: MAC address of the gateway in the Private Network (if the gateway
             is up and running).
+          nullable: true
         masquerade_enabled:
           type: boolean
           description: Defines whether the gateway masquerades traffic for this Private
@@ -464,10 +469,12 @@ components:
         reverse:
           type: string
           description: Reverse domain name for the IP address.
+          nullable: true
         gateway_id:
           type: string
           description: Public Gateway associated with the IP address. (UUID format)
           example: 6170692e-7363-616c-6577-61792e636f6d
+          nullable: true
         zone:
           type: string
           description: Zone of the IP address.
@@ -692,6 +699,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -785,6 +793,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -825,6 +834,7 @@ paths:
                   description: Use this IPAM-booked IP ID as the Gateway's IP in this
                     Private Network. (UUID format)
                   example: 6170692e-7363-616c-6577-61792e636f6d
+                  nullable: true
               x-properties-order:
               - gateway_id
               - private_network_id
@@ -875,6 +885,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -925,6 +936,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -956,14 +968,17 @@ paths:
                   type: boolean
                   description: Defines whether to enable masquerade (dynamic NAT)
                     on the GatewayNetwork.
+                  nullable: true
                 push_default_route:
                   type: boolean
                   description: Enabling the default route also enables masquerading.
+                  nullable: true
                 ipam_ip_id:
                   type: string
                   description: Use this IPAM-booked IP ID as the Gateway's IP in this
                     Private Network. (UUID format)
                   example: 6170692e-7363-616c-6577-61792e636f6d
+                  nullable: true
               x-properties-order:
               - enable_masquerade
               - push_default_route
@@ -999,6 +1014,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1050,6 +1066,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1093,6 +1110,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1214,6 +1232,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1254,6 +1273,7 @@ paths:
                   description: Existing IP address to attach to the gateway. (UUID
                     format)
                   example: 6170692e-7363-616c-6577-61792e636f6d
+                  nullable: true
                 enable_smtp:
                   type: boolean
                   description: Defines whether SMTP traffic should be allowed pass
@@ -1265,6 +1285,7 @@ paths:
                   type: integer
                   description: Port of the SSH bastion.
                   format: uint32
+                  nullable: true
               x-properties-order:
               - project_id
               - name
@@ -1318,6 +1339,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1367,6 +1389,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1397,6 +1420,7 @@ paths:
                 name:
                   type: string
                   description: Name for the gateway.
+                  nullable: true
                 tags:
                   type: array
                   description: Tags for the gateway.
@@ -1406,14 +1430,17 @@ paths:
                 enable_bastion:
                   type: boolean
                   description: Defines whether SSH bastion should be enabled the gateway.
+                  nullable: true
                 bastion_port:
                   type: integer
                   description: Port of the SSH bastion.
                   format: uint32
+                  nullable: true
                 enable_smtp:
                   type: boolean
                   description: Defines whether SMTP traffic should be allowed to pass
                     through the gateway.
+                  nullable: true
               x-properties-order:
               - name
               - tags
@@ -1451,6 +1478,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1508,6 +1536,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1573,6 +1602,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1639,6 +1669,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1693,6 +1724,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1754,6 +1786,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1784,6 +1817,7 @@ paths:
                 type:
                   type: string
                   description: Gateway type (commercial offer).
+                  nullable: true
               x-properties-order:
               - type
       security:
@@ -1818,6 +1852,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1914,6 +1949,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -1980,6 +2016,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -2029,6 +2066,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -2065,11 +2103,13 @@ paths:
                 reverse:
                   type: string
                   description: Reverse to set on the address. Empty string to unset.
+                  nullable: true
                 gateway_id:
                   type: string
                   description: Gateway to attach the IP address to. Empty string to
                     detach. (UUID format)
                   example: 6170692e-7363-616c-6577-61792e636f6d
+                  nullable: true
               x-properties-order:
               - tags
               - reverse
@@ -2105,6 +2145,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -2152,6 +2193,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -2243,6 +2285,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -2337,6 +2380,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -2408,6 +2452,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -2458,6 +2503,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3
@@ -2489,14 +2535,17 @@ paths:
                   type: integer
                   description: Public port to listen on.
                   format: uint32
+                  nullable: true
                 private_ip:
                   type: string
                   description: Private IP to forward data to. (IP address)
                   example: 1.2.3.4
+                  nullable: true
                 private_port:
                   type: integer
                   description: Private port to translate to.
                   format: uint32
+                  nullable: true
                 protocol:
                   type: string
                   description: Protocol the rule should apply to.
@@ -2542,6 +2591,7 @@ paths:
           enum:
           - fr-par-1
           - fr-par-2
+          - it-mil-1
           - nl-ams-1
           - nl-ams-2
           - nl-ams-3

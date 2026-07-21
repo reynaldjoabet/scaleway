@@ -103,11 +103,11 @@ info:
     to perform the actions described on this page\n    - You have [installed `curl`](https://curl.se/download.html)\n
     \   </Message>\n    \n\n## Technical information\n\nVPC and Private Networks are
     available in the Paris, Amsterdam and Warsaw regions, which are represented by
-    the following path parameters:\n\n* `fr-par`\n* `nl-ams`\n* `pl-waw`\n\n## Technical
-    limitations\n\nThe following limitations apply to Scaleway VPC:\n\n- Up to 250
-    resources can be attached to a Private Network.\n- A resource can be attached
-    to up to 8 Private Networks.\n- The following resource types can be attached to
-    a Private Network:\n    - Instances\n    - Elastic Metal servers\n    - Apple
+    the following path parameters:\n\n* `fr-par`\n* `it-mil`\n* `nl-ams`\n* `pl-waw`\n\n##
+    Technical limitations\n\nThe following limitations apply to Scaleway VPC:\n\n-
+    Up to 250 resources can be attached to a Private Network.\n- A resource can be
+    attached to up to 8 Private Networks.\n- The following resource types can be attached
+    to a Private Network:\n    - Instances\n    - Elastic Metal servers\n    - Apple
     silicon\n    - Managed Inference\n    - Load Balancers\n    - Public Gateways\n
     \   - Managed Databases for PostgreSQL and MySQL\n    - Managed Databases for
     Redis (only at the time of resource creation)\n    - Kubernetes Kapsule (only
@@ -148,6 +148,10 @@ tags:
   description: A VPC peering connector constitutes one side of a VPC peering connection.
     It represents an intent to peer with another VPC. Two matching, compatible VPC
     connectors create a VPC peering connection.
+- name: Ingress Rules
+  description: |
+    An Ingress rule (or ingress routing rule) matches packets coming into your VPC through VPC Connectors,
+    and redirects the traffic to a local resource (usually a firewall or router).
 components:
   schemas:
     scaleway.vpc.v2.AclRule:
@@ -231,30 +235,6 @@ components:
       - accept
       - drop
       default: unknown_action
-    scaleway.vpc.v2.AddSubnetsResponse:
-      type: object
-      properties:
-        subnets:
-          type: array
-          description: (IP network)
-          example:
-          - 1.2.3.4/32
-          items:
-            type: string
-      x-properties-order:
-      - subnets
-    scaleway.vpc.v2.DeleteSubnetsResponse:
-      type: object
-      properties:
-        subnets:
-          type: array
-          description: (IP network)
-          example:
-          - 1.2.3.4/32
-          items:
-            type: string
-      x-properties-order:
-      - subnets
     scaleway.vpc.v2.GetAclResponse:
       type: object
       properties:
@@ -267,6 +247,93 @@ components:
       x-properties-order:
       - rules
       - default_policy
+    scaleway.vpc.v2.IngressRule:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the ingress rule. (UUID format)
+          example: 6170692e-7363-616c-6577-61792e636f6d
+        vpc_id:
+          type: string
+          description: ID of the VPC this rule belongs to. (UUID format)
+          example: 6170692e-7363-616c-6577-61792e636f6d
+        created_at:
+          type: string
+          description: Date the ingress rule was created. (RFC 3339 format)
+          format: date-time
+          example: "2022-03-22T12:34:56.123456Z"
+          nullable: true
+        updated_at:
+          type: string
+          description: Date the ingress rule was last modified. (RFC 3339 format)
+          format: date-time
+          example: "2022-03-22T12:34:56.123456Z"
+          nullable: true
+        is_ipv6:
+          type: boolean
+          description: Whether this rule applies to IPv4 or IPv6 traffic.
+        source:
+          type: string
+          description: Source network to apply this rule on. (IP network)
+          example: 1.2.3.4/32
+        nexthop_resource_ip:
+          type: string
+          description: IP of the local resource to redirect ingress traffic to. (IP
+            address)
+          example: 1.2.3.4
+        nexthop_private_network_id:
+          type: string
+          description: ID of the Private Network the destination resource is in. (UUID
+            format)
+          example: 6170692e-7363-616c-6577-61792e636f6d
+        description:
+          type: string
+          description: Description of this ingress rule.
+          nullable: true
+        tags:
+          type: array
+          description: Tags of this ingress rule.
+          items:
+            type: string
+        organization_id:
+          type: string
+          description: Scaleway Organization the ingress rule belongs to. (UUID format)
+          example: 6170692e-7363-616c-6577-61792e636f6d
+        project_id:
+          type: string
+          description: Scaleway Project the ingress rule belongs to. (UUID format)
+          example: 6170692e-7363-616c-6577-61792e636f6d
+        region:
+          type: string
+          description: Region of the ingress rule.
+      x-properties-order:
+      - id
+      - vpc_id
+      - created_at
+      - updated_at
+      - is_ipv6
+      - source
+      - nexthop_resource_ip
+      - nexthop_private_network_id
+      - description
+      - tags
+      - organization_id
+      - project_id
+      - region
+    scaleway.vpc.v2.ListIngressRulesResponse:
+      type: object
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/scaleway.vpc.v2.IngressRule'
+        total_count:
+          type: integer
+          format: uint64
+      x-properties-order:
+      - rules
+      - total_count
     scaleway.vpc.v2.ListPrivateNetworksResponse:
       type: object
       properties:
@@ -553,6 +620,9 @@ components:
           type: string
           description: VPC the subnet belongs to. (UUID format)
           example: 6170692e-7363-616c-6577-61792e636f6d
+        region:
+          type: string
+          description: Region in which the Subnet can be used.
       x-properties-order:
       - id
       - created_at
@@ -561,6 +631,7 @@ components:
       - project_id
       - private_network_id
       - vpc_id
+      - region
     scaleway.vpc.v2.VPC:
       type: object
       properties:
@@ -614,6 +685,10 @@ components:
           type: boolean
           description: Defines whether the VPC advertises custom routes between its
             Private Networks.
+        transitivity_enabled:
+          type: boolean
+          description: Defines whether the VPC allows packets from peered VPCs to
+            transit through.
       x-properties-order:
       - id
       - name
@@ -627,6 +702,7 @@ components:
       - private_network_count
       - routing_enabled
       - custom_routes_propagation_enabled
+      - transitivity_enabled
     scaleway.vpc.v2.VPCConnector:
       type: object
       properties:
@@ -720,6 +796,385 @@ components:
       name: X-Auth-Token
       type: apiKey
 paths:
+  /vpc/v2/regions/{region}/ingress-rules:
+    get:
+      tags:
+      - Ingress Rules
+      operationId: ListIngressRules
+      summary: List ingress rules
+      description: List existing ingress rules in the specified region.
+      parameters:
+      - in: path
+        name: region
+        description: The region you want to target
+        required: true
+        schema:
+          type: string
+          enum:
+          - fr-par
+          - it-mil
+          - nl-ams
+          - pl-waw
+      - in: query
+        name: order_by
+        description: Sort order of the returned ingress rules.
+        schema:
+          type: string
+          enum:
+          - created_at_asc
+          - created_at_desc
+          - source_asc
+          - source_desc
+          - prefix_len_asc
+          - prefix_len_desc
+          default: created_at_asc
+      - in: query
+        name: page
+        description: Page number to return, from the paginated results.
+        schema:
+          type: integer
+          format: int32
+      - in: query
+        name: page_size
+        description: Maximum number of ingress rules to return per page.
+        schema:
+          type: integer
+          format: uint32
+      - in: query
+        name: vpc_id
+        description: ID of the VPC to filter for. (UUID format)
+        schema:
+          type: string
+          example: 6170692e-7363-616c-6577-61792e636f6d
+      - in: query
+        name: nexthop_resource_ip
+        description: Next hop IP to filter for. (IP address)
+        schema:
+          type: string
+          example: 1.2.3.4
+      - in: query
+        name: nexthop_private_network_id
+        description: Next hop Private Network ID to filter for. Only ingress rules
+          with this Private Network as next hop will be returned. (UUID format)
+        schema:
+          type: string
+          example: 6170692e-7363-616c-6577-61792e636f6d
+      - in: query
+        name: is_ipv6
+        description: Whether to return only IPv4 or IPv6 ingress rules.
+        schema:
+          type: boolean
+      - in: query
+        name: tags
+        description: Tags to filter for. Only ingress rules with one or more matching
+          tags will be returned.
+        schema:
+          type: array
+          items:
+            type: string
+      - in: query
+        name: organization_id
+        description: Organization ID to filter for. Only ingress rules belonging to
+          this Organization will be returned. (UUID format)
+        schema:
+          type: string
+          example: 6170692e-7363-616c-6577-61792e636f6d
+      - in: query
+        name: project_id
+        description: Project ID to filter for. Only ingress rules belonging to this
+          Project will be returned. (UUID format)
+        schema:
+          type: string
+          example: 6170692e-7363-616c-6577-61792e636f6d
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scaleway.vpc.v2.ListIngressRulesResponse'
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X GET \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules"
+      - lang: HTTPie
+        source: |-
+          http GET "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules" \
+            X-Auth-Token:$SCW_SECRET_KEY
+    post:
+      tags:
+      - Ingress Rules
+      operationId: CreateIngressRule
+      summary: Create an ingress rule
+      description: Create an ingress rule in the specified region.
+      parameters:
+      - in: path
+        name: region
+        description: The region you want to target
+        required: true
+        schema:
+          type: string
+          enum:
+          - fr-par
+          - it-mil
+          - nl-ams
+          - pl-waw
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scaleway.vpc.v2.IngressRule'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vpc_id:
+                  type: string
+                  description: ID of the VPC this rule will belong to. (UUID format)
+                  example: 6170692e-7363-616c-6577-61792e636f6d
+                source:
+                  type: string
+                  description: Source network to match ingress traffic on. Can be
+                    IPv6 or IPv4. (IP network)
+                  example: 1.2.3.4/32
+                nexthop_resource_ip:
+                  type: string
+                  description: IP of the local resource to redirect ingress traffic
+                    to. IP version must be consistent with the source network. (IP
+                    address)
+                  example: 1.2.3.4
+                nexthop_private_network_id:
+                  type: string
+                  description: ID of the Private Network the destination resource
+                    is in. (UUID format)
+                  example: 6170692e-7363-616c-6577-61792e636f6d
+                description:
+                  type: string
+                  description: Description for this ingress rule.
+                  nullable: true
+                tags:
+                  type: array
+                  description: Tags for this ingress rule.
+                  items:
+                    type: string
+              required:
+              - vpc_id
+              - source
+              - nexthop_resource_ip
+              - nexthop_private_network_id
+              x-properties-order:
+              - vpc_id
+              - source
+              - nexthop_resource_ip
+              - nexthop_private_network_id
+              - description
+              - tags
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X POST \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "nexthop_private_network_id": "6170692e-7363-616c-6577-61792e636f6d",
+              "nexthop_resource_ip": "1.2.3.4",
+              "source": "1.2.3.4/32",
+              "vpc_id": "6170692e-7363-616c-6577-61792e636f6d"
+            }' \
+            "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules"
+      - lang: HTTPie
+        source: |-
+          http POST "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules" \
+            X-Auth-Token:$SCW_SECRET_KEY \
+            nexthop_private_network_id="6170692e-7363-616c-6577-61792e636f6d" \
+            nexthop_resource_ip="1.2.3.4" \
+            source="1.2.3.4/32" \
+            vpc_id="6170692e-7363-616c-6577-61792e636f6d"
+  /vpc/v2/regions/{region}/ingress-rules/{rule_id}:
+    get:
+      tags:
+      - Ingress Rules
+      operationId: GetIngressRule
+      summary: Get an ingress rule
+      description: Retrieve details of an existing ingress rule, specified by its
+        ingress rule ID.
+      parameters:
+      - in: path
+        name: region
+        description: The region you want to target
+        required: true
+        schema:
+          type: string
+          enum:
+          - fr-par
+          - it-mil
+          - nl-ams
+          - pl-waw
+      - in: path
+        name: rule_id
+        description: ID of the ingress rule to return. (UUID format)
+        required: true
+        schema:
+          type: string
+          example: 6170692e-7363-616c-6577-61792e636f6d
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scaleway.vpc.v2.IngressRule'
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X GET \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules/{rule_id}"
+      - lang: HTTPie
+        source: |-
+          http GET "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules/{rule_id}" \
+            X-Auth-Token:$SCW_SECRET_KEY
+    patch:
+      tags:
+      - Ingress Rules
+      operationId: UpdateIngressRule
+      summary: Update an ingress rule
+      description: Update an ingress rule specified by its ingress rule ID.
+      parameters:
+      - in: path
+        name: region
+        description: The region you want to target
+        required: true
+        schema:
+          type: string
+          enum:
+          - fr-par
+          - it-mil
+          - nl-ams
+          - pl-waw
+      - in: path
+        name: rule_id
+        description: ID of the ingress rule to update. (UUID format)
+        required: true
+        schema:
+          type: string
+          example: 6170692e-7363-616c-6577-61792e636f6d
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scaleway.vpc.v2.IngressRule'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source:
+                  type: string
+                  description: Source network to match ingress traffic on. Can be
+                    IPv4 or IPv6. (IP network)
+                  example: 1.2.3.4/32
+                  nullable: true
+                nexthop_resource_ip:
+                  type: string
+                  description: IP of the local resource to redirect ingress traffic
+                    to. IP version must be consistent with the source network. (IP
+                    address)
+                  example: 1.2.3.4
+                  nullable: true
+                nexthop_private_network_id:
+                  type: string
+                  description: ID of the Private Network the destination resource
+                    is in. (UUID format)
+                  example: 6170692e-7363-616c-6577-61792e636f6d
+                  nullable: true
+                description:
+                  type: string
+                  description: Description to set for this ingress rule.
+                  nullable: true
+                tags:
+                  type: array
+                  description: Tags to set for this ingress rule.
+                  nullable: true
+                  items:
+                    type: string
+              x-properties-order:
+              - source
+              - nexthop_resource_ip
+              - nexthop_private_network_id
+              - description
+              - tags
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X PATCH \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules/{rule_id}"
+      - lang: HTTPie
+        source: |-
+          http PATCH "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules/{rule_id}" \
+            X-Auth-Token:$SCW_SECRET_KEY
+    delete:
+      tags:
+      - Ingress Rules
+      operationId: DeleteIngressRule
+      summary: Delete an ingress rule
+      description: Delete an ingress rule specified by its ingress rule ID.
+      parameters:
+      - in: path
+        name: region
+        description: The region you want to target
+        required: true
+        schema:
+          type: string
+          enum:
+          - fr-par
+          - it-mil
+          - nl-ams
+          - pl-waw
+      - in: path
+        name: rule_id
+        description: ID of the ingress rule to delete. (UUID format)
+        required: true
+        schema:
+          type: string
+          example: 6170692e-7363-616c-6577-61792e636f6d
+      responses:
+        "204":
+          description: ""
+      security:
+      - scaleway: []
+      x-codeSamples:
+      - lang: cURL
+        source: |-
+          curl -X DELETE \
+            -H "X-Auth-Token: $SCW_SECRET_KEY" \
+            "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules/{rule_id}"
+      - lang: HTTPie
+        source: |-
+          http DELETE "https://api.scaleway.com/vpc/v2/regions/{region}/ingress-rules/{rule_id}" \
+            X-Auth-Token:$SCW_SECRET_KEY
   /vpc/v2/regions/{region}/private-networks:
     get:
       tags:
@@ -738,6 +1193,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: query
@@ -847,6 +1303,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       responses:
@@ -940,6 +1397,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -984,6 +1442,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1021,6 +1480,7 @@ paths:
                   type: boolean
                   description: Defines whether default v4 and v6 routes are propagated
                     for this Private Network.
+                  nullable: true
               x-properties-order:
               - name
               - tags
@@ -1055,6 +1515,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1096,6 +1557,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1132,129 +1594,6 @@ paths:
         source: |-
           http POST "https://api.scaleway.com/vpc/v2/regions/{region}/private-networks/{private_network_id}/enable-dhcp" \
             X-Auth-Token:$SCW_SECRET_KEY
-  /vpc/v2/regions/{region}/private-networks/{private_network_id}/subnets:
-    post:
-      tags:
-      - Subnets
-      operationId: AddSubnets
-      summary: Add subnets to a Private Network
-      description: Add new subnets to an existing Private Network.
-      parameters:
-      - in: path
-        name: region
-        description: The region you want to target
-        required: true
-        schema:
-          type: string
-          enum:
-          - fr-par
-          - nl-ams
-          - pl-waw
-      - in: path
-        name: private_network_id
-        description: Private Network ID. (UUID format)
-        required: true
-        schema:
-          type: string
-          example: 6170692e-7363-616c-6577-61792e636f6d
-      responses:
-        "200":
-          description: ""
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/scaleway.vpc.v2.AddSubnetsResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                subnets:
-                  type: array
-                  description: Private Network subnets CIDR. (IP network)
-                  example:
-                  - 1.2.3.4/32
-                  items:
-                    type: string
-              x-properties-order:
-              - subnets
-      security:
-      - scaleway: []
-      x-codeSamples:
-      - lang: cURL
-        source: |-
-          curl -X POST \
-            -H "X-Auth-Token: $SCW_SECRET_KEY" \
-            -H "Content-Type: application/json" \
-            -d '{}' \
-            "https://api.scaleway.com/vpc/v2/regions/{region}/private-networks/{private_network_id}/subnets"
-      - lang: HTTPie
-        source: |-
-          http POST "https://api.scaleway.com/vpc/v2/regions/{region}/private-networks/{private_network_id}/subnets" \
-            X-Auth-Token:$SCW_SECRET_KEY
-    delete:
-      tags:
-      - Subnets
-      operationId: DeleteSubnets
-      summary: Delete subnets from a Private Network
-      description: Delete the specified subnets from a Private Network.
-      parameters:
-      - in: path
-        name: region
-        description: The region you want to target
-        required: true
-        schema:
-          type: string
-          enum:
-          - fr-par
-          - nl-ams
-          - pl-waw
-      - in: path
-        name: private_network_id
-        description: Private Network ID. (UUID format)
-        required: true
-        schema:
-          type: string
-          example: 6170692e-7363-616c-6577-61792e636f6d
-      responses:
-        "200":
-          description: ""
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/scaleway.vpc.v2.DeleteSubnetsResponse'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                subnets:
-                  type: array
-                  description: Private Network subnets CIDR. (IP network)
-                  example:
-                  - 1.2.3.4/32
-                  items:
-                    type: string
-              x-properties-order:
-              - subnets
-      security:
-      - scaleway: []
-      x-codeSamples:
-      - lang: cURL
-        source: |-
-          curl -X DELETE \
-            -H "X-Auth-Token: $SCW_SECRET_KEY" \
-            -H "Content-Type: application/json" \
-            -d '{}' \
-            "https://api.scaleway.com/vpc/v2/regions/{region}/private-networks/{private_network_id}/subnets"
-      - lang: HTTPie
-        source: |-
-          http DELETE "https://api.scaleway.com/vpc/v2/regions/{region}/private-networks/{private_network_id}/subnets" \
-            X-Auth-Token:$SCW_SECRET_KEY
   /vpc/v2/regions/{region}/routes:
     post:
       tags:
@@ -1271,6 +1610,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       responses:
@@ -1363,6 +1703,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1406,6 +1747,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1495,6 +1837,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1536,6 +1879,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: query
@@ -1623,6 +1967,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: query
@@ -1735,6 +2080,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       responses:
@@ -1814,6 +2160,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1858,6 +2205,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1923,6 +2271,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1952,9 +2301,9 @@ paths:
       tags:
       - VPC Connectors
       operationId: ListSubnetOverlaps
-      summary: List subnet overlaps.
-      description: List subnet overlaps between the VPCConnector VPC and the target
-        VPC or for a specific subnet if specified.
+      summary: List subnet overlaps
+      description: List subnet overlaps between the VPCs on both sides of a connector,
+        or for a specific subnet if specified.
       parameters:
       - in: path
         name: region
@@ -1964,11 +2313,12 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
         name: vpc_connector_id
-        description: VPCConnector ID. (UUID format)
+        description: VPC Peering connector ID. (UUID format)
         required: true
         schema:
           type: string
@@ -2031,6 +2381,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: query
@@ -2130,6 +2481,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       responses:
@@ -2162,6 +2514,10 @@ paths:
                 enable_routing:
                   type: boolean
                   description: Enable routing between Private Networks in the VPC.
+                enable_transitivity:
+                  type: boolean
+                  description: Enable packets from peered VPCs to transit through
+                    this VPC.
               required:
               - name
               - project_id
@@ -2170,6 +2526,7 @@ paths:
               - project_id
               - tags
               - enable_routing
+              - enable_transitivity
       security:
       - scaleway: []
       x-codeSamples:
@@ -2180,6 +2537,7 @@ paths:
             -H "Content-Type: application/json" \
             -d '{
               "enable_routing": false,
+              "enable_transitivity": false,
               "name": "string",
               "project_id": "6170692e-7363-616c-6577-61792e636f6d"
             }' \
@@ -2189,6 +2547,7 @@ paths:
           http POST "https://api.scaleway.com/vpc/v2/regions/{region}/vpcs" \
             X-Auth-Token:$SCW_SECRET_KEY \
             enable_routing:=false \
+            enable_transitivity:=false \
             name="string" \
             project_id="6170692e-7363-616c-6577-61792e636f6d"
   /vpc/v2/regions/{region}/vpcs/{vpc_id}:
@@ -2207,6 +2566,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -2250,6 +2610,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -2315,6 +2676,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -2355,6 +2717,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -2407,6 +2770,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -2497,6 +2861,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path

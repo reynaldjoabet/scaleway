@@ -301,6 +301,9 @@ components:
               - rsa_pkcs1_2048_sha256
               - rsa_pkcs1_3072_sha256
               - rsa_pkcs1_4096_sha256
+              - ml_dsa_44
+              - ml_dsa_65
+              - ml_dsa_87
               x-enum-descriptions:
                 values:
                   ec_p256_sha256: ECDSA (Elliptic Curve Digital Signature Algorithm)
@@ -319,6 +322,12 @@ components:
                     with a 3072-bit key and SHA-256 hash function
                   rsa_pkcs1_4096_sha256: RSA-PKCS1 (Public Key Cryptography Standards)
                     with a 4096-bit key and SHA-256 hash function
+                  ml_dsa_44: ML-DSA (Module-Lattice Digital Signature Algorithm) FIPS
+                    204 post-quantum signature scheme with security category 2
+                  ml_dsa_65: ML-DSA (Module-Lattice Digital Signature Algorithm) FIPS
+                    204 post-quantum signature scheme with security category 3
+                  ml_dsa_87: ML-DSA (Module-Lattice Digital Signature Algorithm) FIPS
+                    204 post-quantum signature scheme with security category 5
               nullable: true
               default: unknown_asymmetric_signing
               x-one-of: usage
@@ -596,9 +605,12 @@ paths:
       - Keys
       operationId: ListKeys
       summary: List keys
-      description: Retrieve a list of keys across all Projects in an Organization
-        or within a specific Project. You must specify the `region`, and either the
-        `organization_id` or the `project_id`.
+      description: "Retrieve a list of keys across all Projects in an Organization
+        or within a specific Project. \nIf the user has permissions for all current
+        and future projects: Either organization_id or project_id is required.\nIf
+        the user has permissions for all current projects or only specific projects:
+        The project_id is required.\nThe `region` parameter in path is needed in both
+        case."
       parameters:
       - in: path
         name: region
@@ -787,6 +799,9 @@ paths:
                       - rsa_pkcs1_2048_sha256
                       - rsa_pkcs1_3072_sha256
                       - rsa_pkcs1_4096_sha256
+                      - ml_dsa_44
+                      - ml_dsa_65
+                      - ml_dsa_87
                       x-enum-descriptions:
                         values:
                           ec_p256_sha256: ECDSA (Elliptic Curve Digital Signature
@@ -806,6 +821,15 @@ paths:
                             Standards) with a 3072-bit key and SHA-256 hash function
                           rsa_pkcs1_4096_sha256: RSA-PKCS1 (Public Key Cryptography
                             Standards) with a 4096-bit key and SHA-256 hash function
+                          ml_dsa_44: ML-DSA (Module-Lattice Digital Signature Algorithm)
+                            FIPS 204 post-quantum signature scheme with security category
+                            2
+                          ml_dsa_65: ML-DSA (Module-Lattice Digital Signature Algorithm)
+                            FIPS 204 post-quantum signature scheme with security category
+                            3
+                          ml_dsa_87: ML-DSA (Module-Lattice Digital Signature Algorithm)
+                            FIPS 204 post-quantum signature scheme with security category
+                            5
                       nullable: true
                       default: unknown_asymmetric_signing
                       x-one-of: usage
@@ -1505,8 +1529,9 @@ paths:
               properties:
                 key_material:
                   type: string
-                  description: The key material The key material is a random sequence
-                    of bytes used to derive a cryptographic key.
+                  description: |-
+                    The key material.
+                    The key material is a random sequence of bytes used to derive a cryptographic key.
                 salt:
                   type: object
                   description: |-

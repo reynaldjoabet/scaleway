@@ -44,6 +44,8 @@ enum ModelType:
   case `dtwh_deployment`
   case `sedb_cluster`
   case `msgq_cluster`
+  case `edge_vpc_endpoint`
+  case `dviz_cluster`
 
 object ModelType:
   import com.github.plokhotnyuk.jsoniter_scala.macros.*
@@ -81,6 +83,8 @@ object ModelType:
           case "dtwh_deployment" => "dtwh_deployment"
           case "sedb_cluster" => "sedb_cluster"
           case "msgq_cluster" => "msgq_cluster"
+          case "edge_vpc_endpoint" => "edge_vpc_endpoint"
+          case "dviz_cluster" => "dviz_cluster"
       }
       .withDiscriminatorFieldName(scala.None)
   }

@@ -1,0 +1,28 @@
+{
+  "generatorName": "scala-sttp4-jsoniter",
+  "inputSpec": "modules/scaleway-redis-codegen/scaleway.redis.v1.Api.yml",
+  "outputDir": "modules/scaleway-redis-codegen/src/main/scala",
+  "apiPackage": "scaleway.redis.api",
+  "modelPackage": "scaleway.redis.models",
+  "invokerPackage": "scaleway.redis",
+  "globalProperties": {
+    "apis": "",
+    "models": "",
+    "supportingFiles": ""
+  },
+  "modelPropertyNaming": "camelCase",
+  "ensureUniqueParams": "true",
+  "sortParamsByRequiredFlag": "true",
+  "sortModelPropertiesByRequiredFlag": "true",
+  "allowUnicodeIdentifiers": "false",
+  "prependFormOrBodyParameters": "false",
+  "enumUnknownDefaultCase": "true",
+  "disallowAdditionalPropertiesIfNotPresent": "false",
+  "separateErrorChannel": "true",
+  "additionalProperties": {
+    "artifactVersion": "1.0.0",
+    "sourceFolder": "",
+    "apiNameSuffix": "Api",
+    "hideGenerationTimestamp": "true"
+  }
+}

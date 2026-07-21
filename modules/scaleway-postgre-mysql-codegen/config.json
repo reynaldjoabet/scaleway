@@ -1,0 +1,28 @@
+{
+  "generatorName": "scala-sttp4-jsoniter",
+  "inputSpec": "modules/scaleway-postgre-mysql-codegen/scaleway.postgre_mysql.v1.Api.yml",
+  "outputDir": "modules/scaleway-postgre-mysql-codegen/src/main/scala",
+  "apiPackage": "scaleway.postgremysql.api",
+  "modelPackage": "scaleway.postgremysql.models",
+  "invokerPackage": "scaleway.postgremysql",
+  "globalProperties": {
+    "apis": "",
+    "models": "",
+    "supportingFiles": ""
+  },
+  "modelPropertyNaming": "camelCase",
+  "ensureUniqueParams": "true",
+  "sortParamsByRequiredFlag": "true",
+  "sortModelPropertiesByRequiredFlag": "true",
+  "allowUnicodeIdentifiers": "false",
+  "prependFormOrBodyParameters": "false",
+  "enumUnknownDefaultCase": "true",
+  "disallowAdditionalPropertiesIfNotPresent": "false",
+  "separateErrorChannel": "true",
+  "additionalProperties": {
+    "artifactVersion": "1.0.0",
+    "sourceFolder": "",
+    "apiNameSuffix": "Api",
+    "hideGenerationTimestamp": "true"
+  }
+}

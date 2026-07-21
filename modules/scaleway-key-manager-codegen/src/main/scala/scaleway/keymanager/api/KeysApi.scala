@@ -373,7 +373,7 @@ case class KeysApi[Auth <: scaleway.keymanager.Authorization] private (baseUrl: 
       .response(asJson[ListAlgorithmsResponse])
 
   /**
-   * Retrieve a list of keys across all Projects in an Organization or within a specific Project. You must specify the `region`, and either the `organization_id` or the `project_id`.
+   * Retrieve a list of keys across all Projects in an Organization or within a specific Project.  If the user has permissions for all current and future projects: Either organization_id or project_id is required. If the user has permissions for all current projects or only specific projects: The project_id is required. The `region` parameter in path is needed in both case.
    * 
    * Expected answers:
    *   code 200 : ListKeysResponse ()

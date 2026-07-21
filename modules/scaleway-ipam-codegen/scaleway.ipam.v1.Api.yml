@@ -224,6 +224,8 @@ components:
               - dtwh_deployment
               - sedb_cluster
               - msgq_cluster
+              - edge_vpc_endpoint
+              - dviz_cluster
               default: unknown_type
             id:
               type: string
@@ -318,6 +320,8 @@ components:
       - dtwh_deployment
       - sedb_cluster
       - msgq_cluster
+      - edge_vpc_endpoint
+      - dviz_cluster
       default: unknown_type
     scaleway.ipam.v1.Reverse:
       type: object
@@ -351,6 +355,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       responses:
@@ -406,6 +411,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: query
@@ -514,6 +520,8 @@ paths:
           - dtwh_deployment
           - sedb_cluster
           - msgq_cluster
+          - edge_vpc_endpoint
+          - dviz_cluster
           default: unknown_type
       - in: query
         name: resource_types
@@ -591,6 +599,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       responses:
@@ -740,6 +749,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -783,6 +793,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -851,6 +862,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -903,6 +915,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -981,6 +994,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path
@@ -1060,6 +1074,7 @@ paths:
           type: string
           enum:
           - fr-par
+          - it-mil
           - nl-ams
           - pl-waw
       - in: path

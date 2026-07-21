@@ -14,7 +14,7 @@ package scaleway.keymanager.models
 import com.github.plokhotnyuk.jsoniter_scala.macros.named
 
 case class ImportKeyMaterialRequest(
-  /* The key material The key material is a random sequence of bytes used to derive a cryptographic key. */
+  /* The key material. The key material is a random sequence of bytes used to derive a cryptographic key. */
   @named("key_material") keyMaterial: Option[String] = scala.None,
   @named("salt") salt: Option[ImportKeyMaterialRequestSalt] = scala.None
 )
