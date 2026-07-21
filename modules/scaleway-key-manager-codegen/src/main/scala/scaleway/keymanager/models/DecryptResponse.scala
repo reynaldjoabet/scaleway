@@ -51,5 +51,5 @@ case class DecryptResponse(
     @named("key_id") keyId: Option[String] = scala.None,
     /* Key's decrypted data. */
     @named("plaintext") plaintext: Option[String] = scala.None,
-    @named("ciphertext") ciphertext: Option[DecryptRequestAssociatedData] = scala.None
+    @named("ciphertext") ciphertext: Option[ScalewayKeyManagerV1alpha1DecryptResponseCiphertext] = scala.None
 )

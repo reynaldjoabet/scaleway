@@ -105,7 +105,7 @@ package scaleway.containers.models
 import com.github.plokhotnyuk.jsoniter_scala.macros.named
 
 case class UpdateNamespaceRequest(
-    @named("environment_variables") environmentVariables: Option[CreateContainerRequestEnvironmentVariables] =
+    @named("environment_variables") environmentVariables: Option[UpdateNamespaceRequestEnvironmentVariables] =
       scala.None,
     /* Description of the namespace to update. */
     @named("description") description: Option[String] = scala.None,

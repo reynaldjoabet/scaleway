@@ -91,6 +91,7 @@ object JsonSupport extends AdditionalTypeSerializers:
   given addSubnetsRequestCodec: JsonValueCodec[AddSubnetsRequest] = deriveJsonCodec
   given updateRouteRequestCodec: JsonValueCodec[UpdateRouteRequest] = deriveJsonCodec
   given listVPCsResponseCodec: JsonValueCodec[ListVPCsResponse] = deriveJsonCodec
+  given updateVPCRequestCodec: JsonValueCodec[UpdateVPCRequest] = deriveJsonCodec
   given createVPCRequestCodec: JsonValueCodec[CreateVPCRequest] = deriveJsonCodec
   given getAclResponseCodec: JsonValueCodec[GetAclResponse] = deriveJsonCodec
   given createPrivateNetworkRequestCodec: JsonValueCodec[CreatePrivateNetworkRequest] = deriveJsonCodec

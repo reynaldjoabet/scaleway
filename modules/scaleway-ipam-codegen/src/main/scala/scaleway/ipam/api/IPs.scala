@@ -58,6 +58,7 @@ package scaleway.ipam.api
 
 import scaleway.ipam.models.AttachIPRequest
 import scaleway.ipam.models.BookIPRequest
+import scaleway.ipam.models.DetachIPRequest
 import scaleway.ipam.models.IP
 import scaleway.ipam.models.ListIPsResponse
 import scaleway.ipam.models.ModelType.*
@@ -169,9 +170,9 @@ case class IPs[Auth <: scaleway.ipam.Authorization] private (baseUrl: String, au
     *   The region you want to target
     * @param ipId
     *   IP ID. (UUID format)
-    * @param attachIPRequest
+    * @param detachIPRequest
     */
-  def detachIP(region: String, ipId: String, attachIPRequest: AttachIPRequest)(using
+  def detachIP(region: String, ipId: String, detachIPRequest: DetachIPRequest)(using
       Auth <:< scaleway.ipam.Authorization.ApiKey
   ): sttp.client4.Request[Either[ResponseException[String], IP]] =
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
@@ -183,7 +184,7 @@ case class IPs[Auth <: scaleway.ipam.Authorization] private (baseUrl: String, au
       .method(Method.POST, requestURL)
       .contentType("application/json")
       .auth(authConfig, scaleway.ipam.ApiKeyLocation.HEADER, "X-Auth-Token")
-      .body(asJson(attachIPRequest))
+      .body(asJson(detachIPRequest))
       .response(asJson[IP])
 
   /** Retrieve details of an existing IP, specified by its IP ID.

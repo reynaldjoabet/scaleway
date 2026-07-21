@@ -74,7 +74,7 @@ package scaleway.vpc.api
 
 import scaleway.vpc.models.CreateVPCRequest
 import scaleway.vpc.models.ListVPCsResponse
-import scaleway.vpc.models.UpdateVPCConnectorRequest
+import scaleway.vpc.models.UpdateVPCRequest
 import scaleway.vpc.models.VPC
 import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
 import scaleway.vpc.JsonSupport.{*, given}
@@ -293,9 +293,9 @@ case class VPCsApi[Auth <: scaleway.vpc.Authorization] private (
     *   The region you want to target
     * @param vpcId
     *   VPC ID. (UUID format)
-    * @param updateVPCConnectorRequest
+    * @param updateVPCRequest
     */
-  def updateVPC(region: String, vpcId: String, updateVPCConnectorRequest: UpdateVPCConnectorRequest)(using
+  def updateVPC(region: String, vpcId: String, updateVPCRequest: UpdateVPCRequest)(using
       Auth <:< scaleway.vpc.Authorization.ApiKey
   ): sttp.client4.Request[Either[ResponseException[String], VPC]] =
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
@@ -307,7 +307,7 @@ case class VPCsApi[Auth <: scaleway.vpc.Authorization] private (
       .method(Method.PATCH, requestURL)
       .contentType("application/json")
       .auth(authConfig, scaleway.vpc.ApiKeyLocation.HEADER, "X-Auth-Token")
-      .body(asJson(updateVPCConnectorRequest))
+      .body(asJson(updateVPCRequest))
       .response(asJson[VPC])
 
 end VPCsApi

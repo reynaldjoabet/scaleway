@@ -1,6 +1,5 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "templateDir": "modules/custom-template",
   "inputSpec": "modules/scaleway-autoscaling-codegen/scaleway.autoscaling.v1alpha1.Api.yml",
   "outputDir": "modules/scaleway-autoscaling-codegen/src/main/scala",
   "apiPackage": "scaleway.autoscaling.api",

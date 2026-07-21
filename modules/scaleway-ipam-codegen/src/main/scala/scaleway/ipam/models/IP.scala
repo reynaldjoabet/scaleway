@@ -72,7 +72,7 @@ case class IP(
     @named("created_at") createdAt: Option[OffsetDateTime] = scala.None,
     /* Date the IP was last modified. (RFC 3339 format) */
     @named("updated_at") updatedAt: Option[OffsetDateTime] = scala.None,
-    @named("source") source: Option[BookIPRequestSource] = scala.None,
+    @named("source") source: Option[ScalewayIpamV1IPSource] = scala.None,
     @named("resource") resource: Option[ScalewayIpamV1IPResource] = scala.None,
     /* Tags for the IP. */
     @named("tags") tags: Option[Seq[String]] = scala.None,

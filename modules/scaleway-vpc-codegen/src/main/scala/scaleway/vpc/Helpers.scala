@@ -78,7 +78,8 @@ import java.io.File
 import java.util.UUID
 import java.time.{LocalDate, OffsetDateTime}
 import java.time.format.DateTimeFormatter
-import com.github.plokhotnyuk.jsoniter_scala.core.{JsonValueCodec, writeToString}
+import com.github.plokhotnyuk.jsoniter_scala.core.{JsonValueCodec, readFromString, writeToString}
+import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 
 type Primitive = String | Short | Int | Long | Float | Double | BigDecimal | Boolean | UUID | LocalDate | OffsetDateTime
 
@@ -129,6 +130,14 @@ private val flattenKeyVals: Primitive | Option[Primitive] => Option[Primitive] =
   case opt: Option[Primitive] => opt
 }
 
+private val stringCodec: JsonValueCodec[String] = JsonCodecMaker.make
+
+// Enums encode to a JSON scalar: strings come back quoted and escaped, numbers bare.
+// Decode strings so the parameter carries the enum's actual wire value.
+private def enumWireValue[T](v: T)(codec: JsonValueCodec[T]): String =
+  val json = writeToString(v)(codec)
+  if json.startsWith("\"") then readFromString(json)(stringCodec) else json
+
 trait FormSerializable[T]:
   inline def serialize(
       name: String,
@@ -165,11 +174,7 @@ object FormSerializable:
               case mirror: Mirror.SumOf[t] =>
                 serializeArray(
                   name,
-                  enumArray.map(v =>
-                    writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])
-                      .stripPrefix("\"")
-                      .stripSuffix("\"")
-                  ),
+                  enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
                   format,
                   explode
                 )
@@ -182,11 +187,7 @@ object FormSerializable:
                   .map(seq =>
                     serializeArray(
                       name,
-                      seq.map(v =>
-                        writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])
-                          .stripPrefix("\"")
-                          .stripSuffix("\"")
-                      ),
+                      seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
                       format,
                       explode
                     )
@@ -194,6 +195,42 @@ object FormSerializable:
                   .getOrElse(Seq.empty[(String, String)])
               case _ =>
                 error("Arrays of non-primitive types are only supported for enums")
+          case set: Set[p] => // Set is invariant, so dispatch on the bound element type
+            inline erasedValue[p] match
+              case _: Primitive =>
+                serializeArray(name, set.toSeq.asInstanceOf[Seq[Primitive]], format, explode)
+              case _ =>
+                inline summonInline[Mirror.Of[p]] match
+                  case mirror: Mirror.SumOf[p] =>
+                    serializeArray(
+                      name,
+                      set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
+                      format,
+                      explode
+                    )
+                  case _ =>
+                    error("Sets of non-primitive types are only supported for enums")
+          case optSet: Option[Set[p]] =>
+            inline erasedValue[p] match
+              case _: Primitive =>
+                optSet
+                  .map(s => serializeArray(name, s.toSeq.asInstanceOf[Seq[Primitive]], format, explode))
+                  .getOrElse(Seq.empty[(String, String)])
+              case _ =>
+                inline summonInline[Mirror.Of[p]] match
+                  case mirror: Mirror.SumOf[p] =>
+                    optSet
+                      .map(s =>
+                        serializeArray(
+                          name,
+                          s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
+                          format,
+                          explode
+                        )
+                      )
+                      .getOrElse(Seq.empty[(String, String)])
+                  case _ =>
+                    error("Sets of non-primitive types are only supported for enums")
           case freeObj: Map[String, Primitive] =>
             freeObj.map((key, value) => (key, value.asString)).toSeq
           case optObj: Option[t] =>
@@ -263,21 +300,25 @@ object FormSerializable:
       inline format: FormStyleFormat,
       inline explode: Boolean
   ): Seq[(String, String)] = {
-    inline format match
-      case FormStyleFormat.FORM =>
-        inline if explode then values.map(s => (paramName, s.asString))
-        else Seq(paramName -> values.map(_.asString).mkString(","))
-      case FormStyleFormat.SPACEDELIMITED =>
-        inline if explode then values.map(s => (paramName, s.asString))
-        else
-          Seq(
-            paramName -> values.map(_.asString).mkString(" ")
-          ) // Sttp will encode space as +, from https://swagger.io/docs/specification/v3_0/serialization/#query-parameters it is not clear if it should be + or %20
-      case FormStyleFormat.PIPEDELIMITED =>
-        inline if explode then values.map(s => (paramName, s.asString))
-        else Seq(paramName -> values.map(_.asString).mkString("|"))
-      case FormStyleFormat.DEEPOBJECT =>
-        error("FormStyleFormat.DeepObject does not support arrays")
+    // an empty collection carries no value: omit it entirely rather than emit `name=`
+    // (matches explode=true, which already yields no entries for an empty collection)
+    if values.isEmpty then Seq.empty[(String, String)]
+    else
+      inline format match
+        case FormStyleFormat.FORM =>
+          inline if explode then values.map(s => (paramName, s.asString))
+          else Seq(paramName -> values.map(_.asString).mkString(","))
+        case FormStyleFormat.SPACEDELIMITED =>
+          inline if explode then values.map(s => (paramName, s.asString))
+          else
+            Seq(
+              paramName -> values.map(_.asString).mkString(" ")
+            ) // Sttp will encode space as +, from https://swagger.io/docs/specification/v3_0/serialization/#query-parameters it is not clear if it should be + or %20
+        case FormStyleFormat.PIPEDELIMITED =>
+          inline if explode then values.map(s => (paramName, s.asString))
+          else Seq(paramName -> values.map(_.asString).mkString("|"))
+        case FormStyleFormat.DEEPOBJECT =>
+          error("FormStyleFormat.DeepObject does not support arrays")
   }
   private inline def serializeModel(
       paramName: String,
@@ -327,11 +368,7 @@ object HeaderSerializable:
               case mirror: Mirror.SumOf[t] =>
                 Map(
                   name -> enumArray
-                    .map(v =>
-                      writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])
-                        .stripPrefix("\"")
-                        .stripSuffix("\"")
-                    )
+                    .map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
                     .mkString(",")
                 )
               case _ => error("Arrays of non-primitive types are only supported for enums")
@@ -342,16 +379,43 @@ object HeaderSerializable:
                   .map(seq =>
                     Map(
                       name -> seq
-                        .map(v =>
-                          writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])
-                            .stripPrefix("\"")
-                            .stripSuffix("\"")
-                        )
+                        .map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
                         .mkString(",")
                     )
                   )
                   .getOrElse(Map.empty[String, String])
               case _ => error("Arrays of non-primitive types are only supported for enums")
+          case set: Set[p] => // Set is invariant, so dispatch on the bound element type
+            inline erasedValue[p] match
+              case _: Primitive => Map(name -> set.toSeq.asInstanceOf[Seq[Primitive]].map(_.asString).mkString(","))
+              case _            =>
+                inline summonInline[Mirror.Of[p]] match
+                  case mirror: Mirror.SumOf[p] =>
+                    Map(
+                      name -> set.toSeq
+                        .map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
+                        .mkString(",")
+                    )
+                  case _ => error("Sets of non-primitive types are only supported for enums")
+          case optSet: Option[Set[p]] =>
+            inline erasedValue[p] match
+              case _: Primitive =>
+                optSet
+                  .map(s => Map(name -> s.toSeq.asInstanceOf[Seq[Primitive]].map(_.asString).mkString(",")))
+                  .getOrElse(Map.empty[String, String])
+              case _ =>
+                inline summonInline[Mirror.Of[p]] match
+                  case mirror: Mirror.SumOf[p] =>
+                    optSet
+                      .map(s =>
+                        Map(
+                          name -> s.toSeq
+                            .map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
+                            .mkString(",")
+                        )
+                      )
+                      .getOrElse(Map.empty[String, String])
+                  case _ => error("Sets of non-primitive types are only supported for enums")
           case mapPrimitive: Map[String, Primitive] => mapPrimitive.map((k, v) => (k, v.asString))
           case optObj: Option[t]                    =>
             inline summonInline[Mirror.Of[t]] match
@@ -428,11 +492,7 @@ object PathSerializable:
               case mirror: Mirror.SumOf[t] =>
                 serializeArray(
                   name,
-                  enumArray.map(v =>
-                    writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])
-                      .stripPrefix("\"")
-                      .stripSuffix("\"")
-                  ),
+                  enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
                   style,
                   explode
                 )
@@ -445,11 +505,7 @@ object PathSerializable:
                   .map(seq =>
                     serializeArray(
                       name,
-                      seq.map(v =>
-                        writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])
-                          .stripPrefix("\"")
-                          .stripSuffix("\"")
-                      ),
+                      seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
                       style,
                       explode
                     )
@@ -457,6 +513,42 @@ object PathSerializable:
                   .getOrElse("")
               case _ =>
                 error("Arrays of non-primitive types are only supported for enums")
+          case set: Set[p] => // Set is invariant, so dispatch on the bound element type
+            inline erasedValue[p] match
+              case _: Primitive =>
+                serializeArray(name, set.toSeq.asInstanceOf[Seq[Primitive]], style, explode)
+              case _ =>
+                inline summonInline[Mirror.Of[p]] match
+                  case mirror: Mirror.SumOf[p] =>
+                    serializeArray(
+                      name,
+                      set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
+                      style,
+                      explode
+                    )
+                  case _ =>
+                    error("Sets of non-primitive types are only supported for enums")
+          case optSet: Option[Set[p]] =>
+            inline erasedValue[p] match
+              case _: Primitive =>
+                optSet
+                  .map(s => serializeArray(name, s.toSeq.asInstanceOf[Seq[Primitive]], style, explode))
+                  .getOrElse("")
+              case _ =>
+                inline summonInline[Mirror.Of[p]] match
+                  case mirror: Mirror.SumOf[p] =>
+                    optSet
+                      .map(s =>
+                        serializeArray(
+                          name,
+                          s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
+                          style,
+                          explode
+                        )
+                      )
+                      .getOrElse("")
+                  case _ =>
+                    error("Sets of non-primitive types are only supported for enums")
           case freeObj: Map[String, Primitive] =>
             serializeModel(name, freeObj.map((key, value) => (key, value.asString)).toSeq, style, explode)
           case optObj: Option[t] =>
@@ -578,11 +670,7 @@ object CookieSerializable:
               case mirror: Mirror.SumOf[t] =>
                 serializeArray(
                   name,
-                  enumArray.map(v =>
-                    writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])
-                      .stripPrefix("\"")
-                      .stripSuffix("\"")
-                  ),
+                  enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
                   explode
                 )
               case _ =>
@@ -594,17 +682,47 @@ object CookieSerializable:
                   .map(seq =>
                     serializeArray(
                       name,
-                      seq.map(v =>
-                        writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])
-                          .stripPrefix("\"")
-                          .stripSuffix("\"")
-                      ),
+                      seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
                       explode
                     )
                   )
                   .getOrElse(Seq.empty[(String, String)])
               case _ =>
                 error("Arrays of non-primitive types are only supported for enums")
+          case set: Set[p] => // Set is invariant, so dispatch on the bound element type
+            inline erasedValue[p] match
+              case _: Primitive =>
+                serializeArray(name, set.toSeq.asInstanceOf[Seq[Primitive]], explode)
+              case _ =>
+                inline summonInline[Mirror.Of[p]] match
+                  case mirror: Mirror.SumOf[p] =>
+                    serializeArray(
+                      name,
+                      set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
+                      explode
+                    )
+                  case _ =>
+                    error("Sets of non-primitive types are only supported for enums")
+          case optSet: Option[Set[p]] =>
+            inline erasedValue[p] match
+              case _: Primitive =>
+                optSet
+                  .map(s => serializeArray(name, s.toSeq.asInstanceOf[Seq[Primitive]], explode))
+                  .getOrElse(Seq.empty[(String, String)])
+              case _ =>
+                inline summonInline[Mirror.Of[p]] match
+                  case mirror: Mirror.SumOf[p] =>
+                    optSet
+                      .map(s =>
+                        serializeArray(
+                          name,
+                          s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
+                          explode
+                        )
+                      )
+                      .getOrElse(Seq.empty[(String, String)])
+                  case _ =>
+                    error("Sets of non-primitive types are only supported for enums")
           case freeObj: Map[String, Primitive] =>
             serializeModel(name, freeObj.map((key, value) => (key, value.asString)).toSeq, explode)
           case optObj: Option[t] =>

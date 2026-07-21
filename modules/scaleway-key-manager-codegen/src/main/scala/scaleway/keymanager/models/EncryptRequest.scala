@@ -49,5 +49,5 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.named
 case class EncryptRequest(
     /* Plaintext data to encrypt. Data size must be between 1 and 65535 bytes. */
     @named("plaintext") plaintext: Option[String] = scala.None,
-    @named("associated_data") associatedData: Option[DecryptRequestAssociatedData] = scala.None
+    @named("associated_data") associatedData: Option[EncryptRequestAssociatedData] = scala.None
 )

@@ -1,6 +1,5 @@
 {
   "generatorName": "scala-sttp4-jsoniter",
-  "templateDir": "modules/custom-template",
   "inputSpec": "modules/scaleway-key-manager-codegen/scaleway.key_manager.v1alpha1.Api.yml",
   "outputDir": "modules/scaleway-key-manager-codegen/src/main/scala",
   "apiPackage": "scaleway.keymanager.api",

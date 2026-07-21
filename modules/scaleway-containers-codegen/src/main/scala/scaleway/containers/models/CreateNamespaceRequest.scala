@@ -107,7 +107,7 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.named
 case class CreateNamespaceRequest(
     /* Name of the namespace to create. */
     @named("name") name: Option[String] = scala.None,
-    @named("environment_variables") environmentVariables: Option[CreateContainerRequestEnvironmentVariables] =
+    @named("environment_variables") environmentVariables: Option[CreateNamespaceRequestEnvironmentVariables] =
       scala.None,
     /* UUID of the Project in which the namespace will be created. */
     @named("project_id") projectId: Option[String] = scala.None,

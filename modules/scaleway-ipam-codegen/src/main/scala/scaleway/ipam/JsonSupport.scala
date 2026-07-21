@@ -68,6 +68,7 @@ object JsonSupport extends AdditionalTypeSerializers:
   inline def deriveJsonCodec[A](using inline config: CodecMakerConfig): JsonValueCodec[A] =
     JsonCodecMaker.make(config)
 
+  given detachIPRequestCodec: JsonValueCodec[DetachIPRequest] = deriveJsonCodec
   given moveIPRequestCodec: JsonValueCodec[MoveIPRequest] = deriveJsonCodec
   given attachIPRequestCodec: JsonValueCodec[AttachIPRequest] = deriveJsonCodec
   given bookIPRequestCodec: JsonValueCodec[BookIPRequest] = deriveJsonCodec

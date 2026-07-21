@@ -111,7 +111,7 @@ case class Namespace(
     /* Name of the namespace. */
     @named("name") name: Option[String] = scala.None,
     @named("environment_variables") environmentVariables: Option[
-      ScalewayContainersV1beta1ContainerEnvironmentVariables
+      ScalewayContainersV1beta1NamespaceEnvironmentVariables
     ] = scala.None,
     /* UUID of the Organization the namespace belongs to. */
     @named("organization_id") organizationId: Option[String] = scala.None,

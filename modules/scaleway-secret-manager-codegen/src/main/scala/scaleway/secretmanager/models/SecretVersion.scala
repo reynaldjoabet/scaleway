@@ -64,8 +64,9 @@ case class SecretVersion(
     @named("description") description: Option[String] = scala.None,
     /* Returns `true` if the version is the latest. */
     @named("latest") latest: Option[Boolean] = scala.None,
-    @named("ephemeral_properties") ephemeralProperties: Option[UpdateSecretVersionRequestEphemeralProperties] =
-      scala.None,
+    @named("ephemeral_properties") ephemeralProperties: Option[
+      ScalewaySecretManagerV1beta1SecretVersionEphemeralProperties
+    ] = scala.None,
     /* Returns the time at which deletion was requested. (RFC 3339 format) */
     @named("deletion_requested_at") deletionRequestedAt: Option[OffsetDateTime] = scala.None,
     /* Region of the version. */

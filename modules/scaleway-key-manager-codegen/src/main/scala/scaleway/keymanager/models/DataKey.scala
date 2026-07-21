@@ -54,7 +54,7 @@ case class DataKey(
     @named("algorithm") algorithm: Option[DataKeyEnums.Algorithm] = scala.None,
     /* Data encryption key ciphertext. Your data encryption key's ciphertext can be stored safely. It can only be decrypted through the keys you create in Key Manager, using the relevant key ID. */
     @named("ciphertext") ciphertext: Option[String] = scala.None,
-    @named("plaintext") plaintext: Option[DecryptRequestAssociatedData] = scala.None,
+    @named("plaintext") plaintext: Option[ScalewayKeyManagerV1alpha1DataKeyPlaintext] = scala.None,
     /* Data encryption key creation date. (RFC 3339 format) */
     @named("created_at") createdAt: Option[OffsetDateTime] = scala.None
 )

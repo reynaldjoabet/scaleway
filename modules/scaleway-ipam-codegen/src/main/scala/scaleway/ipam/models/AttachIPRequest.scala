@@ -59,5 +59,5 @@ package scaleway.ipam.models
 import com.github.plokhotnyuk.jsoniter_scala.macros.named
 
 case class AttachIPRequest(
-    @named("resource") resource: BookIPRequestResource
+    @named("resource") resource: AttachIPRequestResource
 )

@@ -84,7 +84,7 @@ case class Instance(
     @named("node_amount") nodeAmount: Option[Int] = scala.None,
     /* Node type of the Database Instance. */
     @named("node_type") nodeType: Option[String] = scala.None,
-    @named("volume") volume: Option[CreateInstanceRequestVolume] = scala.None,
+    @named("volume") volume: Option[ScalewayMongodbV1InstanceVolume] = scala.None,
     /* List of Database Instance endpoints. */
     @named("endpoints") endpoints: Option[Seq[Endpoint]] = scala.None,
     /* Creation date (must follow the ISO 8601 format). (RFC 3339 format) */

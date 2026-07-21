@@ -59,6 +59,6 @@ package scaleway.ipam.models
 import com.github.plokhotnyuk.jsoniter_scala.macros.named
 
 case class MoveIPRequest(
-    @named("from_resource") fromResource: BookIPRequestResource,
-    @named("to_resource") toResource: Option[BookIPRequestResource] = scala.None
+    @named("from_resource") fromResource: DetachIPRequestResource,
+    @named("to_resource") toResource: Option[AttachIPRequestResource] = scala.None
 )

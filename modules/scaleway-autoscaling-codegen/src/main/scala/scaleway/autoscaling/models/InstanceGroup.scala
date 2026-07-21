@@ -56,7 +56,7 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.named
 
 case class InstanceGroup(
     @named("capacity") capacity: CreateInstanceGroupRequestCapacity,
-    @named("loadbalancer") loadbalancer: CreateInstanceGroupRequestLoadbalancer,
+    @named("loadbalancer") loadbalancer: ScalewayAutoscalingV1alpha1InstanceGroupLoadbalancer,
     /* Instance group ID. */
     @named("id") id: Option[String] = scala.None,
     /* Project ID of the Instance group. */

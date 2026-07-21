@@ -8,15 +8,6 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 lazy val root = (project in file("."))
   .settings(
     name := "scaleway",
-    // Scoped here (inside root's own .settings), not as a loose top-level
-    // expression: in sbt 1.x a loose expression auto-attached to the root
-    // project only, but in sbt 2.x it auto-attaches to every project in this
-    // build file. Since this is a `ThisBuild /`-scoped `++=`, a loose copy
-    // would get contributed once per project (root + 9 codegen modules) and
-    // each contribution appends onto the same accumulated value, so the
-    // flags -- including "-no-indent", which the codegen modules subtract
-    // back out in commonSettings -- ended up duplicated 10x over, and the
-    // subtraction only ever stripped one copy.
     ThisBuild / scalacOptions ++= Seq(
       "-encoding",
       "UTF-8",
@@ -53,7 +44,17 @@ lazy val root = (project in file("."))
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "scaleway"
   )
-  // .dependsOn(`scaleway-codegen` % "compile->compile")
+  .dependsOn(
+    `scaleway-autoscaling-codegen` % "compile->compile;test->test",
+    `scaleway-containers-codegen` % "compile->compile;test->test",
+    `scaleway-iam-codegen` % "compile->compile;test->test",
+    `scaleway-ipam-codegen` % "compile->compile;test->test",
+    `scaleway-key-manager-codegen` % "compile->compile;test->test",
+    `scaleway-mongodb-codegen` % "compile->compile;test->test",
+    `scaleway-secret-manager-codegen` % "compile->compile;test->test",
+    `scaleway-vpc-codegen` % "compile->compile;test->test",
+    `scaleway-vpc-gw-codegen` % "compile->compile;test->test"
+  )
   .enablePlugins(BuildInfoPlugin)
   .aggregate(
     `scaleway-autoscaling-codegen`,
@@ -81,6 +82,8 @@ val commonSettings = Seq(
   // Use the module-local config.json
   openApiConfigFile := (baseDirectory.value / "config.json").getPath,
 
+  openApiIgnoreFileOverride := (baseDirectory.value / ".openapi-generator-ignore").getPath,
+
   // Generated sources are committed under src/main/scala; regenerate with the `generate` task
   openApiOutputDir := ((Compile / baseDirectory).value / "src/main/scala").getAbsolutePath,
   openApiGenerateModelTests := SettingDisabled,
@@ -89,8 +92,10 @@ val commonSettings = Seq(
   openApiValidateSpec := SettingDisabled,
 
   // Regenerate the client from the spec: clear the previous output so
-  // renamed/removed files don't linger, run the generator, then strip
-  // the sbt/project scaffolding it emits alongside the sources.
+  // renamed/removed files don't linger, then run the generator. The
+  // sbt/project scaffolding it would otherwise emit alongside the sources
+  // is suppressed via the module-local .openapi-generator-ignore instead
+  // of being generated and then deleted.
   //
   // Must stay uncached. sbt 2 caches `:=` task results by default, but the
   // cache key is built from the task's `.value` inputs, and nothing here
@@ -105,20 +110,7 @@ val commonSettings = Seq(
           val packageDir = openApiInvokerPackage.value.split('.').foldLeft(file(openApiOutputDir.value))(_ / _)
           IO.delete(packageDir)
         },
-        openApiGenerate,
-        Def.task {
-          val outputDir = file(openApiOutputDir.value)
-          val scaffolding = Seq(
-            outputDir / "build.sbt",
-            outputDir / "project",
-            outputDir / "README.md",
-            outputDir / ".scalafmt.conf",
-            outputDir / ".openapi-generator",
-            outputDir / ".openapi-generator-ignore",
-            outputDir / ".gitignore"
-          )
-          IO.delete(scaffolding)
-        }
+        openApiGenerate
       )
       .value
   },

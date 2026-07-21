@@ -73,7 +73,7 @@ case class Key(
     @named("tags") tags: Option[Seq[String]] = scala.None,
     /* Key last rotation date. (RFC 3339 format) */
     @named("rotated_at") rotatedAt: Option[OffsetDateTime] = scala.None,
-    @named("rotation_policy") rotationPolicy: Option[CreateKeyRequestRotationPolicy] = scala.None,
+    @named("rotation_policy") rotationPolicy: Option[ScalewayKeyManagerV1alpha1KeyRotationPolicy] = scala.None,
     /* Key origin. Refer to the `Key.Origin` enum for a description of values. */
     @named("origin") origin: Option[KeyEnums.Origin] = scala.None,
     /* Returns the time at which deletion was requested. (RFC 3339 format) */

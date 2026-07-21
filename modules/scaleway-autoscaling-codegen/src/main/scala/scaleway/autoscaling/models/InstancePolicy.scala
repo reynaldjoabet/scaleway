@@ -58,7 +58,7 @@ case class InstancePolicy(
     @named("id") id: Option[String] = scala.None,
     /* Name of scaling policy. */
     @named("name") name: Option[String] = scala.None,
-    @named("metric") metric: Option[CreateInstancePolicyRequestMetric] = scala.None,
+    @named("metric") metric: Option[ScalewayAutoscalingV1alpha1InstancePolicyMetric] = scala.None,
     /* Action to execute when the metric-based condition is met. */
     @named("action") action: Option[InstancePolicyEnums.Action] = scala.None,
     /* How to use the number defined in `value` when determining by how many Instances to scale up/down. */

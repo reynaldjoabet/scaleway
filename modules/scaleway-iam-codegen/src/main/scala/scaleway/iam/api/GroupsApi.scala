@@ -63,8 +63,9 @@ import scaleway.iam.models.AddGroupMembersRequest
 import scaleway.iam.models.CreateGroupRequest
 import scaleway.iam.models.Group
 import scaleway.iam.models.ListGroupsResponse
+import scaleway.iam.models.RemoveGroupMemberRequest
 import scaleway.iam.models.SetGroupMembersRequest
-import scaleway.iam.models.UpdateApplicationRequest
+import scaleway.iam.models.UpdateGroupRequest
 import scaleway.iam.JsonSupport.{*, given}
 import scaleway.iam.FormSerializable
 import scaleway.iam.FormStyleFormat
@@ -298,9 +299,9 @@ case class GroupsApi[Auth <: scaleway.iam.Authorization] private (
     *
     * @param groupId
     *   ID of the group.
-    * @param addGroupMemberRequest
+    * @param removeGroupMemberRequest
     */
-  def removeGroupMember(groupId: String, addGroupMemberRequest: AddGroupMemberRequest)(using
+  def removeGroupMember(groupId: String, removeGroupMemberRequest: RemoveGroupMemberRequest)(using
       Auth <:< scaleway.iam.Authorization.ApiKey
   ): sttp.client4.Request[Either[ResponseException[String], Group]] =
     val groupIdPathParam = PathSerializable.serialize("group_id", groupId, PathStyleFormat.SIMPLE, false)
@@ -311,7 +312,7 @@ case class GroupsApi[Auth <: scaleway.iam.Authorization] private (
       .method(Method.POST, requestURL)
       .contentType("application/json")
       .auth(authConfig, scaleway.iam.ApiKeyLocation.HEADER, "X-Auth-Token")
-      .body(asJson(addGroupMemberRequest))
+      .body(asJson(removeGroupMemberRequest))
       .response(asJson[Group])
 
   /** Overwrite users and applications configuration in a group. Any information that you add using this command will
@@ -346,9 +347,9 @@ case class GroupsApi[Auth <: scaleway.iam.Authorization] private (
     *
     * @param groupId
     *   ID of the group to update.
-    * @param updateApplicationRequest
+    * @param updateGroupRequest
     */
-  def updateGroup(groupId: String, updateApplicationRequest: UpdateApplicationRequest)(using
+  def updateGroup(groupId: String, updateGroupRequest: UpdateGroupRequest)(using
       Auth <:< scaleway.iam.Authorization.ApiKey
   ): sttp.client4.Request[Either[ResponseException[String], Group]] =
     val groupIdPathParam = PathSerializable.serialize("group_id", groupId, PathStyleFormat.SIMPLE, false)
@@ -359,7 +360,7 @@ case class GroupsApi[Auth <: scaleway.iam.Authorization] private (
       .method(Method.PATCH, requestURL)
       .contentType("application/json")
       .auth(authConfig, scaleway.iam.ApiKeyLocation.HEADER, "X-Auth-Token")
-      .body(asJson(updateApplicationRequest))
+      .body(asJson(updateGroupRequest))
       .response(asJson[Group])
 
 end GroupsApi

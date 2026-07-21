@@ -72,7 +72,7 @@ case class Endpoint(
     @named("dns_record") dnsRecord: Option[String] = scala.None,
     /* TCP port of the endpoint. */
     @named("port") port: Option[Int] = scala.None,
-    @named("private_network") privateNetwork: Option[CreateEndpointRequestEndpointPrivateNetwork] = scala.None,
+    @named("private_network") privateNetwork: Option[ScalewayMongodbV1EndpointPrivateNetwork] = scala.None,
     /* Public Network endpoint details. */
     @named("public_network") publicNetwork: Option[io.circe.Json] = scala.None
 )

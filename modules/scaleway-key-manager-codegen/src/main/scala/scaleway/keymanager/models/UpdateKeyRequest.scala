@@ -53,5 +53,5 @@ case class UpdateKeyRequest(
     @named("description") description: Option[String] = scala.None,
     /* (Optional) Updated list of the key's tags. */
     @named("tags") tags: Option[Seq[String]] = scala.None,
-    @named("rotation_policy") rotationPolicy: Option[CreateKeyRequestRotationPolicy] = scala.None
+    @named("rotation_policy") rotationPolicy: Option[UpdateKeyRequestRotationPolicy] = scala.None
 )

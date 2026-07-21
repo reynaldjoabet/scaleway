@@ -55,5 +55,5 @@ case class UpdateSecretRequest(
     @named("description") description: Option[String] = scala.None,
     /* Path of the folder. (Optional.) Location of the folder in the directory structure. If not specified, the path is `/`. */
     @named("path") path: Option[String] = scala.None,
-    @named("ephemeral_policy") ephemeralPolicy: Option[CreateSecretRequestEphemeralPolicy] = scala.None
+    @named("ephemeral_policy") ephemeralPolicy: Option[UpdateSecretRequestEphemeralPolicy] = scala.None
 )

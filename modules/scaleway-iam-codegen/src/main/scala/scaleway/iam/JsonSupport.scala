@@ -83,6 +83,7 @@ object JsonSupport extends AdditionalTypeSerializers:
   given createApplicationRequestCodec: JsonValueCodec[CreateApplicationRequest] = deriveJsonCodec
   given userCodec: JsonValueCodec[User] = deriveJsonCodec
   given checkPermissionsRequestCodec: JsonValueCodec[CheckPermissionsRequest] = deriveJsonCodec
+  given removeGroupMemberRequestCodec: JsonValueCodec[RemoveGroupMemberRequest] = deriveJsonCodec
   given listPoliciesResponseCodec: JsonValueCodec[ListPoliciesResponse] = deriveJsonCodec
   given updateUserRequestCodec: JsonValueCodec[UpdateUserRequest] = deriveJsonCodec
   given createGroupRequestCodec: JsonValueCodec[CreateGroupRequest] = deriveJsonCodec
@@ -102,6 +103,7 @@ object JsonSupport extends AdditionalTypeSerializers:
   given logCodec: JsonValueCodec[Log] = deriveJsonCodec
   given listApplicationsResponseCodec: JsonValueCodec[ListApplicationsResponse] = deriveJsonCodec
   given updatePolicyRequestCodec: JsonValueCodec[UpdatePolicyRequest] = deriveJsonCodec
+  given updateGroupRequestCodec: JsonValueCodec[UpdateGroupRequest] = deriveJsonCodec
   given listLogsResponseCodec: JsonValueCodec[ListLogsResponse] = deriveJsonCodec
   given setGroupMembersRequestCodec: JsonValueCodec[SetGroupMembersRequest] = deriveJsonCodec
   given listPermissionSetsResponseCodec: JsonValueCodec[ListPermissionSetsResponse] = deriveJsonCodec
