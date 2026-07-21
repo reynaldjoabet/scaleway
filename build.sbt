@@ -23,7 +23,6 @@ lazy val root = (project in file("."))
     ),
     libraryDependencies ++= Seq(
       sttpCore,
-      sttpJsoniter,
       http4sBackend,
       http4sDsl,
       emberServer,
@@ -36,9 +35,6 @@ lazy val root = (project in file("."))
       scribe,
       scribeSlf4j,
       scribeCats,
-      jsoniter,
-      jsoniterMacros,
-      jsoniterCirce,
       munit
     ),
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
@@ -82,6 +78,9 @@ val commonSettings = Seq(
   // Use the module-local config.json
   openApiConfigFile := (baseDirectory.value / "config.json").getPath,
 
+  // Module-local, like config.json above. Suppresses the sbt/project
+  // scaffolding the generator would otherwise emit -- see the `generate`
+  // comment below for why that scaffolding doesn't belong here.
   openApiIgnoreFileOverride := (baseDirectory.value / ".openapi-generator-ignore").getPath,
 
   // Generated sources are committed under src/main/scala; regenerate with the `generate` task
@@ -94,8 +93,12 @@ val commonSettings = Seq(
   // Regenerate the client from the spec: clear the previous output so
   // renamed/removed files don't linger, then run the generator. The
   // sbt/project scaffolding it would otherwise emit alongside the sources
-  // is suppressed via the module-local .openapi-generator-ignore instead
-  // of being generated and then deleted.
+  // (its own build.sbt, project/, README.md, .scalafmt.conf) is suppressed
+  // via the module-local .openapi-generator-ignore instead of being
+  // generated and then deleted. That scaffolding is for a standalone,
+  // publishable client project; here it'd actively conflict with this repo's
+  // single root build definition and fragment formatting away from the
+  // repo-wide .scalafmt.conf, not just sit around unused.
   //
   // Must stay uncached. sbt 2 caches `:=` task results by default, but the
   // cache key is built from the task's `.value` inputs, and nothing here
@@ -104,15 +107,9 @@ val commonSettings = Seq(
   // excluded from cache input. A cached task would therefore keep serving a
   // stale client whenever the spec changed, so we always regenerate.
   generate := Def.uncached {
-    Def
-      .sequential(
-        Def.task {
-          val packageDir = openApiInvokerPackage.value.split('.').foldLeft(file(openApiOutputDir.value))(_ / _)
-          IO.delete(packageDir)
-        },
-        openApiGenerate
-      )
-      .value
+    val packageDir = openApiInvokerPackage.value.split('.').foldLeft(file(openApiOutputDir.value))(_ / _)
+    IO.delete(packageDir)
+    openApiGenerate.value
   },
   libraryDependencies ++= Seq(
     sttpJsoniter,
