@@ -1,47 +1,14 @@
-/** Key Manager API Scaleway's Key Manager allows you to create, manage and use cryptographic keys in a centralized and
-  * secure service. All your cryptographic operations can be delegated to the Key Manager, which in turn ensures the
-  * security and availability of your keys. Key Manager supports the following cryptographic operations: data
-  * encryption, data decryption, and data encryption key generation. ## Concepts Refer to our [dedicated concepts
-  * page](https://www.scaleway.com/en/docs/key-manager/concepts/) to find definitions of the different terms referring
-  * to Key Manager. ## Quickstart 1. **Configure your environment variables.** <Message type=\"note\"> This is an
-  * optional step that seeks to simplify your usage of the API. </Message> ```bash     export SCW_ACCESS_KEY=\"<API access key>\"     export SCW_SECRET_KEY=\"<API secret key>\"     export SCW_PROJECT_ID=\"<Scaleway Project ID>\"     ``` 2.
-  * **Create a key**. Run the following command to create a key that you can use to encrypt and decrypt your data: ```bash     curl \"https://api.scaleway.com/key-manager/v1alpha1/regions/$REGION/keys\" \\       -H \"Content-Type: application/json\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -d '{         \"project_id\": \"$PROJECT_ID\",         \"name\": \"my-key\",         \"usage\": {             \"symmetric_encryption\": \"aes_256_gcm\"         }        }'     ``` 3.
-  * **Rotate your key**. Run the following command to generate a new version of your key. This operation renders your
-  * previous key version obsolete. ```bash     curl \"https://api.scaleway.com/key-manager/v1alpha1/regions/$REGION/keys/<KEY_ID>/rotate\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -d '{         \"key_id\": \"$KEY_ID\"       }'     ``` 4.
-  * **Encrypt data**. Run the following command to encrypt data with the key you have created in step 2: ```bash     curl \"https://api.scaleway.com/key-manager/v1alpha1/regions/$REGION/keys/<KEY_ID>/encrypt\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -d '{         \"key_id\": \"$KEY_ID\",         \"plaintext\": \"'\"$(echo -n \"plaintext-data\" | base64)\"'\"       }'     ``` 5.
-  * **Generate a data encryption key**. Run the following command to generate a data encryption key that you can use for
-  * cryptographic operations outside of Key Manager: ```bash     curl \"https://api.scaleway.com/key-manager/v1alpha1/regions/$REGION/keys/<KEY_ID>/generate-data-key\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -d '{         \"key_id\": \"$KEY_ID\",         \"algorithm\": \"aes_256_gcm\"       }'     ```
-  * <Message type=\"requirement\"> To perform the following steps, you must first ensure that: - You have your
-  * [Organization and your Project ID](https://console.scaleway.com/project/settings) - You have a [Scaleway
-  * account](https://console.scaleway.com/) - You have created an [API
-  * key](https://www.scaleway.com/en/docs/iam/how-to/create-api-keys/) and that the API key has sufficient [IAM
-  * permissions](https://www.scaleway.com/en/docs/iam/reference-content/permission-sets/) to perform the actions
-  * described on this page - You have [installed `curl`](https://curl.se/download.html) </Message> ## Technical
-  * information ### Regions Scaleway's infrastructure spans different [regions and Availability
-  * Zones](https://www.scaleway.com/en/docs/console/account/reference-content/products-availability/). Key Manager is
-  * available in the Paris, Amsterdam and Warsaw regions, which are represented by the following path parameters: -
-  * fr-par - nl-ams - pl-waw ## Technical limitations - While Scaleway Key Manager is responsible for generating,
-  * encrypting, and decrypting [data encryption
-  * keys](https://www.scaleway.com/en/docs/key-manager/concepts/#data-encryption-key-dek/), it does not store, manage,
-  * or monitor them, nor does it engage in cryptographic operations with these keys. **You must use and manage data
-  * encryption keys outside of Key Manager**. Read our
-  * [documentation](https://www.scaleway.com/en/docs/key-manager/reference-content/security-recommendations/) to find
-  * out about security measures to be aware of while using Key Manager. ### Symmetric encryption - The maximum payload
-  * size that can be encrypted is 64KB of plaintext. - The maximum payload size that can be decrypted is around 131KB of
-  * data. - The only symmetric algorithm currently supported by Key Manager is AES-256-GCM. ### Asymmetric encryption -
-  * Key Manager supports the following asymmetric encryption algorithms: * RSA-OAEP-2048-SHA256 * RSA-OAEP-3072-SHA256 *
-  * RSA-OAEP-4096-SHA256 ### Asymmetric signing - Key Manager supports the following asymmetric signing algorithms: *
-  * EC-P256-SHA256 * EC-P384-SHA256 * RSA-PSS-2048-SHA256 * RSA-PSS-3072-SHA256 * RSA-PSS-4096-SHA256 *
-  * RSA-PKCS1-2048-SHA256 * RSA-PKCS1-3072-SHA256 * RSA-PKCS1-4096-SHA256 ## Going further For more information about
-  * Key Manager, you can check out the following pages: * [Key Manager
-  * Documentation](https://www.scaleway.com/en/docs/key-manager/) * [Contact our support
-  * team](https://console.scaleway.com/support/tickets).
-  *
-  * The version of the OpenAPI document: v1alpha1
-  *
-  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
-  * https://openapi-generator.tech Do not edit the class manually.
-  */
+/**
+ * Key Manager API
+ * Scaleway's Key Manager allows you to create, manage and use cryptographic keys in a centralized and secure service. All your cryptographic operations can be delegated to the Key Manager, which in turn ensures the security and availability of your keys.  Key Manager supports the following cryptographic operations: data encryption, data decryption, and data encryption key generation.     ## Concepts  Refer to our [dedicated concepts page](https://www.scaleway.com/en/docs/key-manager/concepts/) to find definitions of the different terms referring to Key Manager.    ## Quickstart  1. **Configure your environment variables.**      <Message type=\"note\">       This is an optional step that seeks to simplify your usage of the API.     </Message>      ```bash     export SCW_ACCESS_KEY=\"<API access key>\"     export SCW_SECRET_KEY=\"<API secret key>\"     export SCW_PROJECT_ID=\"<Scaleway Project ID>\"     ``` 2. **Create a key**. Run the following command to create a key that you can use to encrypt and decrypt your data:      ```bash     curl \"https://api.scaleway.com/key-manager/v1alpha1/regions/$REGION/keys\" \\       -H \"Content-Type: application/json\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -d '{         \"project_id\": \"$PROJECT_ID\",         \"name\": \"my-key\",         \"usage\": {             \"symmetric_encryption\": \"aes_256_gcm\"         }        }'     ``` 3. **Rotate your key**. Run the following command to generate a new version of your key. This operation renders your previous key version obsolete.      ```bash     curl \"https://api.scaleway.com/key-manager/v1alpha1/regions/$REGION/keys/<KEY_ID>/rotate\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -d '{         \"key_id\": \"$KEY_ID\"       }'     ``` 4. **Encrypt data**. Run the following command to encrypt data with the key you have created in step 2:      ```bash     curl \"https://api.scaleway.com/key-manager/v1alpha1/regions/$REGION/keys/<KEY_ID>/encrypt\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -d '{         \"key_id\": \"$KEY_ID\",         \"plaintext\": \"'\"$(echo -n \"plaintext-data\" | base64)\"'\"       }'     ``` 5. **Generate a data encryption key**. Run the following command to generate a data encryption key that you can use for cryptographic operations outside of Key Manager:      ```bash     curl \"https://api.scaleway.com/key-manager/v1alpha1/regions/$REGION/keys/<KEY_ID>/generate-data-key\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -d '{         \"key_id\": \"$KEY_ID\",         \"algorithm\": \"aes_256_gcm\"       }'     ```    <Message type=\"requirement\">  To perform the following steps, you must first ensure that:   - You have your [Organization and your Project ID](https://console.scaleway.com/project/settings)  - You have a [Scaleway account](https://console.scaleway.com/)  - You have created an [API key](https://www.scaleway.com/en/docs/iam/how-to/create-api-keys/) and that the API key has sufficient [IAM permissions](https://www.scaleway.com/en/docs/iam/reference-content/permission-sets/) to perform the actions described on this page  - You have [installed `curl`](https://curl.se/download.html) </Message>    ## Technical information  ### Regions  Scaleway's infrastructure spans different [regions and Availability Zones](https://www.scaleway.com/en/docs/console/account/reference-content/products-availability/).  Key Manager is available in the Paris, Amsterdam and Warsaw regions, which are represented by the following path parameters:  - fr-par - nl-ams - pl-waw  ## Technical limitations   - While Scaleway Key Manager is responsible for generating, encrypting, and decrypting [data encryption keys](https://www.scaleway.com/en/docs/key-manager/concepts/#data-encryption-key-dek/), it does not store, manage, or monitor them, nor does it engage in cryptographic operations with these keys. **You must use and manage data encryption keys outside of Key Manager**. Read our [documentation](https://www.scaleway.com/en/docs/key-manager/reference-content/security-recommendations/) to find out about security measures to be aware of while using Key Manager.  ### Symmetric encryption  - The maximum payload size that can be encrypted is 64KB of plaintext. - The maximum payload size that can be decrypted is around 131KB of data. - The only symmetric algorithm currently supported by Key Manager is AES-256-GCM.  ### Asymmetric encryption  - Key Manager supports the following asymmetric encryption algorithms:    * RSA-OAEP-2048-SHA256    * RSA-OAEP-3072-SHA256    * RSA-OAEP-4096-SHA256  ### Asymmetric signing  - Key Manager supports the following asymmetric signing algorithms:    * EC-P256-SHA256    * EC-P384-SHA256    * RSA-PSS-2048-SHA256    * RSA-PSS-3072-SHA256    * RSA-PSS-4096-SHA256    * RSA-PKCS1-2048-SHA256    * RSA-PKCS1-3072-SHA256    * RSA-PKCS1-4096-SHA256   ## Going further  For more information about Key Manager, you can check out the following pages:  * [Key Manager Documentation](https://www.scaleway.com/en/docs/key-manager/) * [Contact our support team](https://console.scaleway.com/support/tickets).
+ *
+ * The version of the OpenAPI document: v1alpha1
+ * 
+ *
+ * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
+ * https://openapi-generator.tech
+ * Do not edit the class manually.
+ */
 package scaleway.keymanager
 
 import scala.deriving.*
@@ -84,11 +51,11 @@ inline def allLabels[T <: Tuple]: List[String] =
 private inline def checkFields[T <: Tuple]: Unit =
   inline erasedValue[T] match {
     case _: EmptyTuple => ()
-    case _: (t *: ts)  =>
+    case _: (t *: ts) =>
       inline erasedValue[t] match
-        case _: Primitive         => checkFields[ts]
+        case _: Primitive => checkFields[ts]
         case _: Option[Primitive] => checkFields[ts]
-        case _                    => error("Cannot derive structure, structure must consist only of primitive fields")
+        case _ => error("Cannot derive structure, structure must consist only of primitive fields")
   }
 
 extension (p: Primitive)
@@ -96,9 +63,9 @@ extension (p: Primitive)
     case v: OffsetDateTime => DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(v)
     case v: LocalDate      => DateTimeFormatter.ISO_LOCAL_DATE.format(v)
     case _                 => p.toString
-
+   
 private val flattenKeyVals: Primitive | Option[Primitive] => Option[Primitive] = {
-  case p: Primitive           => Some(p)
+  case p: Primitive => Some(p)
   case opt: Option[Primitive] => opt
 }
 
@@ -118,6 +85,7 @@ trait FormSerializable[T]:
       inline explode: Boolean = true
   ): Seq[(String, String)]
 
+
 object FormSerializable:
   inline def serialize[T](
       name: String,
@@ -127,43 +95,28 @@ object FormSerializable:
   ): Seq[(String, String)] =
     summonFrom {
       case t: FormSerializable[T] => t.serialize(name, obj, format, explode)
-      case _                      =>
+      case _ =>
         inline obj match
           case primitive: Primitive =>
             serializePrimitive(name, primitive, format, explode)
           case array: Seq[Primitive] =>
             serializeArray(name, array, format, explode)
           case optPrimitive: Option[Primitive] =>
-            optPrimitive
-              .map(value => serializePrimitive(name, value, format, explode))
+            optPrimitive.map(value => serializePrimitive(name, value, format, explode))
               .getOrElse(Seq.empty[(String, String)])
           case optArray: Option[Seq[Primitive]] =>
-            optArray
-              .map(serializeArray(name, _, format, explode))
+            optArray.map(serializeArray(name, _, format, explode))
               .getOrElse(Seq.empty[(String, String)])
           case enumArray: Seq[t] =>
             inline summonInline[Mirror.Of[t]] match
               case mirror: Mirror.SumOf[t] =>
-                serializeArray(
-                  name,
-                  enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                  format,
-                  explode
-                )
+                serializeArray(name, enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), format, explode)
               case _ =>
                 error("Arrays of non-primitive types are only supported for enums")
           case optEnumArray: Option[Seq[t]] =>
             inline summonInline[Mirror.Of[t]] match
               case mirror: Mirror.SumOf[t] =>
-                optEnumArray
-                  .map(seq =>
-                    serializeArray(
-                      name,
-                      seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                      format,
-                      explode
-                    )
-                  )
+                optEnumArray.map(seq => serializeArray(name, seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), format, explode))
                   .getOrElse(Seq.empty[(String, String)])
               case _ =>
                 error("Arrays of non-primitive types are only supported for enums")
@@ -174,32 +127,18 @@ object FormSerializable:
               case _ =>
                 inline summonInline[Mirror.Of[p]] match
                   case mirror: Mirror.SumOf[p] =>
-                    serializeArray(
-                      name,
-                      set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                      format,
-                      explode
-                    )
+                    serializeArray(name, set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), format, explode)
                   case _ =>
                     error("Sets of non-primitive types are only supported for enums")
           case optSet: Option[Set[p]] =>
             inline erasedValue[p] match
               case _: Primitive =>
-                optSet
-                  .map(s => serializeArray(name, s.toSeq.asInstanceOf[Seq[Primitive]], format, explode))
+                optSet.map(s => serializeArray(name, s.toSeq.asInstanceOf[Seq[Primitive]], format, explode))
                   .getOrElse(Seq.empty[(String, String)])
               case _ =>
                 inline summonInline[Mirror.Of[p]] match
                   case mirror: Mirror.SumOf[p] =>
-                    optSet
-                      .map(s =>
-                        serializeArray(
-                          name,
-                          s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                          format,
-                          explode
-                        )
-                      )
+                    optSet.map(s => serializeArray(name, s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), format, explode))
                       .getOrElse(Seq.empty[(String, String)])
                   case _ =>
                     error("Sets of non-primitive types are only supported for enums")
@@ -210,24 +149,13 @@ object FormSerializable:
               case mirror: Mirror.ProductOf[t] =>
                 checkFields[mirror.MirroredElemTypes]
                 val labels = allLabels[mirror.MirroredElemLabels]
-                optObj
-                  .map { obj =>
-                    val keyVals = labels
-                      .zip(
-                        obj
-                          .asInstanceOf[Product]
-                          .productIterator
-                          .toSeq
-                          .asInstanceOf[Seq[Primitive | Option[Primitive]]]
-                          .map(flattenKeyVals)
-                      )
+                optObj.map { obj =>
+                    val keyVals = labels.zip(obj.asInstanceOf[Product].productIterator.toSeq.asInstanceOf[Seq[Primitive | Option[Primitive]]].map(flattenKeyVals))
                       .filter((_, v) => v.isDefined)
                       .map((k, v) => (k, v.get))
                     serializeModel(name, keyVals, format, explode)
-                  }
-                  .getOrElse(Seq.empty[(String, String)])
-              case mirror: Mirror.SumOf[t] =>
-                optObj.map(v => (name, writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))).toSeq
+                  }.getOrElse(Seq.empty[(String, String)])
+              case mirror: Mirror.SumOf[t] => optObj.map(v => (name, writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))).toSeq
           case obj =>
             inline summonInline[Mirror.Of[T]] match
               case _: Mirror.SumOf[T] =>
@@ -235,15 +163,7 @@ object FormSerializable:
               case mirror: Mirror.ProductOf[T] =>
                 checkFields[mirror.MirroredElemTypes] // Stripe ma IDGAF bo używają deepObject np. tak lines[0][tax_amounts][0][amount] - mimo tego że spec na to nie pozwala
                 val labels = allLabels[mirror.MirroredElemLabels]
-                val keyVals = labels
-                  .zip(
-                    obj
-                      .asInstanceOf[Product]
-                      .productIterator
-                      .toSeq
-                      .asInstanceOf[Seq[Primitive | Option[Primitive]]]
-                      .map(flattenKeyVals)
-                  )
+                val keyVals = labels.zip(obj.asInstanceOf[Product].productIterator.toSeq.asInstanceOf[Seq[Primitive | Option[Primitive]]].map(flattenKeyVals))
                   .filter((_, v) => v.isDefined)
                   .map((k, v) => (k, v.get))
                 serializeModel(name, keyVals, format, explode)
@@ -275,22 +195,18 @@ object FormSerializable:
     // an empty collection carries no value: omit it entirely rather than emit `name=`
     // (matches explode=true, which already yields no entries for an empty collection)
     if values.isEmpty then Seq.empty[(String, String)]
-    else
-      inline format match
-        case FormStyleFormat.FORM =>
-          inline if explode then values.map(s => (paramName, s.asString))
-          else Seq(paramName -> values.map(_.asString).mkString(","))
-        case FormStyleFormat.SPACEDELIMITED =>
-          inline if explode then values.map(s => (paramName, s.asString))
-          else
-            Seq(
-              paramName -> values.map(_.asString).mkString(" ")
-            ) // Sttp will encode space as +, from https://swagger.io/docs/specification/v3_0/serialization/#query-parameters it is not clear if it should be + or %20
-        case FormStyleFormat.PIPEDELIMITED =>
-          inline if explode then values.map(s => (paramName, s.asString))
-          else Seq(paramName -> values.map(_.asString).mkString("|"))
-        case FormStyleFormat.DEEPOBJECT =>
-          error("FormStyleFormat.DeepObject does not support arrays")
+    else inline format match
+      case FormStyleFormat.FORM =>
+        inline if explode then values.map(s => (paramName, s.asString))
+        else Seq(paramName -> values.map(_.asString).mkString(","))
+      case FormStyleFormat.SPACEDELIMITED =>
+        inline if explode then values.map(s => (paramName, s.asString))
+        else Seq(paramName -> values.map(_.asString).mkString(" ")) // Sttp will encode space as +, from https://swagger.io/docs/specification/v3_0/serialization/#query-parameters it is not clear if it should be + or %20
+      case FormStyleFormat.PIPEDELIMITED =>
+        inline if explode then values.map(s => (paramName, s.asString))
+        else Seq(paramName -> values.map(_.asString).mkString("|"))
+      case FormStyleFormat.DEEPOBJECT =>
+        error("FormStyleFormat.DeepObject does not support arrays")
   }
   private inline def serializeModel(
       paramName: String,
@@ -327,114 +243,62 @@ object HeaderSerializable:
   ): Map[String, String] =
     summonFrom {
       case t: HeaderSerializable[T] => t.serialize(name, obj, explode)
-      case _                        =>
-        inline obj match
-          case primitive: Primitive            => Map(name -> primitive.asString)
-          case optPrimitive: Option[Primitive] =>
-            optPrimitive.map(v => Map(name -> v.asString)).getOrElse(Map.empty[String, String])
-          case seqPrimitive: Seq[Primitive]            => Map(name -> seqPrimitive.map(_.asString).mkString(","))
-          case optSeqPrimitive: Option[Seq[Primitive]] =>
-            optSeqPrimitive.map(v => Map(name -> v.map(_.asString).mkString(","))).getOrElse(Map.empty[String, String])
-          case enumArray: Seq[t] =>
-            inline summonInline[Mirror.Of[t]] match
-              case mirror: Mirror.SumOf[t] =>
-                Map(
-                  name -> enumArray
-                    .map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
-                    .mkString(",")
-                )
-              case _ => error("Arrays of non-primitive types are only supported for enums")
-          case optEnumArray: Option[Seq[t]] =>
-            inline summonInline[Mirror.Of[t]] match
-              case mirror: Mirror.SumOf[t] =>
-                optEnumArray
-                  .map(seq =>
-                    Map(
-                      name -> seq
-                        .map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
-                        .mkString(",")
-                    )
-                  )
-                  .getOrElse(Map.empty[String, String])
-              case _ => error("Arrays of non-primitive types are only supported for enums")
-          case set: Set[p] => // Set is invariant, so dispatch on the bound element type
-            inline erasedValue[p] match
-              case _: Primitive => Map(name -> set.toSeq.asInstanceOf[Seq[Primitive]].map(_.asString).mkString(","))
-              case _            =>
-                inline summonInline[Mirror.Of[p]] match
-                  case mirror: Mirror.SumOf[p] =>
-                    Map(
-                      name -> set.toSeq
-                        .map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
-                        .mkString(",")
-                    )
-                  case _ => error("Sets of non-primitive types are only supported for enums")
-          case optSet: Option[Set[p]] =>
-            inline erasedValue[p] match
-              case _: Primitive =>
-                optSet
-                  .map(s => Map(name -> s.toSeq.asInstanceOf[Seq[Primitive]].map(_.asString).mkString(",")))
-                  .getOrElse(Map.empty[String, String])
-              case _ =>
-                inline summonInline[Mirror.Of[p]] match
-                  case mirror: Mirror.SumOf[p] =>
-                    optSet
-                      .map(s =>
-                        Map(
-                          name -> s.toSeq
-                            .map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
-                            .mkString(",")
-                        )
-                      )
-                      .getOrElse(Map.empty[String, String])
-                  case _ => error("Sets of non-primitive types are only supported for enums")
-          case mapPrimitive: Map[String, Primitive] => mapPrimitive.map((k, v) => (k, v.asString))
-          case optObj: Option[t]                    =>
-            inline summonInline[Mirror.Of[t]] match
-              case mirror: Mirror.ProductOf[t] =>
-                checkFields[mirror.MirroredElemTypes]
-                val labels = allLabels[mirror.MirroredElemLabels]
-                optObj
-                  .map { obj =>
-                    val keyVals = labels
-                      .zip(
-                        obj
-                          .asInstanceOf[Product]
-                          .productIterator
-                          .toSeq
-                          .asInstanceOf[Seq[Primitive | Option[Primitive]]]
-                          .map(flattenKeyVals)
-                      )
-                      .filter((_, v) => v.isDefined)
-                      .map((k, v) => (k, v.get.asString))
-                    inline if explode then Map(name -> keyVals.map((k, v) => s"$k=$v").mkString(","))
-                    else Map(name -> keyVals.flatMap((k, v) => Seq(k, v)).mkString(","))
-                  }
-                  .getOrElse(Map.empty[String, String])
-              case mirror: Mirror.SumOf[t] =>
-                optObj
-                  .map(v => Map(name -> writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])))
-                  .getOrElse(Map.empty[String, String])
-          case obj: T =>
-            inline summonInline[Mirror.Of[T]] match
-              case mirror: Mirror.ProductOf[T] =>
-                checkFields[mirror.MirroredElemTypes]
-                val labels = allLabels[mirror.MirroredElemLabels]
-                val keyVals = labels
-                  .zip(
-                    obj
-                      .asInstanceOf[Product]
-                      .productIterator
-                      .toSeq
-                      .asInstanceOf[Seq[Primitive | Option[Primitive]]]
-                      .map(flattenKeyVals)
-                  )
-                  .filter((_, v) => v.isDefined)
-                  .map((k, v) => (k, v.get.asString))
-                inline if explode then Map(name -> keyVals.map((k, v) => s"$k=$v").mkString(","))
-                else Map(name -> keyVals.flatMap((k, v) => Seq(k, v)).mkString(","))
-              case mirror: Mirror.SumOf[T] =>
-                Map(name -> writeToString(obj)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
+      case _ => inline obj match
+        case primitive: Primitive => Map(name -> primitive.asString)
+        case optPrimitive: Option[Primitive] => optPrimitive.map(v => Map(name -> v.asString)).getOrElse(Map.empty[String, String])
+        case seqPrimitive: Seq[Primitive] => Map(name -> seqPrimitive.map(_.asString).mkString(","))
+        case optSeqPrimitive: Option[Seq[Primitive]] => optSeqPrimitive.map(v => Map(name -> v.map(_.asString).mkString(","))).getOrElse(Map.empty[String, String])
+        case enumArray: Seq[t] =>
+          inline summonInline[Mirror.Of[t]] match
+            case mirror: Mirror.SumOf[t] => Map(name -> enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])).mkString(","))
+            case _ => error("Arrays of non-primitive types are only supported for enums")
+        case optEnumArray: Option[Seq[t]] =>
+          inline summonInline[Mirror.Of[t]] match
+            case mirror: Mirror.SumOf[t] => optEnumArray.map(seq => Map(name -> seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])).mkString(","))).getOrElse(Map.empty[String, String])
+            case _ => error("Arrays of non-primitive types are only supported for enums")
+        case set: Set[p] => // Set is invariant, so dispatch on the bound element type
+          inline erasedValue[p] match
+            case _: Primitive => Map(name -> set.toSeq.asInstanceOf[Seq[Primitive]].map(_.asString).mkString(","))
+            case _ =>
+              inline summonInline[Mirror.Of[p]] match
+                case mirror: Mirror.SumOf[p] => Map(name -> set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])).mkString(","))
+                case _ => error("Sets of non-primitive types are only supported for enums")
+        case optSet: Option[Set[p]] =>
+          inline erasedValue[p] match
+            case _: Primitive => optSet.map(s => Map(name -> s.toSeq.asInstanceOf[Seq[Primitive]].map(_.asString).mkString(","))).getOrElse(Map.empty[String, String])
+            case _ =>
+              inline summonInline[Mirror.Of[p]] match
+                case mirror: Mirror.SumOf[p] => optSet.map(s => Map(name -> s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])).mkString(","))).getOrElse(Map.empty[String, String])
+                case _ => error("Sets of non-primitive types are only supported for enums")
+        case mapPrimitive: Map[String, Primitive] => mapPrimitive.map((k, v) => (k, v.asString))
+        case optObj: Option[t] =>
+          inline summonInline[Mirror.Of[t]] match
+            case mirror: Mirror.ProductOf[t] =>
+              checkFields[mirror.MirroredElemTypes]
+              val labels = allLabels[mirror.MirroredElemLabels]
+              optObj.map { obj =>
+                  val keyVals = labels.zip(obj.asInstanceOf[Product].productIterator.toSeq.asInstanceOf[Seq[Primitive | Option[Primitive]]].map(flattenKeyVals))
+                    .filter((_, v) => v.isDefined)
+                    .map((k, v) => (k, v.get.asString))
+                  inline if explode then
+                    Map(name ->keyVals.map((k, v) => s"$k=$v").mkString(","))
+                  else
+                    Map(name -> keyVals.flatMap((k, v) => Seq(k, v)).mkString(","))
+                }.getOrElse(Map.empty[String, String])
+            case mirror: Mirror.SumOf[t] => optObj.map(v => Map(name -> writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))).getOrElse(Map.empty[String, String])
+        case obj: T =>
+          inline summonInline[Mirror.Of[T]] match
+            case mirror: Mirror.ProductOf[T] =>
+              checkFields[mirror.MirroredElemTypes]
+              val labels = allLabels[mirror.MirroredElemLabels]
+              val keyVals = labels.zip(obj.asInstanceOf[Product].productIterator.toSeq.asInstanceOf[Seq[Primitive | Option[Primitive]]].map(flattenKeyVals))
+                .filter((_, v) => v.isDefined)
+                .map((k, v) => (k, v.get.asString))
+              inline if explode then
+                Map(name ->keyVals.map((k, v) => s"$k=$v").mkString(","))
+              else
+                Map(name -> keyVals.flatMap((k, v) => Seq(k, v)).mkString(","))
+            case mirror: Mirror.SumOf[T] => Map(name -> writeToString(obj)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))
     }
 end HeaderSerializable
 
@@ -445,43 +309,28 @@ object PathSerializable:
   inline def serialize[T](name: String, obj: T, inline style: PathStyleFormat, inline explode: Boolean): String =
     summonFrom {
       case t: PathSerializer[T] => t.serialize(name, obj, style, explode)
-      case _                    =>
+      case _ =>
         inline obj match
           case primitive: Primitive =>
             serializePrimitive(name, primitive, style, explode)
           case array: Seq[Primitive] =>
             serializeArray(name, array, style, explode)
           case optPrimitive: Option[Primitive] =>
-            optPrimitive
-              .map(value => serializePrimitive(name, value, style, explode))
+            optPrimitive.map(value => serializePrimitive(name, value, style, explode))
               .getOrElse("")
           case optArray: Option[Seq[Primitive]] =>
-            optArray
-              .map(serializeArray(name, _, style, explode))
+            optArray.map(serializeArray(name, _, style, explode))
               .getOrElse("")
           case enumArray: Seq[t] =>
             inline summonInline[Mirror.Of[t]] match
               case mirror: Mirror.SumOf[t] =>
-                serializeArray(
-                  name,
-                  enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                  style,
-                  explode
-                )
+                serializeArray(name, enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), style, explode)
               case _ =>
                 error("Arrays of non-primitive types are only supported for enums")
           case optEnumArray: Option[Seq[t]] =>
             inline summonInline[Mirror.Of[t]] match
               case mirror: Mirror.SumOf[t] =>
-                optEnumArray
-                  .map(seq =>
-                    serializeArray(
-                      name,
-                      seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                      style,
-                      explode
-                    )
-                  )
+                optEnumArray.map(seq => serializeArray(name, seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), style, explode))
                   .getOrElse("")
               case _ =>
                 error("Arrays of non-primitive types are only supported for enums")
@@ -492,32 +341,18 @@ object PathSerializable:
               case _ =>
                 inline summonInline[Mirror.Of[p]] match
                   case mirror: Mirror.SumOf[p] =>
-                    serializeArray(
-                      name,
-                      set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                      style,
-                      explode
-                    )
+                    serializeArray(name, set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), style, explode)
                   case _ =>
                     error("Sets of non-primitive types are only supported for enums")
           case optSet: Option[Set[p]] =>
             inline erasedValue[p] match
               case _: Primitive =>
-                optSet
-                  .map(s => serializeArray(name, s.toSeq.asInstanceOf[Seq[Primitive]], style, explode))
+                optSet.map(s => serializeArray(name, s.toSeq.asInstanceOf[Seq[Primitive]], style, explode))
                   .getOrElse("")
               case _ =>
                 inline summonInline[Mirror.Of[p]] match
                   case mirror: Mirror.SumOf[p] =>
-                    optSet
-                      .map(s =>
-                        serializeArray(
-                          name,
-                          s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                          style,
-                          explode
-                        )
-                      )
+                    optSet.map(s => serializeArray(name, s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), style, explode))
                       .getOrElse("")
                   case _ =>
                     error("Sets of non-primitive types are only supported for enums")
@@ -528,24 +363,13 @@ object PathSerializable:
               case mirror: Mirror.ProductOf[t] =>
                 checkFields[mirror.MirroredElemTypes]
                 val labels = allLabels[mirror.MirroredElemLabels]
-                optObj
-                  .map { obj =>
-                    val keyVals = labels
-                      .zip(
-                        obj
-                          .asInstanceOf[Product]
-                          .productIterator
-                          .toSeq
-                          .asInstanceOf[Seq[Primitive | Option[Primitive]]]
-                          .map(flattenKeyVals)
-                      )
-                      .filter((_, v) => v.isDefined)
-                      .map((k, v) => (k, v.get))
+                optObj.map { obj =>
+                  val keyVals = labels.zip(obj.asInstanceOf[Product].productIterator.toSeq.asInstanceOf[Seq[Primitive | Option[Primitive]]].map(flattenKeyVals))
+                    .filter((_, v) => v.isDefined)
+                    .map((k, v) => (k, v.get))
                     serializeModel(name, keyVals, style, explode)
-                  }
-                  .getOrElse("")
-              case mirror: Mirror.SumOf[t] =>
-                optObj.map(writeToString(_)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])).getOrElse("")
+                  }.getOrElse("")
+              case mirror: Mirror.SumOf[t] => optObj.map(writeToString(_)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])).getOrElse("")
           case obj =>
             inline summonInline[Mirror.Of[T]] match
               case _: Mirror.SumOf[T] =>
@@ -553,15 +377,7 @@ object PathSerializable:
               case mirror: Mirror.ProductOf[T] =>
                 checkFields[mirror.MirroredElemTypes]
                 val labels = allLabels[mirror.MirroredElemLabels]
-                val keyVals = labels
-                  .zip(
-                    obj
-                      .asInstanceOf[Product]
-                      .productIterator
-                      .toSeq
-                      .asInstanceOf[Seq[Primitive | Option[Primitive]]]
-                      .map(flattenKeyVals)
-                  )
+                val keyVals = labels.zip(obj.asInstanceOf[Product].productIterator.toSeq.asInstanceOf[Seq[Primitive | Option[Primitive]]].map(flattenKeyVals))
                   .filter((_, v) => v.isDefined)
                   .map((k, v) => (k, v.get))
                 serializeModel(name, keyVals, style, explode)
@@ -574,7 +390,7 @@ object PathSerializable:
       inline explode: Boolean
   ): String = inline format match
     case PathStyleFormat.SIMPLE => value.asString
-    case PathStyleFormat.LABEL  => s".${value.asString}"
+    case PathStyleFormat.LABEL => s".${value.asString}"
     case PathStyleFormat.MATRIX => s";$paramName=${value.asString}"
 
   private inline def serializeArray(
@@ -584,12 +400,8 @@ object PathSerializable:
       inline explode: Boolean
   ): String = inline format match
     case PathStyleFormat.SIMPLE => values.map(_.asString).mkString(",")
-    case PathStyleFormat.LABEL  =>
-      inline if explode then values.map(_.asString).mkString(".", ".", "")
-      else values.map(_.asString).mkString(".", ",", "")
-    case PathStyleFormat.MATRIX =>
-      inline if explode then values.map(v => s";$paramName=${v.asString}").mkString
-      else s";$paramName=" + values.map(_.asString).mkString(",")
+    case PathStyleFormat.LABEL => inline if explode then values.map(_.asString).mkString(".", ".", "") else values.map(_.asString).mkString(".", ",", "")
+    case PathStyleFormat.MATRIX => inline if explode then values.map(v => s";$paramName=${v.asString}").mkString else s";$paramName=" + values.map(_.asString).mkString(",")
 
   private inline def serializeModel(
       paramName: String,
@@ -623,41 +435,28 @@ object CookieSerializable:
   ): Seq[(String, String)] =
     summonFrom {
       case t: CookieSerializable[T] => t.serialize(name, obj, explode)
-      case _                        =>
+      case _ =>
         inline obj match
           case primitive: Primitive =>
             serializePrimitive(name, primitive, explode)
           case array: Seq[Primitive] =>
             serializeArray(name, array, explode)
           case optPrimitive: Option[Primitive] =>
-            optPrimitive
-              .map(value => serializePrimitive(name, value, explode))
+            optPrimitive.map(value => serializePrimitive(name, value, explode))
               .getOrElse(Seq.empty[(String, String)])
           case optArray: Option[Seq[Primitive]] =>
-            optArray
-              .map(serializeArray(name, _, explode))
+            optArray.map(serializeArray(name, _, explode))
               .getOrElse(Seq.empty[(String, String)])
           case enumArray: Seq[t] =>
             inline summonInline[Mirror.Of[t]] match
               case mirror: Mirror.SumOf[t] =>
-                serializeArray(
-                  name,
-                  enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                  explode
-                )
+                serializeArray(name, enumArray.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), explode)
               case _ =>
                 error("Arrays of non-primitive types are only supported for enums")
           case optEnumArray: Option[Seq[t]] =>
             inline summonInline[Mirror.Of[t]] match
               case mirror: Mirror.SumOf[t] =>
-                optEnumArray
-                  .map(seq =>
-                    serializeArray(
-                      name,
-                      seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                      explode
-                    )
-                  )
+                optEnumArray.map(seq => serializeArray(name, seq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), explode))
                   .getOrElse(Seq.empty[(String, String)])
               case _ =>
                 error("Arrays of non-primitive types are only supported for enums")
@@ -668,30 +467,18 @@ object CookieSerializable:
               case _ =>
                 inline summonInline[Mirror.Of[p]] match
                   case mirror: Mirror.SumOf[p] =>
-                    serializeArray(
-                      name,
-                      set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                      explode
-                    )
+                    serializeArray(name, set.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), explode)
                   case _ =>
                     error("Sets of non-primitive types are only supported for enums")
           case optSet: Option[Set[p]] =>
             inline erasedValue[p] match
               case _: Primitive =>
-                optSet
-                  .map(s => serializeArray(name, s.toSeq.asInstanceOf[Seq[Primitive]], explode))
+                optSet.map(s => serializeArray(name, s.toSeq.asInstanceOf[Seq[Primitive]], explode))
                   .getOrElse(Seq.empty[(String, String)])
               case _ =>
                 inline summonInline[Mirror.Of[p]] match
                   case mirror: Mirror.SumOf[p] =>
-                    optSet
-                      .map(s =>
-                        serializeArray(
-                          name,
-                          s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])),
-                          explode
-                        )
-                      )
+                    optSet.map(s => serializeArray(name, s.toSeq.map(v => enumWireValue(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]])), explode))
                       .getOrElse(Seq.empty[(String, String)])
                   case _ =>
                     error("Sets of non-primitive types are only supported for enums")
@@ -702,24 +489,13 @@ object CookieSerializable:
               case mirror: Mirror.ProductOf[t] =>
                 checkFields[mirror.MirroredElemTypes]
                 val labels = allLabels[mirror.MirroredElemLabels]
-                optObj
-                  .map { obj =>
-                    val keyVals = labels
-                      .zip(
-                        obj
-                          .asInstanceOf[Product]
-                          .productIterator
-                          .toSeq
-                          .asInstanceOf[Seq[Primitive | Option[Primitive]]]
-                          .map(flattenKeyVals)
-                      )
-                      .filter((_, v) => v.isDefined)
-                      .map((k, v) => (k, v.get))
+                optObj.map { obj =>
+                  val keyVals = labels.zip(obj.asInstanceOf[Product].productIterator.toSeq.asInstanceOf[Seq[Primitive | Option[Primitive]]].map(flattenKeyVals))
+                    .filter((_, v) => v.isDefined)
+                    .map((k, v) => (k, v.get))
                     serializeModel(name, keyVals, explode)
-                  }
-                  .getOrElse(Seq.empty[(String, String)])
-              case mirror: Mirror.SumOf[t] =>
-                optObj.map(v => (name, writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))).toSeq
+                }.getOrElse(Seq.empty[(String, String)])
+              case mirror: Mirror.SumOf[t] => optObj.map(v => (name, writeToString(v)(summonInline[JsonValueCodec[mirror.MirroredMonoType]]))).toSeq
           case obj =>
             inline summonInline[Mirror.Of[T]] match
               case _: Mirror.SumOf[T] =>
@@ -727,15 +503,7 @@ object CookieSerializable:
               case mirror: Mirror.ProductOf[T] =>
                 checkFields[mirror.MirroredElemTypes]
                 val labels = allLabels[mirror.MirroredElemLabels]
-                val keyVals = labels
-                  .zip(
-                    obj
-                      .asInstanceOf[Product]
-                      .productIterator
-                      .toSeq
-                      .asInstanceOf[Seq[Primitive | Option[Primitive]]]
-                      .map(flattenKeyVals)
-                  )
+                val keyVals = labels.zip(obj.asInstanceOf[Product].productIterator.toSeq.asInstanceOf[Seq[Primitive | Option[Primitive]]].map(flattenKeyVals))
                   .filter((_, v) => v.isDefined)
                   .map((k, v) => (k, v.get))
                 serializeModel(name, keyVals, explode)
@@ -745,7 +513,7 @@ object CookieSerializable:
       paramName: String,
       value: Primitive,
       inline explode: Boolean
-  ): Seq[(String, String)] = Seq(paramName -> value.asString)
+  ): Seq[(String, String)] =  Seq(paramName -> value.asString)
 
   private inline def serializeArray(
       paramName: String,
@@ -771,19 +539,13 @@ object Helpers:
         case f: File         => request.body(f)
         case f: Option[File] => f.map(request.body(_)).getOrElse(request)
 
-    def auth(
-        authConfig: Authorization,
-        location: ApiKeyLocation = ApiKeyLocation.NOAPIKEY,
-        keyParamName: String = ""
-    ): sttp.client4.Request[?] =
+    def auth(authConfig: Authorization, location: ApiKeyLocation = ApiKeyLocation.NOAPIKEY, keyParamName: String = ""): sttp.client4.Request[?] =
       authConfig match
-        case Authorization.NoAuthorization               => request
+        case Authorization.NoAuthorization => request
         case Authorization.BasicAuth(username, password) => request.auth.basic(username, password)
-        case Authorization.BearerToken(token)            => request.auth.bearer(token)
-        case Authorization.ApiKey(apiKey)                =>
-          location match
-            case ApiKeyLocation.HEADER   => request.header(keyParamName, apiKey)
-            case ApiKeyLocation.COOKIE   => request.cookie(keyParamName, apiKey)
-            case ApiKeyLocation.QUERY    => request.copy(uri = request.uri.addParam(keyParamName, apiKey))
-            case ApiKeyLocation.NOAPIKEY =>
-              request // since it can be called multiple times in request (when there are for example 2 auth methods) we want to make this call idempotent
+        case Authorization.BearerToken(token) => request.auth.bearer(token)
+        case Authorization.ApiKey(apiKey) =>location match
+          case ApiKeyLocation.HEADER => request.header(keyParamName, apiKey)
+          case ApiKeyLocation.COOKIE => request.cookie(keyParamName, apiKey)
+          case ApiKeyLocation.QUERY => request.copy(uri = request.uri.addParam(keyParamName, apiKey))
+          case ApiKeyLocation.NOAPIKEY => request  // since it can be called multiple times in request (when there are for example 2 auth methods) we want to make this call idempotent

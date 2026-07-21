@@ -1,174 +1,81 @@
-/** Serverless Containers API Scaleway Serverless Containers is a «Container As A Service» product which gives users the
-  * ability to deploy atomic serverless workloads and only pay for resources used while containers are running. It
-  * provides many advantages, such as: - Containers are only executed when an event is triggered, which allows users to
-  * save money while code is not running - Auto-Scalability: - Automated `Scaling up and down` based on user
-  * configuration (e.g. min: 0, max: 100 replicas of my container). - Automated `Scaling to zero` when a container is
-  * not executed, which is cost-effective for the user and saves computing resources for the cloud provider. -
-  * Endpoint-only scaling ### Serverless Framework This page explains how to use the Scaleway Containers API, including
-  * a quickstart and the full API documentation. However, you may prefer to use the [Serverless Framework
-  * plugin](https://github.com/scaleway/serverless-scaleway-functions) enabling users to deploy their serverless
-  * workloads much more easily with a single `serverless deploy` command. If what you are looking for is an easy way to
-  * deploy your code, you may prefer Serverless Framework. Below, you will find a step-by-step guide on how to create a
-  * `namespace`, configure and deploy `containers`, and trigger your `containers` via HTTP and CRON. ## Concepts Refer
-  * to our [dedicated concepts page](https://www.scaleway.com/en/docs/serverless/containers/concepts/) to find
-  * definitions of the different terms referring to Serverless Containers. ## Quickstart 1. Configure your environment
-  * variables. ```bash     export $SCW_SECRET_KEY=\"<Secret key of your token>\"     export SCW_DEFAULT_REGION=\"<Choose your location (pl-waw/nl-ams/fr-par)>\"     export SCW_PROJECT_ID=\"<Your Project ID>\"     ```
-  * <Message type=\"tip\"> This is an optional step that seeks to simplify your usage of the Serverless Containers API.
-  * See [Regions](#availability-zones) below for help choosing a region. You can find your Project ID in the [Scaleway
-  * console](https://console.scaleway.com/Project/settings). </Message> 2. Set the name for your namespace and configure
-  * your Project ID: ```bash     curl -X POST \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/namespaces\" \\       -H \"accept: application/json\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -H \"Content-Type: application/json\" \\       -d \"{           \\\"name\\\": \\\"your-namespace-name\\\", \\           \\\"project_id\\\": \\\"$SCW_PROJECT_ID\\\", \\           \\\"environment_variables\\\": {\\\"YOUR_VARIABLE\\\": \\\"content\\\"} \\           }\"     ``` 3.
-  * **Copy the response's `id` field**, you will need it for the next steps. For the sake of simplicity, we will save
-  * the ID to a variable, which will be used in the following examples: ```bash     export NAMESPACE_ID=\"<your namespace id>\"     ```
-  * <Message type=\"note\"> We suppose you already have a working image here. It can be anything which listens on a env
-  * variable \\$PORT variable. Note that we run your container as user 1000, not root, so it must be runnable under
-  * these conditions. For more information on how to push your image, refer to the [Container Registry
-  * documentation](https://www.scaleway.com/developers/api/registry/). </Message> 4. **Edit the POST request payload**
-  * to use in the next step to create an Elastic Metal server. Modify the values in the example according to your
-  * requirements, using the information in the payload values section to help. For container resource criteria and
-  * default values, please refer to the [Containers Limitation
-  * documentation](https://www.scaleway.com/en/docs/serverless/containers/reference-content/containers-limitations/). ```json     {       \"namespace_id\": \"string\",       \"name\": \"string\",       \"environment_variables\": {         \"<key>\": \"string\"       },       \"min_scale\": \"integer\",       \"max_scale\": \"integer\",       \"memory_limit\": \"integer\",       \"cpu_limit\": \"integer\",       \"timeout\": \"integer\",       \"privacy\": \"unknown_privacy\",       \"description\": \"string\",       \"registry_image\": \"string\",       \"max_concurrency\": \"integer\",       \"protocol\": \"unknown_protocol\",       \"port\": \"integer\",       \"secret_environment_variables\": [         {           \"key\": \"string\",           \"value\": \"string\"         }       ],       \"http_option\": \"enabled\"     }     ``` |
-  * Parameter | Description | | :--------------- | :----------------------------------------------------------------- | |
-  * `region` | The region you want to target. Possible values are fr-par, nl-ams and pl-waw. | | `namespace_id`| UUID of
-  * the namespace the container belongs to. | | `name`| Name of the container. | | `environment_variables` |
-  * **NULLABLE** Environment variables of the container. | | `min_scale` | **NULLABLE** Minimum number of instances to
-  * scale the container to. | | `max_scale` | **NULLABLE** Maximum number of instances to scale the container to. | |
-  * `memory_limit`| **NULLABLE** Memory limit of the container in MiB. | | `cpu_limit`| **NULLABLE** CPU limit of the
-  * container in mvCPU. | | `timeout` | **NULLABLE** Request processing time limit for the container. (in seconds). | |
-  * `privacy` | Privacy setting of the container. | | `description` | **NULLABLE** Description of the container. | |
-  * `registry_image`| **NULLABLE** Name of the registry image (e.g. \"rg.fr-par.scw.cloud/something/image:tag\"). | |
-  * `max_concurrency` | **NULLABLE** Number of maximum concurrent executions of the container. | | `protocol` | Protocol
-  * the container uses. Possible values are unknown_protocol, http1 and h2c. The default value is unknown_protocol. | |
-  * `port` | **NULLABLE** Port the container listens on. | | `secret_environment_variables` | Secret environment
-  * variables of the container. | | `http_option` | Configure how HTTP and HTTPS requests are handled. Possible
-  * values:<br /> - `redirected`: Responds to HTTP request with a 301 redirect to ask the clients to use HTTPS.<br /> -
-  * `enabled`: Serve both HTTP and HTTPS traffic. | <Message type=\"important\"> All parameters are `required`, except
-  * for those marked as nullable. </Message> 5. Run the following command to create your container. Make sure you
-  * include the payload you edited in the previous step. ```bash     export REGISTRY_IMAGE=\"rg.fr-par.scw.cloud/myregistrynamespace/mycontainer:latest\"     curl -X POST \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/containers\" \\       -d \"{           \"name\": MyContainer, \\           \"registry_image\": \"$REGISTRY_IMAGE\", \\           \"namespace_id\": \"$NAMESPACE_ID\", \\           \"memory_limit\": 300, \\           \"cpu_limit\": 200, \\           \"min_scale\": 0, \\           \"max_scale\": 20 \\           }\"     ``` 6.
-  * Run the following command to deploy your container: ```bash     curl -X POST \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/containers/$CONTAINER_ID/deploy\" \\       -d \"{}\"     ``` 7.
-  * Run the following command to trigger your container. ```bash     curl -X GET \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/containers/$CONTAINER_ID\"     export CONTAINER_ENDPOINT=\"<endpoint>\"     curl -X GET \"$CONTAINER_ENDPOINT\"     ``` 8.
-  * (optional) Connect to your Cockpit (Serverless Containers Logs dashboard) to see your logs:
-  * https://www.scaleway.com/en/docs/observability/cockpit/how-to/access-grafana-and-managed-dashboards/. 9. (optional)
-  * Use the following call to destroy a namespace (along with all containers and crons): ```bash     curl -s \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -X DELETE \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/namespaces/$NAMESPACE_ID\"     ```
-  * <Message type=\"requirement\"> To perform the following steps, you must first ensure that: - You have a [Scaleway
-  * account](https://console.scaleway.com/) - You have created an [API
-  * key](https://www.scaleway.com/en/docs/iam/how-to/create-api-keys/) and that the API key has sufficient [IAM
-  * permissions](https://www.scaleway.com/en/docs/iam/reference-content/permission-sets/) to perform the actions
-  * described on this page - You have [installed `curl`](https://curl.se/download.html) - You have [installed
-  * `jq`](https://stedolan.github.io/jq/) to improve readability of the API outputs </Message> ## Technical information
-  * A **Container** in Scaleway Containers consists of multiple components: - **Environment variables**: Users may
-  * configure specific environment variables (Database host/credentials for example) which are safely encrypted in our
-  * Database, and will be mounted inside your containers. **Note** that environment variables set at `namespace` level
-  * will also be mounted (in every container). Environment variables written at `container` level override the ones set
-  * at `namespace` level (if two of them bear the same name for example). - **Docker image**: A Docker image contains
-  * all the elements required to run your software: code, a runtime environment, tools, scripts, libraries, etc. -
-  * **Resources**: Users may decide how much computing resource to allocate to each container -> `Memory Limit` (in MB).
-  * We will then allocate the right amount of `CPU` based on Memory Limit choice. The right choice for your container's
-  * resources is very important, as you will be billed based on compute usage over time and the number of Containers
-  * executions. ### Product features - Fully isolated environments - Scaling to zero (saves money and computing
-  * resources while the code is not executed) - High Availability and scalability (automated and configurable, each
-  * container may scale automatically according to incoming workloads) - Multiple event sources: - HTTP (request on our
-  * gateway will execute the container) - CRON (time-based job, runs according to configurable cron schedule) -
-  * Integrated to the Scaleway Container Registry product: - Deploy any docker image from one of your registry namespace -
-  * Flexible resources: you can choose values separately for your memory and CPU within a range in respect with maximum
-  * and minimum allowed values in [Containers Limitation
-  * documentation](https://www.scaleway.com/en/docs/serverless/containers/reference-content/containers-limitations/).
-  * ### Regions Serverless Containers is available in the Paris, Amsterdam and Warsaw regions, which are represented by
-  * the following path parameters: * `fr-par` * `nl-ams` * `pl-waw` ### CRON A `CRON` is a type of event which triggers
-  * a Scaleway Container: it is an `add-on` to your container. CRONs inside Scaleway Containers have the following
-  * properties: - `schedule`: UNIX Formatted CRON schedule. Your container will be executed based on this schedule. For
-  * example, `5 4 * * 0` means \"execute my container at 04:05 AM every Sunday\" (see this [page from Ubuntu's official
-  * documentation](https://doc.ubuntu-fr.org/cron)). The timezone is UTC+0. - `args`: JSON object passed to your
-  * container. You can use this property to define data that will be passed to your container's `event.body` object. For
-  * Containers, you might handle these arguments as the HTTP request's body. Under the hood, CRON Triggers are
-  * [Kubernetes JOBs](https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/) sending HTTP
-  * POST requests to your container. ### Authentication By default new containers are `public` meaning that no
-  * credentials are required to invoke them. A container can be `private` or `public`. This can be configured through
-  * the `privacy` parameter. Calling a `private` container without authentication will return HTTP code `403`. ### Logs
-  * Containers logs are sent to the project's
-  * [Cockpit](https://www.scaleway.com/en/developers/api/cockpit/regional-api/). The **Serverless Containers Logs**
-  * dashboard in Grafana can be used to see containers logs. More complex queries can be done using the \"Explore\"
-  * section of Grafana, and LogQL queries: ```logql {resource_type=\"serverless_container\"} ``` Additionally, the loki
-  * endpoint (`https://logs.cockpit.fr-par.scw.cloud`) can be used to query programmatically the containers logs using a
-  * [token](https://www.scaleway.com/en/docs/observability/cockpit/how-to/create-token/). ## Going further For more help
-  * using Scaleway Serverless containers, check out the following resources: * Our [main
-  * documentation](https://www.scaleway.com/en/docs/serverless/containers/) * The #serverless-containers channel on our
-  * [Slack Community](https://www.scaleway.com/en/docs/tutorials/scaleway-slack-community/) * Our [support ticketing
-  * system](https://www.scaleway.com/en/docs/console/account/how-to/open-a-support-ticket/).
-  *
-  * The version of the OpenAPI document: v1beta1
-  *
-  * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
-  * https://openapi-generator.tech Do not edit the class manually.
-  */
+/**
+ * Serverless Containers API
+ * Scaleway Serverless Containers is a «Container As A Service» product which gives users the ability to deploy atomic serverless workloads and only pay for resources used while containers are running.  It provides many advantages, such as:  - Containers are only executed when an event is triggered, which allows users to save money while code is not running - Auto-Scalability:   - Automated `Scaling up and down` based on user configuration (e.g. min: 0, max: 100 replicas of my container).   - Automated `Scaling to zero` when a container is not executed, which is cost-effective for the user and saves computing resources for the cloud provider. - Endpoint-only scaling  ### Serverless Framework  This page explains how to use the Scaleway Containers API, including a quickstart and the full API documentation. However, you may prefer to use the [Serverless Framework plugin](https://github.com/scaleway/serverless-scaleway-functions) enabling users to deploy their serverless workloads much more easily with a single `serverless deploy` command.  If what you are looking for is an easy way to deploy your code, you may prefer Serverless Framework.  Below, you will find a step-by-step guide on how to create a `namespace`, configure and deploy `containers`, and trigger your `containers` via HTTP and CRON.  ## Concepts  Refer to our [dedicated concepts page](https://www.scaleway.com/en/docs/serverless/containers/concepts/) to find definitions of the different terms referring to Serverless Containers. ## Quickstart     1. Configure your environment variables.     ```bash     export $SCW_SECRET_KEY=\"<Secret key of your token>\"     export SCW_DEFAULT_REGION=\"<Choose your location (pl-waw/nl-ams/fr-par)>\"     export SCW_PROJECT_ID=\"<Your Project ID>\"     ```     <Message type=\"tip\">       This is an optional step that seeks to simplify your usage of the Serverless Containers API. See [Regions](#availability-zones) below for help choosing a region. You can find your Project ID in the [Scaleway console](https://console.scaleway.com/Project/settings).     </Message>  2. Set the name for your namespace and configure your Project ID:     ```bash     curl -X POST \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/namespaces\" \\       -H \"accept: application/json\" \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -H \"Content-Type: application/json\" \\       -d \"{           \\\"name\\\": \\\"your-namespace-name\\\", \\           \\\"project_id\\\": \\\"$SCW_PROJECT_ID\\\", \\           \\\"environment_variables\\\": {\\\"YOUR_VARIABLE\\\": \\\"content\\\"} \\           }\"     ```  3. **Copy the response's `id` field**, you will need it for the next steps. For the sake of simplicity, we will save the ID to a variable, which will be used in the following examples:     ```bash     export NAMESPACE_ID=\"<your namespace id>\"     ```     <Message type=\"note\">       We suppose you already have a working image here. It can be anything which listens on a env variable \\$PORT variable. Note that we run your container as user 1000, not root, so it must be runnable under these conditions.       For more information on how to push your image, refer to the [Container Registry documentation](https://www.scaleway.com/developers/api/registry/).     </Message>  4. **Edit the POST request payload** to use in the next step to create an Elastic Metal server. Modify the values in the example according to your requirements, using the information in the payload values section to help. For container resource criteria and default values, please refer to the [Containers Limitation documentation](https://www.scaleway.com/en/docs/serverless/containers/reference-content/containers-limitations/).     ```json     {       \"namespace_id\": \"string\",       \"name\": \"string\",       \"environment_variables\": {         \"<key>\": \"string\"       },       \"min_scale\": \"integer\",       \"max_scale\": \"integer\",       \"memory_limit\": \"integer\",       \"cpu_limit\": \"integer\",       \"timeout\": \"integer\",       \"privacy\": \"unknown_privacy\",       \"description\": \"string\",       \"registry_image\": \"string\",       \"max_concurrency\": \"integer\",       \"protocol\": \"unknown_protocol\",       \"port\": \"integer\",       \"secret_environment_variables\": [         {           \"key\": \"string\",           \"value\": \"string\"         }       ],       \"http_option\": \"enabled\"     }     ```      | Parameter        | Description                                                        |     | :--------------- | :----------------------------------------------------------------- |     | `region` | The region you want to target. Possible values are fr-par, nl-ams and pl-waw. |     | `namespace_id`| UUID of the namespace the container belongs to. |     | `name`| Name of the container. |     | `environment_variables` | **NULLABLE** Environment variables of the container. |     | `min_scale` | **NULLABLE** Minimum number of instances to scale the container to. |     | `max_scale` | **NULLABLE** Maximum number of instances to scale the container to. |     | `memory_limit`| **NULLABLE** Memory limit of the container in MiB. |     | `cpu_limit`| **NULLABLE** CPU limit of the container in mvCPU. |     | `timeout` | **NULLABLE** Request processing time limit for the container. (in seconds). |     | `privacy` | Privacy setting of the container. |     | `description` | **NULLABLE** Description of the container. |     | `registry_image`| **NULLABLE** Name of the registry image (e.g. \"rg.fr-par.scw.cloud/something/image:tag\"). |     | `max_concurrency` | **NULLABLE** Number of maximum concurrent executions of the container. |     | `protocol` | Protocol the container uses. Possible values are unknown_protocol, http1 and h2c. The default value is unknown_protocol. |     | `port` | **NULLABLE** Port the container listens on. |     | `secret_environment_variables` | Secret environment variables of the container. |     | `http_option` | Configure how HTTP and HTTPS requests are handled. Possible values:<br /> - `redirected`: Responds to HTTP request with a 301 redirect to ask the clients to use HTTPS.<br /> - `enabled`: Serve both HTTP and HTTPS traffic. |      <Message type=\"important\">       All parameters are `required`, except for those marked as nullable.     </Message>  5.  Run the following command to create your container. Make sure you include the payload you edited in the previous step.     ```bash     export REGISTRY_IMAGE=\"rg.fr-par.scw.cloud/myregistrynamespace/mycontainer:latest\"     curl -X POST \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/containers\" \\       -d \"{           \"name\": MyContainer, \\           \"registry_image\": \"$REGISTRY_IMAGE\", \\           \"namespace_id\": \"$NAMESPACE_ID\", \\           \"memory_limit\": 300, \\           \"cpu_limit\": 200, \\           \"min_scale\": 0, \\           \"max_scale\": 20 \\           }\"     ```  6. Run the following command to deploy your container:     ```bash     curl -X POST \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/containers/$CONTAINER_ID/deploy\" \\       -d \"{}\"     ```  7. Run the following command to trigger your container.     ```bash     curl -X GET \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/containers/$CONTAINER_ID\"     export CONTAINER_ENDPOINT=\"<endpoint>\"     curl -X GET \"$CONTAINER_ENDPOINT\"     ```  8. (optional) Connect to your Cockpit (Serverless Containers Logs dashboard) to see your logs: https://www.scaleway.com/en/docs/observability/cockpit/how-to/access-grafana-and-managed-dashboards/.  9. (optional) Use the following call to destroy a namespace (along with all containers and crons):     ```bash     curl -s \\       -H \"X-Auth-Token: $SCW_SECRET_KEY\" \\       -X DELETE \"https://api.scaleway.com/containers/v1beta1/regions/$SCW_DEFAULT_REGION/namespaces/$NAMESPACE_ID\"     ```   <Message type=\"requirement\">   To perform the following steps, you must first ensure that:   - You have a [Scaleway account](https://console.scaleway.com/)   - You have created an [API key](https://www.scaleway.com/en/docs/iam/how-to/create-api-keys/) and that the API key has sufficient [IAM permissions](https://www.scaleway.com/en/docs/iam/reference-content/permission-sets/) to perform the actions described on this page   - You have [installed `curl`](https://curl.se/download.html)   - You have [installed `jq`](https://stedolan.github.io/jq/) to improve readability of the API outputs </Message>   ## Technical information  A **Container** in Scaleway Containers consists of multiple components:  - **Environment variables**: Users may configure specific environment variables (Database host/credentials for example) which are safely encrypted in our Database, and will be mounted inside your containers. **Note** that environment variables set at `namespace` level will also be mounted (in every container). Environment variables written at `container` level override the ones set at `namespace` level (if two of them bear the same name for example). - **Docker image**: A Docker image contains all the elements required to run your software: code, a runtime environment, tools, scripts, libraries, etc. - **Resources**: Users may decide how much computing resource to allocate to each container -> `Memory Limit` (in MB). We will then allocate the right amount of `CPU` based on Memory Limit choice. The right choice for your container's resources is very important, as you will be billed based on compute usage over time and the number of Containers executions.  ### Product features - Fully isolated environments - Scaling to zero (saves money and computing resources while the code is not executed) - High Availability and scalability (automated and configurable, each container may scale automatically according to incoming workloads) - Multiple event sources:   - HTTP (request on our gateway will execute the container)   - CRON (time-based job, runs according to configurable cron schedule) - Integrated to the Scaleway Container Registry product:   - Deploy any docker image from one of your registry namespace - Flexible resources: you can choose values separately for your memory and CPU within a range in respect with maximum and minimum allowed values in [Containers Limitation documentation](https://www.scaleway.com/en/docs/serverless/containers/reference-content/containers-limitations/).  ### Regions  Serverless Containers is available in the Paris, Amsterdam and Warsaw regions, which are represented by the following path parameters:  * `fr-par` * `nl-ams` * `pl-waw`  ### CRON  A `CRON` is a type of event which triggers a Scaleway Container: it is an `add-on` to your container.  CRONs inside Scaleway Containers have the following properties:  - `schedule`: UNIX Formatted CRON schedule. Your container will be executed based on this schedule. For example, `5 4 * * 0` means \"execute my container at 04:05 AM every Sunday\" (see this [page from Ubuntu's official documentation](https://doc.ubuntu-fr.org/cron)). The timezone is UTC+0. - `args`: JSON object passed to your container. You can use this property to define data that will be passed to your container's `event.body` object. For Containers, you might handle these arguments as the HTTP request's body.  Under the hood, CRON Triggers are [Kubernetes JOBs](https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/) sending HTTP POST requests to your container.  ### Authentication  By default new containers are `public` meaning that no credentials are required to invoke them.  A container can be `private` or `public`. This can be configured through the `privacy` parameter.  Calling a `private` container without authentication will return HTTP code `403`.  ### Logs  Containers logs are sent to the project's [Cockpit](https://www.scaleway.com/en/developers/api/cockpit/regional-api/).  The **Serverless Containers Logs** dashboard in Grafana can be used to see containers logs. More complex queries can be done using the \"Explore\" section of Grafana, and LogQL queries:  ```logql {resource_type=\"serverless_container\"} ```  Additionally, the loki endpoint (`https://logs.cockpit.fr-par.scw.cloud`) can be used to query programmatically the containers logs using a [token](https://www.scaleway.com/en/docs/observability/cockpit/how-to/create-token/).  ## Going further  For more help using Scaleway Serverless containers, check out the following resources:  * Our [main documentation](https://www.scaleway.com/en/docs/serverless/containers/) * The #serverless-containers channel on our [Slack Community](https://www.scaleway.com/en/docs/tutorials/scaleway-slack-community/) * Our [support ticketing system](https://www.scaleway.com/en/docs/console/account/how-to/open-a-support-ticket/).
+ *
+ * The version of the OpenAPI document: v1beta1
+ * 
+ *
+ * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
+ * https://openapi-generator.tech
+ * Do not edit the class manually.
+ */
 package scaleway.containers.models
 
 import java.time.OffsetDateTime
 import com.github.plokhotnyuk.jsoniter_scala.macros.named
 
 case class Container(
-    /* UUID of the container. */
-    @named("id") id: Option[String] = scala.None,
-    /* Name of the container. */
-    @named("name") name: Option[String] = scala.None,
-    /* UUID of the namespace the container belongs to. */
-    @named("namespace_id") namespaceId: Option[String] = scala.None,
-    /* Status of the container. */
-    @named("status") status: Option[ContainerEnums.Status] = scala.None,
-    @named("environment_variables") environmentVariables: Option[
-      ScalewayContainersV1beta1ContainerEnvironmentVariables
-    ] = scala.None,
-    /* Minimum number of instances to scale the container to. */
-    @named("min_scale") minScale: Option[Int] = scala.None,
-    /* Maximum number of instances to scale the container to. */
-    @named("max_scale") maxScale: Option[Int] = scala.None,
-    /* Memory limit of the container in MB. */
-    @named("memory_limit") memoryLimit: Option[Int] = scala.None,
-    /* CPU limit of the container in mvCPU. */
-    @named("cpu_limit") cpuLimit: Option[Int] = scala.None,
-    /* Processing time limit for the container. (in seconds) */
-    @named("timeout") timeout: Option[String] = scala.None,
-    /* Last error message of the container. */
-    @named("error_message") errorMessage: Option[String] = scala.None,
-    /* Privacy setting of the container. */
-    @named("privacy") privacy: Option[ContainerEnums.Privacy] = scala.None,
-    /* Description of the container. */
-    @named("description") description: Option[String] = scala.None,
-    /* Name of the registry image (e.g. \"rg.fr-par.scw.cloud/something/image:tag\"). */
-    @named("registry_image") registryImage: Option[String] = scala.None,
-    /* Number of maximum concurrent executions of the container. */
-    @named("max_concurrency") maxConcurrency: Option[Int] = scala.None,
-    /* Domain name attributed to the contaioner. */
-    @named("domain_name") domainName: Option[String] = scala.None,
-    /* Protocol the container uses. */
-    @named("protocol") protocol: Option[ContainerEnums.Protocol] = scala.None,
-    /* Port the container listens on. */
-    @named("port") port: Option[Int] = scala.None,
-    /* Secret environment variables of the container. */
-    @named("secret_environment_variables") secretEnvironmentVariables: Option[Seq[SecretHashedValue]] = scala.None,
-    /* Configuration for the handling of HTTP and HTTPS requests. Possible values:  - redirected: Responds to HTTP request with a 301 redirect to ask the clients to use HTTPS.  - enabled: Serve both HTTP and HTTPS traffic. */
-    @named("http_option") httpOption: Option[ContainerEnums.HttpOption] = scala.None,
-    /* Execution environment of the container. */
-    @named("sandbox") sandbox: Option[ContainerEnums.Sandbox] = scala.None,
-    /* Local storage limit of the container (in MB). */
-    @named("local_storage_limit") localStorageLimit: Option[Int] = scala.None,
-    @named("scaling_option") scalingOption: Option[CreateContainerRequestScalingOption] = scala.None,
-    @named("health_check") healthCheck: Option[CreateContainerRequestHealthCheck] = scala.None,
-    /* Creation date of the container. (RFC 3339 format) */
-    @named("created_at") createdAt: Option[OffsetDateTime] = scala.None,
-    /* Last update date of the container. (RFC 3339 format) */
-    @named("updated_at") updatedAt: Option[OffsetDateTime] = scala.None,
-    /* Last date when the container was successfully deployed and set to ready. (RFC 3339 format) */
-    @named("ready_at") readyAt: Option[OffsetDateTime] = scala.None,
-    /* Region in which the container will be deployed. */
-    @named("region") region: Option[String] = scala.None,
-    /* List of tags applied to the Serverless Container. */
-    @named("tags") tags: Option[Seq[String]] = scala.None,
-    /* ID of the Private Network the container is connected to. When connected to a Private Network, the container can access other Scaleway resources in this Private Network. */
-    @named("private_network_id") privateNetworkId: Option[String] = scala.None,
-    /* Container command. Command executed when the container starts. This overrides the default command defined in the container image. This is usually the main executable, or entry point script to run. */
-    @named("command") command: Option[Seq[String]] = scala.None,
-    /* Container arguments. Arguments passed to the command specified in the \"command\" field. These override the default arguments from the container image, and behave like command-line parameters. */
-    @named("args") args: Option[Seq[String]] = scala.None
+  /* UUID of the container. */
+  @named("id") id: Option[String] = scala.None,
+  /* Name of the container. */
+  @named("name") name: Option[String] = scala.None,
+  /* UUID of the namespace the container belongs to. */
+  @named("namespace_id") namespaceId: Option[String] = scala.None,
+  /* Status of the container. */
+  @named("status") status: Option[ContainerEnums.Status] = scala.None,
+  @named("environment_variables") environmentVariables: Option[ScalewayContainersV1beta1ContainerEnvironmentVariables] = scala.None,
+  /* Minimum number of instances to scale the container to. */
+  @named("min_scale") minScale: Option[Int] = scala.None,
+  /* Maximum number of instances to scale the container to. */
+  @named("max_scale") maxScale: Option[Int] = scala.None,
+  /* Memory limit of the container in MB. */
+  @named("memory_limit") memoryLimit: Option[Int] = scala.None,
+  /* CPU limit of the container in mvCPU. */
+  @named("cpu_limit") cpuLimit: Option[Int] = scala.None,
+  /* Processing time limit for the container. (in seconds) */
+  @named("timeout") timeout: Option[String] = scala.None,
+  /* Last error message of the container. */
+  @named("error_message") errorMessage: Option[String] = scala.None,
+  /* Privacy setting of the container. */
+  @named("privacy") privacy: Option[ContainerEnums.Privacy] = scala.None,
+  /* Description of the container. */
+  @named("description") description: Option[String] = scala.None,
+  /* Name of the registry image (e.g. \"rg.fr-par.scw.cloud/something/image:tag\"). */
+  @named("registry_image") registryImage: Option[String] = scala.None,
+  /* Number of maximum concurrent executions of the container. */
+  @named("max_concurrency") maxConcurrency: Option[Int] = scala.None,
+  /* Domain name attributed to the contaioner. */
+  @named("domain_name") domainName: Option[String] = scala.None,
+  /* Protocol the container uses. */
+  @named("protocol") protocol: Option[ContainerEnums.Protocol] = scala.None,
+  /* Port the container listens on. */
+  @named("port") port: Option[Int] = scala.None,
+  /* Secret environment variables of the container. */
+  @named("secret_environment_variables") secretEnvironmentVariables: Option[Seq[SecretHashedValue]] = scala.None,
+  /* Configuration for the handling of HTTP and HTTPS requests. Possible values:  - redirected: Responds to HTTP request with a 301 redirect to ask the clients to use HTTPS.  - enabled: Serve both HTTP and HTTPS traffic. */
+  @named("http_option") httpOption: Option[ContainerEnums.HttpOption] = scala.None,
+  /* Execution environment of the container. */
+  @named("sandbox") sandbox: Option[ContainerEnums.Sandbox] = scala.None,
+  /* Local storage limit of the container (in MB). */
+  @named("local_storage_limit") localStorageLimit: Option[Int] = scala.None,
+  @named("scaling_option") scalingOption: Option[CreateContainerRequestScalingOption] = scala.None,
+  @named("health_check") healthCheck: Option[CreateContainerRequestHealthCheck] = scala.None,
+  /* Creation date of the container. (RFC 3339 format) */
+  @named("created_at") createdAt: Option[OffsetDateTime] = scala.None,
+  /* Last update date of the container. (RFC 3339 format) */
+  @named("updated_at") updatedAt: Option[OffsetDateTime] = scala.None,
+  /* Last date when the container was successfully deployed and set to ready. (RFC 3339 format) */
+  @named("ready_at") readyAt: Option[OffsetDateTime] = scala.None,
+  /* Region in which the container will be deployed. */
+  @named("region") region: Option[String] = scala.None,
+  /* List of tags applied to the Serverless Container. */
+  @named("tags") tags: Option[Seq[String]] = scala.None,
+  /* ID of the Private Network the container is connected to. When connected to a Private Network, the container can access other Scaleway resources in this Private Network. */
+  @named("private_network_id") privateNetworkId: Option[String] = scala.None,
+  /* Container command. Command executed when the container starts. This overrides the default command defined in the container image. This is usually the main executable, or entry point script to run. */
+  @named("command") command: Option[Seq[String]] = scala.None,
+  /* Container arguments. Arguments passed to the command specified in the \"command\" field. These override the default arguments from the container image, and behave like command-line parameters. */
+  @named("args") args: Option[Seq[String]] = scala.None
 )
 
 object ContainerEnums:
@@ -191,15 +98,15 @@ object ContainerEnums:
       CodecMakerConfig
         .withAdtLeafClassNameMapper { x =>
           JsonCodecMaker.simpleClassName(x) match
-            case "unknown"   => "unknown"
-            case "ready"     => "ready"
-            case "deleting"  => "deleting"
-            case "error"     => "error"
-            case "locked"    => "locked"
-            case "creating"  => "creating"
-            case "pending"   => "pending"
-            case "created"   => "created"
-            case "locking"   => "locking"
+            case "unknown" => "unknown"
+            case "ready" => "ready"
+            case "deleting" => "deleting"
+            case "error" => "error"
+            case "locked" => "locked"
+            case "creating" => "creating"
+            case "pending" => "pending"
+            case "created" => "created"
+            case "locking" => "locking"
             case "upgrading" => "upgrading"
         }
         .withDiscriminatorFieldName(scala.None)
@@ -217,8 +124,8 @@ object ContainerEnums:
         .withAdtLeafClassNameMapper { x =>
           JsonCodecMaker.simpleClassName(x) match
             case "unknown_privacy" => "unknown_privacy"
-            case "public"          => "public"
-            case "private"         => "private"
+            case "public" => "public"
+            case "private" => "private"
         }
         .withDiscriminatorFieldName(scala.None)
     }
@@ -235,8 +142,8 @@ object ContainerEnums:
         .withAdtLeafClassNameMapper { x =>
           JsonCodecMaker.simpleClassName(x) match
             case "unknown_protocol" => "unknown_protocol"
-            case "http1"            => "http1"
-            case "h2c"              => "h2c"
+            case "http1" => "http1"
+            case "h2c" => "h2c"
         }
         .withDiscriminatorFieldName(scala.None)
     }
@@ -253,8 +160,8 @@ object ContainerEnums:
         .withAdtLeafClassNameMapper { x =>
           JsonCodecMaker.simpleClassName(x) match
             case "unknown_http_option" => "unknown_http_option"
-            case "enabled"             => "enabled"
-            case "redirected"          => "redirected"
+            case "enabled" => "enabled"
+            case "redirected" => "redirected"
         }
         .withDiscriminatorFieldName(scala.None)
     }
@@ -271,8 +178,8 @@ object ContainerEnums:
         .withAdtLeafClassNameMapper { x =>
           JsonCodecMaker.simpleClassName(x) match
             case "unknown_sandbox" => "unknown_sandbox"
-            case "v1"              => "v1"
-            case "v2"              => "v2"
+            case "v1" => "v1"
+            case "v2" => "v2"
         }
         .withDiscriminatorFieldName(scala.None)
     }

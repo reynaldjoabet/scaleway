@@ -83,7 +83,8 @@ val commonSettings = Seq(
   // comment below for why that scaffolding doesn't belong here.
   openApiIgnoreFileOverride := (baseDirectory.value / ".openapi-generator-ignore").getPath,
 
-  // Generated sources are committed under src/main/scala; regenerate with the `generate` task
+  // Regenerated into src/main/scala on every compile via the sourceGenerator
+  // below, not manually via a standalone `generate` invocation.
   openApiOutputDir := ((Compile / baseDirectory).value / "src/main/scala").getAbsolutePath,
   openApiGenerateModelTests := SettingDisabled,
   openApiGenerateApiTests := SettingDisabled,
@@ -106,11 +107,44 @@ val commonSettings = Seq(
   // (allInputFiles / changedInputFiles) are @transient, i.e. deliberately
   // excluded from cache input. A cached task would therefore keep serving a
   // stale client whenever the spec changed, so we always regenerate.
+  //
+  // Must use Def.sequential, not a single task body with two `.value` calls.
+  // Every `.value` reference in a task body is resolved as a dependency of
+  // the enclosing task, and ALL dependencies resolve before the body's own
+  // imperative code runs -- regardless of where `.value` appears textually.
+  // A single-body version ran openApiGenerate.value (writing the files) as a
+  // dependency first, then ran IO.delete(packageDir) as the "body", deleting
+  // everything openApiGenerate had just written. Def.sequential is what
+  // actually guarantees delete-then-generate ordering.
   generate := Def.uncached {
-    val packageDir = openApiInvokerPackage.value.split('.').foldLeft(file(openApiOutputDir.value))(_ / _)
-    IO.delete(packageDir)
-    openApiGenerate.value
+    Def
+      .sequential(
+        Def.task {
+          val packageDir = openApiInvokerPackage.value.split('.').foldLeft(file(openApiOutputDir.value))(_ / _)
+          IO.delete(packageDir)
+        },
+        openApiGenerate
+      )
+      .value
   },
+  // Wired in as a sourceGenerator, NOT as `compile.dependsOn(generate)`.
+  // sbt collects `sources` by globbing src/main/scala in a task separate from
+  // `compile`, and dependsOn only sequences generate ahead of `compile` --
+  // not ahead of that glob. So on a clean checkout the glob would run first,
+  // find nothing, and the module would compile 0 sources, leaving its
+  // api/models off the classpath and failing every downstream import that
+  // depends on it -- and locally you'd never notice, since the previous run's
+  // files are still on disk and the glob always finds those. A sourceGenerator
+  // feeds `sources` directly, so sbt has to run it first.
+  Compile / sourceGenerators += Def.task {
+    generate.value
+    (file(openApiOutputDir.value) ** "*.scala").get()
+  }.taskValue,
+  // openApiOutputDir *is* src/main/scala, so the generator above already globs
+  // everything sbt would otherwise pick up as unmanaged sources. Dropping the
+  // unmanaged dir makes the generator the single source of truth instead of
+  // having sbt separately glob a directory that's empty on a clean checkout.
+  Compile / unmanagedSourceDirectories := Seq.empty,
   libraryDependencies ++= Seq(
     sttpJsoniter,
     jsoniter,
