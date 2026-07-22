@@ -81,7 +81,6 @@ lazy val root = (project in file("."))
   )
 
 val commonSettings = Seq(
-  // Generated code uses indentation syntax and is not held to our lint flags
   scalacOptions --= Seq(
     "-no-indent",
     "-Wunused:all",
@@ -94,9 +93,6 @@ val commonSettings = Seq(
   // Use the module-local config.json
   openApiConfigFile := (baseDirectory.value / "config.json").getPath,
 
-  // Module-local, like config.json above. Suppresses the sbt/project
-  // scaffolding the generator would otherwise emit -- see the `generate`
-  // comment below for why that scaffolding doesn't belong here.
   openApiIgnoreFileOverride := (baseDirectory.value / ".openapi-generator-ignore").getPath,
 
   // Regenerated into src/main/scala on every compile via the sourceGenerator
