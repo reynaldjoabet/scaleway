@@ -3,29 +3,31 @@ import Dependencies._
 ThisBuild / scalaVersion := "3.3.8"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
+ThisBuild / scalacOptions := Seq(
+  "-encoding",
+  "UTF-8",
+  "-no-indent",
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-Wunused:all",
+  "-Wvalue-discard",
+  "-Wnonunit-statement",
+  "-Ykind-projector",
+  "-Xmax-inlines:64"
+)
+
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 val commonSettings = Seq(
-  // Generated code is brace-less/indentation style, so -no-indent must NOT
-  // apply here; the generated sources also trip the lint flags. NB: this
-  // `--=` only works because ThisBuild / scalacOptions is set inside root's
-  // .settings below -- hoisting it to a top-level setting reorders evaluation
-  // so the ThisBuild append re-adds -no-indent after this strip runs.
-  scalacOptions --= Seq(
-    "-no-indent",
-    "-Wunused:all",
-    "-Wvalue-discard",
-    "-Wnonunit-statement"
-  ),
+  scalacOptions := Seq.empty,
   openApiModelNamePrefix := "",
   openApiModelNameSuffix := "",
   openApiGenerateMetadata := SettingDisabled,
   // Use the module-local config.json
   openApiConfigFile := (baseDirectory.value / "config.json").getPath,
   // Single shared ignore file at modules/, one level above each module dir
-  openApiIgnoreFileOverride := (baseDirectory.value / ".." / ".openapi-generator-ignore").getPath,
-  // Regenerated into src/main/scala on every compile via the sourceGenerator
-  // below, not manually via a standalone `generate` invocation.
+  openApiIgnoreFileOverride := (baseDirectory.value.getParentFile / ".openapi-generator-ignore").getPath,
   openApiOutputDir := (baseDirectory.value / "src/main/scala").getAbsolutePath,
   openApiGenerateModelTests := SettingDisabled,
   openApiGenerateApiTests := SettingDisabled,
@@ -48,7 +50,7 @@ val commonSettings = Seq(
   // Dependencies.scala), so its own return value -- the exact file list
   // openApiGenerate just wrote -- IS what sourceGenerators needs.
   Compile / sourceGenerators += generate.taskValue,
-  // openApiOutputDir *is* src/main/scala, so the generator above already globs
+  // openApiOutputDir *is* src/main/scala, so the generator above already covers
   // everything sbt would otherwise pick up as unmanaged sources. Dropping the
   // unmanaged dir makes the generator the single source of truth instead of
   // having sbt separately glob a directory that's empty on a clean checkout.
@@ -61,9 +63,6 @@ val commonSettings = Seq(
   )
 )
 
-/** Defines a codegen module `scaleway-<id>-codegen` that generates from `spec` into the `scaleway.<pkg>.*` package
-  * tree.
-  */
 def scalewayModule(id: String, spec: String, pkg: String): Project =
   Project(s"scaleway-$id-codegen", file(s"modules/scaleway-$id-codegen"))
     .enablePlugins(OpenApiGeneratorPlugin)
@@ -76,10 +75,6 @@ def scalewayModule(id: String, spec: String, pkg: String): Project =
       openApiInvokerPackage := s"scaleway.$pkg"
     )
 
-// NB: each module MUST be a top-level `lazy val` -- sbt only discovers
-// projects bound to vals in the build definition, not ones tucked inside a
-// Seq. The `modules` list below just collects them so root's dependsOn /
-// aggregate can derive from one place.
 lazy val autoscaling = scalewayModule("autoscaling", "scaleway.autoscaling.yml", "autoscaling")
 lazy val containers = scalewayModule("containers", "scaleway.containers.yml", "containers")
 lazy val iam = scalewayModule("iam", "scaleway.iam.yml", "iam")
@@ -122,21 +117,6 @@ lazy val modules: Seq[Project] = Seq(
 lazy val root = (project in file("."))
   .settings(
     name := "scaleway",
-    // Kept inside root's .settings (not hoisted to a top-level ThisBuild
-    // setting): the ordering here is load-bearing for commonSettings' `--=`.
-    ThisBuild / scalacOptions ++= Seq(
-      "-encoding",
-      "UTF-8",
-      "-no-indent",
-      "-deprecation",
-      "-feature",
-      "-unchecked",
-      "-Wunused:all",
-      "-Wvalue-discard",
-      "-Wnonunit-statement",
-      "-Ykind-projector",
-      "-Xmax-inlines:64"
-    ),
     libraryDependencies ++= Seq(
       sttpCore,
       http4sBackend,
