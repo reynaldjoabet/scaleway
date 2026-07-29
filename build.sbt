@@ -10,17 +10,29 @@ ThisBuild / scalacOptions := Seq(
   "-deprecation",
   "-feature",
   "-unchecked",
+  "-source:3.3",
+  "-java-output-version:17",
+  "-Werror",
   "-Wunused:all",
   "-Wvalue-discard",
   "-Wnonunit-statement",
-  "-Ykind-projector",
+  "-Xlint:all",
+  "-Ysafe-init",
+  "-Xcheck-macros",
   "-Xmax-inlines:64"
 )
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
+val generatedScalacOptions = Seq(
+  "-encoding",
+  "UTF-8",
+  "-java-output-version:17",
+  "-Xmax-inlines:64"
+)
+
 val commonSettings = Seq(
-  scalacOptions := Seq.empty,
+  scalacOptions := generatedScalacOptions,
   openApiModelNamePrefix := "",
   openApiModelNameSuffix := "",
   openApiGenerateMetadata := SettingDisabled,
@@ -74,7 +86,6 @@ def scalewayModule(id: String, spec: String, pkg: String): Project =
       openApiModelPackage := s"scaleway.$pkg.models",
       openApiInvokerPackage := s"scaleway.$pkg"
     )
-
 lazy val autoscaling = scalewayModule("autoscaling", "scaleway.autoscaling.yml", "autoscaling")
 lazy val containers = scalewayModule("containers", "scaleway.containers.yml", "containers")
 lazy val iam = scalewayModule("iam", "scaleway.iam.yml", "iam")
@@ -117,6 +128,7 @@ lazy val modules: Seq[Project] = Seq(
 lazy val root = (project in file("."))
   .settings(
     name := "scaleway",
+    semanticdbEnabled := true,
     libraryDependencies ++= Seq(
       sttpCore,
       http4sBackend,
