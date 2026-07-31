@@ -828,3 +828,12 @@ Here the LAN route uses eth0, the default uses eth1.
 The replacement for iptables, ip6tables, arptables and ebtables — one framework instead of four;driven by a single userspace tool: `nft`
 
 
+The mechanism: `sbt-scalafmt` formats `unmanagedSources`, not sources.
+
+Your codegen modules set `Compile / unmanagedSourceDirectories := Seq.empty`, so:
+```sh
+scaleway-iam-codegen/Compile/unmanagedSources:  0     ← what scalafmt would format
+scaleway-iam-codegen/Compile/managedSources:   97     ← where the generated files actually live
+```
+
+`scaleway-iam-codegen/Compile/scalafmtCheck `succeeds in 12s having formatted nothing. The generated files reach the compiler as managed sources, and scalafmt never looks at managed sources. So the skip is a free side effect of the `sourceGenerators` wiring from earlier 
