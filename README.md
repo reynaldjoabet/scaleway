@@ -5,24 +5,6 @@ Scaleway takes care of Kubernetes system applications such as CoreDNS, Kubeproxy
 
 Scaleway is also responsible for node provisioning and providing updates of operating system node images.
 
-## Examples
-
-Runnable programs against the generated clients live in [src/main/scala/examples/](src/main/scala/examples/). Each one
-is an `IOApp` that provisions something, prints what it did, and deletes it again on the way out.
-
-```sh
-export SCW_SECRET_KEY=...              # from an IAM API key
-export SCW_DEFAULT_ORGANIZATION_ID=...
-export SCW_DEFAULT_PROJECT_ID=...
-export SCW_DEFAULT_REGION=fr-par       # optional, this is the default
-export SCW_DEFAULT_ZONE=fr-par-1       # optional, this is the default
-
-sbt --client "runMain examples.VpcExample"
-```
-
-The listings are read-only, but anything an example creates — Instances, Kapsule clusters, Load Balancers — is billed
-for as long as it exists, so let the teardown run.
-
 ![alt text](image.png)
 
 [Building a Production-Ready Kubernetes Cluster on Scaleway with Terraform](https://hervekhg.medium.com/building-a-production-ready-kubernetes-cluster-on-scaleway-with-terraform-269e9d558128)
@@ -837,3 +819,783 @@ scaleway-iam-codegen/Compile/managedSources:   97     ← where the generated fi
 ```
 
 `scaleway-iam-codegen/Compile/scalafmtCheck `succeeds in 12s having formatted nothing. The generated files reach the compiler as managed sources, and scalafmt never looks at managed sources. So the skip is a free side effect of the `sourceGenerators` wiring from earlier 
+
+`A 32-bit sequence defined strictly as a continuous string of 1s followed by a continuous string of 0s. Because of this rule, there are only 33 possible binary subnet masks in existence`
+
+Every octet can only ever have nine possible values: 0, 128, 192, 224, 240, 248, 252, 254, 255. The only valid subnet masks are those that can be expressed as a continuous string of 1s followed by a continuous string of 0s. This means that the binary representation of a subnet mask must have all the 1s on the left side and all the 0s on the right side.
+
+
+
+- VPC
+- Subnets
+- Security groups- for fined grain firewall policies
+- Route tables- for routing traffic between subnets and to the internet
+- Gateway- for internet access
+## Examples
+
+Runnable programs against the generated clients live in [src/main/scala/examples/](src/main/scala/examples/). Each one
+is an `IOApp` that provisions something, prints what it did, and deletes it again on the way out.
+
+```sh
+export SCW_SECRET_KEY=...              # from an IAM API key
+export SCW_DEFAULT_ORGANIZATION_ID=...
+export SCW_DEFAULT_PROJECT_ID=...
+export SCW_DEFAULT_REGION=fr-par       # optional, this is the default
+export SCW_DEFAULT_ZONE=fr-par-1       # optional, this is the default
+
+sbt --client "runMain examples.VpcExample"
+```
+
+The listings are read-only, but anything an example creates — Instances, Kapsule clusters, Load Balancers — is billed
+for as long as it exists, so let the teardown run.
+
+
+### Carrying is Euclidean division
+
+A column in a positional numeral can only hold digits `0 … b-1`. When a column's sum `S` overflows that range, split `S` into the part that fits and the part that doesn't:
+
+```sh
+S = b·C + D        with 0 ≤ D < b
+D = S mod b        ← the digit you write   (the leftover)
+C = ⌊S / b⌋        ← the digit you carry   (how many whole b's you packed up)
+```
+
+The carry goes *left* because of positional value: a column worth `bⁿ` sits next to a column worth `bⁿ⁺¹`, so `b` units of the right column = exactly 1 unit of the left one. Carrying is repackaging, not arithmetic. `S = bC + D` guarantees the split loses and invents nothing.
+
+`47 + 38` in base 10 → `85`:
+
+| column | `S`         | `D = S mod 10` | `C = ⌊S/10⌋` |
+| ------ | ----------- | -------------- | ------------ |
+| units  | `7+8 = 15`  | 5              | 1            |
+| tens   | `4+3+1 = 8` | 8              | 0            |
+
+`15 = 10(1) + 5` — you had 15 units, 10 of them became one ten, 5 stayed put.
+
+`1011 + 1101` in base 2 → `11000` (11 + 13 = 24). `D` is only ever 0 or 1, so carries fire the moment `S` reaches 2:
+
+| column | `S`         | `D = S mod 2` | `C = ⌊S/2⌋` |
+| ------ | ----------- | ------------- | ----------- |
+| `2⁰`   | `1+1 = 2`   | 0             | 1           |
+| `2¹`   | `1+0+1 = 2` | 0             | 1           |
+| `2²`   | `0+1+1 = 2` | 0             | 1           |
+| `2³`   | `1+1+1 = 3` | 1             | 1           |
+| `2⁴`   | `1`         | 1             | 0           |
+
+The `S = 3` row is `3 = 2(1) + 1`: write 1, carry 1 — literally what a full adder computes in hardware, and the reason wide adders need carry-lookahead (the carry chain is serial).
+
+`9F + 6B` in base 16 → `10A`. Large `b`, so sums get big before anything spills:
+
+| column | `S`                  | `D = S mod 16`    | `C = ⌊S/16⌋` |
+| ------ | -------------------- | ----------------- | ------------ |
+| `16⁰`  | `F+B = 15+11 = 26`   | `26-16 = 10` = `A` | 1           |
+| `16¹`  | `9+6+1 = 16`         | `16-16 = 0`       | 1            |
+| `16²`  | `1`                  | 1                 | 0            |
+
+Check in decimal: `159 + 107 = 266`, and `1(256) + 0(16) + 10 = 266`. ✓
+
+**The carry is not always 0 or 1.** That only holds for two addends: the largest possible sum is `2(b-1) = 2b-2 < 2b`, so `⌊S/b⌋ ≤ 1`. Add more rows and the bound breaks — `18 + 19 + 17 + 16 = 70` carries a literal 3, because the units column `8+9+7+6 = 30` yields `D = 0`, `C = ⌊30/10⌋ = 3`: three complete tens extracted at once.
+
+The base need not even be constant per column. Time is mixed radix — `1h 45m + 0h 30m`: minutes `S = 75`, `D = 75 mod 60 = 15`, `C = 1`; hours `1+0+1 = 2` → `2h 15m`. Same algorithm, different `b` per column.
+
+So `b` isn't part of the arithmetic — it's part of the notation. `11 + 13 = 24` regardless of how you write it. Changing `b` only moves where the overflow line sits, and therefore how `S` gets sliced into `(D, C)`.
+
+Which is exactly what the dotted quad is doing: an IPv4 address is base 256 (see the table above), so incrementing across an octet boundary is one carry with `b = 256`.
+
+```sh
+10.0.0.255 + 1   →   S = 256, D = 256 mod 256 = 0, C = 1   →   10.0.1.0
+```
+
+That is the same arithmetic as the *Block Size* column in the CIDR table — a `/26` steps the last octet by 64, and the fifth such step (`192 + 64 = 256`) overflows into the third octet instead of producing `10.0.0.256`, which is unrepresentable because `D < b`.
+
+When you initialize a Kubernetes cluster (using tools like kubeadm, or managed services like EKS, GKE, or AKS), you define a Cluster CIDR (also known as the Pod Network CIDR)
+
+Kubernetes takes that parent /16 block and divides it into smaller subnets—typically /24 blocks—and assigns one (or more) to each worker node.
+
+- Node 1 Pod CIDR: 10.244.1.0/24 (256 IPs for pods on Node 1)
+
+- Node 2 Pod CIDR: 10.244.2.0/24 (256 IPs for pods on Node 2)
+
+- Node 3 Pod CIDR: 10.244.3.0/24 (256 IPs for pods on Node 3)
+
+The Container Network Interface (CNI) plugin you choose (like Cilium, Calico, or Flannel) handles the allocation of these subnets behind the scenes:
+
+- `IPAM (IP Address Management)`: The CNI's IPAM module tracks which node owns which /24 slice.
+
+- `Routing / Encapsulation`: When Pod A (on Node 1, IP `10.244.1.5`) wants to talk to Pod B (on Node 2, IP `10.244.2.10`), the CNI ensures the packet knows how to cross the physical node boundary using either overlay networking (encapsulating the packet in a VXLAN/Geneve tunnel) or direct routing (updating the underlying VPC's route tables so the cloud provider knows Node 2's subnet lives behind Node 2's primary ENI).
+
+
+there is always a route to the Pod CIDR, but how that route gets established depends entirely on whether your cluster uses an overlay network or direct routing (native VPC routing).
+
+## Overlay Networking (e.g., Flannel, VXLAN, or Geneve)
+
+In an overlay setup, the underlying cloud VPC or physical network does not know about individual Pod CIDRs. The physical network only sees the nodes' normal IP addresses (e.g., 192.168.1.x).
+The Routing Table: The routing table inside the Linux kernel of Node 1 looks like this for container traffic:
+
+- Destination: 10.244.2.0/24 (Node 2's Pod CIDR)
+- Gateway/Interface: Encapsulated via a virtual tunnel interface (like flannel.1 or a VXLAN device).
+
+## Direct Routing / Native VPC Integration (e.g., AWS VPC CNI, Google Cloud VPC Native, Cilium in Direct Routing mode)
+
+In high-performance or cloud-native setups, you want to eliminate the overhead of tunneling. Here, the underlying cloud provider's VPC router actually knows the routes to your Pod CIDRs.
+
+    The Cloud VPC Routing Table: The cloud provider's virtual router has explicit routing rules. For example:
+-  Destination: 10.244.2.0/24 (Pod CIDR)
+
+- Target: Node 2's primary network interface (ENI) or Node 2's IP address.
+
+
+### From a Peered VPC or Corporate VPN
+
+If you have a separate network (like your company's AWS VPC or an on-premises datacenter) connected via VPC peering or a VPN tunnel, and you want them to talk directly to your pods:
+- The Solution: You have to manually add a static route in your cloud provider's VPC route table or your VPN gateway.
+- The Route: Destination = 10.244.0.0/16, Target = Your Kubernetes cluster's VPC router / Transit Gateway / or specific worker nodes (depending on your CNI). Without this route, external routers will not know how to forward packets destined for the /16 block toward your cluster.
+
+### How Kubernetes Handles External Traffic (The Right Way)
+
+Because Pod IPs inside the /16 are internal and ephemeral, you generally do not route raw packets directly to the /16 from the outside world. Instead, Kubernetes uses abstraction layers to handle incoming traffic safely:
+- Services & Load Balancers (LoadBalancer / NodePort): An external cloud load balancer receives traffic on a public/VPC IP and forwards it to a NodePort or directly to the nodes. The kube-proxy (or CNI) then uses iptables / eBPF to DNAT (Destination Network Address Translation) that traffic and route it to a specific pod inside the /16.
+- Ingress Controllers: Acts as an entry point inside the cluster, receiving traffic from a single internal/external entry point and routing it based on HTTP paths to the correct internal pod /16 addresses.
+
+
+### Services & Load Balancers (LoadBalancer / NodePort)
+
+Imagine you are deploying a simple web application or a backend API, and you want it to be directly accessible from the public internet via a cloud load balancer (like an AWS Classic/Network Load Balancer or GCP Load Balancer).
+
+```yaml
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-api-service
+spec:
+  type: LoadBalancer # Tells the cloud provider to provision an external LB
+  selector:
+    app: payment-api # Targets pods with this label
+  ports:
+    - protocol: TCP
+      port: 80        # The port exposed on the external load balancer
+      targetPort: 8080 # The port your containerized app is listening on inside the pod
+```      
+
+### Ingress Controllers
+
+If you have dozens of microservices, provisioning a separate cloud Load Balancer (type: LoadBalancer) for every single one of them gets very expensive and messy. Instead, you deploy a single Ingress Controller (like NGINX Ingress, Traefik, or Envoy Gateway) behind one Load Balancer, and use it to route traffic based on HTTP paths or hostnames.
+
+```yaml
+# ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: main-router
+spec:
+  ingressClassName: nginx # Uses the NGINX Ingress Controller
+  rules:
+    - host: api.mycompany.com
+      http:
+        paths:
+          - path: /users
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 80
+          - path: /orders
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: 80
+```
+
+You configure the cloud load balancer directly from inside Kubernetes by adding Annotations to your `Service` or `Ingress` YAML manifests.
+
+When you create the resource, a Cloud Controller Manager (like the AWS Load Balancer Controller or Azure's cloud provider integration) watches the Kubernetes API. When it sees your manifest, it reads these annotations and makes the API calls to the cloud provider to provision and configure the load balancer automatically.
+
+### Target Types (How the LB actually reaches your pods)
+
+The most important configuration for how traffic is routed to your service is the `Target Type`. You can tell the cloud load balancer to route traffic into your cluster in one of two ways:
+
+#### Option A: Instance Mode (Node-Level Routing)
+
+This is the traditional default for most Kubernetes setups.
+- `The Config`: `service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "instance"` (or Azure's default behavior).
+
+The Cloud LB registers the worker nodes (the raw VMs) as its targets. It sends traffic to a `NodePort` on the node, and the node's `kube-proxy` (using Netfilter/iptables) forwards it to the correct Pod.
+
+- The Trade-off: It works with any overlay network (like VXLAN or WireGuard meshes), but it adds an extra network hop inside the cluster.
+
+#### Option B: IP Mode (Direct Pod Routing)
+
+- The Config: `service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"`
+
+The Cloud LB registers the Pod IPs directly as its targets. It completely bypasses the worker node's kube-proxy. The cloud load balancer sends packets directly to the internal Pod IPs
+
+
+### The Frontend Interface (The Listener)
+
+This is the interface that receives traffic from clients.
+
+- Public Load Balancer: The frontend interface is assigned a Public IP address routable on the open internet, as well as a private IP within your cloud VPC/VNet.
+
+- Internal Load Balancer: In a secure hub-and-spoke architecture (like those routing through a Palo Alto firewall in an Azure Transit VNet), the frontend interface is only assigned a private IP from the specific subnet you provision the load balancer in.
+
+
+### The Backend Interface (The Target-Facing Side)
+
+This is the interface the load balancer uses to forward traffic to your Kubernetes nodes or directly to your Pod IPs.
+
+- Under the hood in AWS, an Application Load Balancer (ALB) or Network Load Balancer (NLB) provisions actual Elastic Network Interfaces (ENIs) in the subnets you select.
+
+- When the load balancer decides which pod or node should receive the request, the packet is sent out through this backend ENI into your VPC routing infrastructure.
+
+
+```sh
+┌──────────────────┬──────────────┬──────────────────────────┐
+│     OSI (7)      │  TCP/IP (4)  │          Linux           │
+├──────────────────┼──────────────┼──────────────────────────┤
+│ 7 Application    │              │                          │
+│ 6 Presentation   │ Application  │ userspace (nginx, ssh)   │
+│ 5 Session        │              │                          │
+├──────────────────┼──────────────┼──────────────────────────┤
+│ 4 Transport      │ Transport    │ net/ipv4/tcp.c, udp.c    │
+├──────────────────┼──────────────┼──────────────────────────┤
+│ 3 Network        │ Internet     │ net/ipv4/ip_input.c,     │
+│                  │              │ net/ipv4/route.c         │
+├──────────────────┼──────────────┼──────────────────────────┤
+│ 2 Data Link      │              │ net/ethernet/            │
+│ 1 Physical       │ Link         │ drivers/net/             │
+└──────────────────┴──────────────┴──────────────────────────┘
+```
+
+Each layer prepends a header and never touches what's above it
+
+```sh
+L7  HTTP                                     37 bytes
+L4  + TCP header (20)                    →   57
+L3  + IP header (20)                     →   77
+L2  + Ethernet header (14)               →   91  ← on the wire
+```
+
+What the NIC adds that isn't shown
+```sh
+[preamble 7B][SFD 1B][  the 91 bytes above  ][FCS/CRC 4B][interframe gap]
+```
+The preamble, start-frame delimiter, and CRC are generated by hardware and stripped before the kernel ever sees the frame — which is why `sk_buff` starts at the destination MAC. Ethernet also pads any frame under 64 bytes; ours is 91, so no padding.
+
+
+### The handshake (TLS 1.3, RFC 8446)
+```sh
+CLIENT                                                    SERVER
+  │                                                          │
+  │──── ClientHello ────────────────────────────────────────►│
+  │       • random                                           │
+  │       • cipher suites offered                            │
+  │       • key_share  (ephemeral ECDHE public key)          │
+  │       • server_name (SNI)   ← PLAINTEXT, see below       │
+  │                                                          │
+  │◄──── ServerHello ────────────────────────────────────────│
+  │       • random                                           │
+  │       • chosen cipher suite                              │
+  │       • key_share  (server's ephemeral public key)       │
+  │                                                          │
+  │   ══ both sides now compute the SAME shared secret ══    │
+  │      via ECDHE, then derive keys with HKDF               │
+  │                                                          │
+  │◄──── {EncryptedExtensions}  ─────────────────────────────│  ┐
+  │◄──── {Certificate}          ─────────────────────────────│  │ encrypted
+  │◄──── {CertificateVerify}    ─────────────────────────────│  │ from here on
+  │◄──── {Finished}             ─────────────────────────────│  ┘
+  │                                                          │
+  │──── {Finished} ─────────────────────────────────────────►│
+  │──── [Application Data: GET /account …] ─────────────────►│   1 round trip
+```
+One round trip, then data flows. TLS 1.2 needed two.
+
+The three jobs, and which crypto does each
+
+| Job | Mechanism | What it stops |
+| --- | --- | --- |
+| `Confidentiality` | AEAD cipher (AES-GCM or ChaCha20-Poly1305) with keys from ECDHE | reading your data |
+| `Integrity` | the AEAD auth tag — same operation | modifying your data |
+| `Authentication` | server's certificate + `CertificateVerify` signature, chained to a trusted CA | talking to an impostor |
+
+`CertificateVerify` is the part people miss. Anyone can copy a public certificate. The server must sign a hash of the whole handshake transcript with the private key matching that certificate — proving it actually holds the key, and binding the proof to this specific connection.
+
+`Forward secrecy` comes from ECDHE being ephemeral: keys are generated per connection and discarded. Stealing the server's long-term private key next year doesn't decrypt traffic captured today. TLS 1.3 removed RSA key transport precisely because it lacked this.
+
+`TLS 1.2 — the client must ask before it can act`:
+```sh
+t=0    CLIENT ──── ClientHello ──────────────────────────► SERVER
+                   "here are the ciphers I support"
+                   (no key material — I don't know what you'll pick)
+
+t=½    CLIENT ◄─── ServerHello, Certificate, ──────────── SERVER
+                   ServerKeyExchange, ServerHelloDone
+                   "I chose ECDHE/x25519, here's MY public key"
+                          ▲
+                          └─ only NOW does the client know the group
+       ═══════════════ RTT 1 complete ═══════════════
+
+t=1    CLIENT ──── ClientKeyExchange, CCS, Finished ─────► SERVER
+                   "here's MY public key" → both compute secret
+
+t=1½   CLIENT ◄─── NewSessionTicket, CCS, Finished ────── SERVER
+       ═══════════════ RTT 2 complete ═══════════════
+
+t=2    CLIENT ──── GET /account ─────────────────────────► SERVER
+```
+
+`TLS 1.3 — the client guesses and commits up front`:
+
+```sh
+t=0    CLIENT ──── ClientHello + key_share ──────────────► SERVER
+                   "here are my ciphers AND my public key
+                    for x25519, which I bet you'll accept"
+
+t=½    CLIENT ◄─── ServerHello + key_share, ──────────── SERVER
+                   {EncryptedExtensions}, {Certificate},
+                   {CertificateVerify}, {Finished}
+                   ▲ server computed the secret on arrival,
+                     so everything after ServerHello is ALREADY encrypted
+       ═══════════════ RTT 1 complete ═══════════════
+
+t=1    CLIENT ──── {Finished} + GET /account ───────────► SERVER
+                   ▲ data rides in the SAME flight
+```
+TLS 1.2 negotiates first, then exchanges keys. TLS 1.3 exchanges keys speculatively during negotiation.
+
+- The ECDHE shared secret enters once, at the Handshake Secret. Everything below is derived from it via HKDF 
+- There are two generations of keys:
+
+| Generation | Derived from | Encrypts |
+| --- | --- | --- |
+| `handshake traffic secrets` | Handshake Secret | `EncryptedExtensions`, `Certificate`, `CertificateVerify`, `Finished` |
+| `application traffic secrets` | Master Secret | your GET, the response |
+
+This is why TLS 1.3 can encrypt the certificate: handshake keys are available immediately after `ServerHello`, long before the handshake completes. TLS 1.2 had no such intermediate stage, which is why its certificate goes in the clear.
+
+- Separate keys per direction. `client->server` and `server->client` have different keys and IVs. A captured client record cannot be decrypted with the server's key — so compromising one direction doesn't give you the other.
+
+-  Every record gets a unique nonce — `iv XOR sequence_number`. This is not decoration: reusing a nonce with AES-GCM leaks the authentication key outright and is one of the most catastrophic failures in applied cryptography. The counter guarantees uniqueness for free.
+
+- The transcript is mixed in. `Derive-Secret(..., transcript)` binds the keys to the exact bytes of the handshake. Tamper with any handshake message and both sides derive different keys → `Finished` fails → connection aborts. That's how the handshake protects itself.
+
+### Forward secrecy, concretely
+The ECDHE private keys are generated per connection and discarded when the handshake ends. Nothing in that schedule can be recomputed afterwards — not from the server's certificate key, not from anything stored on disk. Recording today's traffic and stealing the server's private key next year yields nothing.
+
+That's precisely what TLS 1.2's old RSA key-transport suites lacked: the premaster secret was encrypted to the server's long-term key, so stealing that key later decrypted every past session. TLS 1.3 removed those suites entirely, which is why ECDHE is no longer even named in its cipher suites — it's mandatory.
+
+
+
+|  | Connection A | Connection B |
+| --- | --- | --- |
+| `5-tuple` | client :60617 → LB :9001 (TCP) | LB :60618 → pod :9002 (TCP) |
+| `who terminates it` | the load balancer | the pod |
+| `sequence numbers` | the client's | unrelated, freshly chosen |
+| `TLS session` | client ↔ LB | separate, or plaintext |
+| `congestion window` | independent | independent |
+
+
+keys are derived from the complete handshake transcript — including the Certificate and Finished messages. Those don't exist yet when the Certificate needs encrypting. You can't derive a key from messages you haven't sent.
+
+So TLS 1.3 derives keys twice:
+
+|  | When | From what transcript | Protects |
+| --- | --- | --- | --- |
+| `handshake keys` | right after `ServerHello` | `ClientHello`…`ServerHello` | the rest of the handshake |
+| `application keys` | after `Finished` | `ClientHello`…server `Finished` | your data |
+
+ HTTP/1.1 connections are persistent — after a response completes, the connection is perfectly reusable. Closing it would waste a TCP handshake (and a TLS handshake) on every request.
+
+### Two different mechanisms
+① HTTP/1.1 keep-alive — reuse across time (what the demo shows)
+
+```sh
+backend conn B1:  [req1][resp1] [req2][resp2] [req3][resp3]
+                   ─────────── sequential ───────────►
+One request at a time per connection. Reuse is temporal.
+```
+② HTTP/2 multiplexing — reuse across streams (concurrent)
+
+```sh
+backend conn B1:  [s1 req][s3 req][s1 resp][s5 req][s3 resp][s5 resp]
+                   ────────── interleaved on ONE connection ────────►
+```                   
+Many requests in flight simultaneously on a single TCP connection. This is strictly more powerful — it breaks even the "one connection per in-flight request" constraint. A single HTTP/2 backend connection can carry 100+ concurrent streams.
+
+#### Why this is only possible at L7
+Because the proxy owns both connections independently — Connection A and connection B share no state, so the proxy is free to map them however it likes: many-to-few, one-to-many, or reshuffled per request.
+
+An L4 forwarder can't do any of this. A packet belongs to exactly one flow; there's no layer at which to regroup them.
+
+`The handshake completes before the request is ever sent`
+
+- The session a handshake establishes — the keys and parameters for this connection. Negotiated as above.
+- Session resumption — reusing that state on a later connection to skip the full handshake.
+
+TLS 1.3 uses the words precisely — the distinction is role, not secrecy:
+
+|  | Secret | Key |
+| --- | --- | --- |
+| `purpose` | input to further derivation | fed directly to a cipher |
+| `length` | full hash size (32 B for SHA-256) | cipher's size (16 B for AES-128) |
+| `used by` | HKDF | AES-GCM |
+| `examples` | Early/Handshake/Master Secret, traffic secrets | `write_key`, `iv` |
+
+
+### Why the wiping matters
+Forward secrecy is entirely this property. Once the ECDHE private keys are gone, the Handshake Secret cannot be recomputed by anyone — not with the server's certificate key, not with anything on disk. Recorded traffic stays unreadable forever.
+
+Blast radius is the other half. Compromising application keys mid-connection gives you that connection's data and nothing else: not the handshake keys, not the Master Secret, not other connections.
+
+`resumption_master_secret` is the exception, and it's where the security model gets weaker. It's stored (client-side in a ticket, or server-side keyed by ticket ID) so a future connection can skip the handshake. That's a deliberate tradeoff:
+
+Session tickets are encrypted with a server-held ticket key. Steal that key and you can unwrap tickets and recover resumption secrets — undermining forward secrecy for resumed sessions.
+Which is why RFC 8446 caps ticket lifetime at 7 days, and why rotating ticket-encryption keys frequently is standard operational advice.
+
+
+Keepalive needs `keepalive N` in the *upstream* block plus two directives in the *location* block. Without all three it has zero effect, with no warning:
+
+```sh
+upstream app {
+    server 10.0.2.7:8080 max_fails=3 fail_timeout=30s;
+    keepalive 32;
+    keepalive_timeout 60s;    # how long an idle cached connection lives (nginx ≥1.15.3)
+    keepalive_time 1h;        # max total lifetime of a reused connection (nginx ≥1.19.10)
+}
+
+server {
+    location / {
+        proxy_pass http://app;
+        proxy_http_version 1.1;  # REQUIRED — nginx defaults to HTTP/1.0 upstream, which has no keepalive at all
+        proxy_set_header Connection "";  # REQUIRED — else the client's "Connection: close" is passed through
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+Both failures are silent. nginx defaults to HTTP/1.0 upstream, which has no persistent connections at all, and it forwards the client's `Connection` header — so a client sending `close` closes your pooled connection. This is one of the most common nginx misconfigurations in the wild.
+
+`keepalive_requests 1000;` — retire a connection after 1000 requests and open a fresh one. Reasons:
+- caps per-connection memory growth
+- lets traffic rebalance — a long-lived connection pins to one backend, so with multiple servers or DNS-resolved upstreams you'd get skew
+- default was 100, raised to 1000 in nginx 1.19.10
+
+
+① Nonce uniqueness — the critical one
+
+Each direction keeps its own sequence counter starting at 0, and the nonce is iv XOR seq. Share a key between directions and you get this
+
+A TLS connection is full-duplex — both sides send whenever they like, with no coordination. A single shared counter would require them to synchronize on every record, which is impossible. Separate keys let each side count independently with zero coordination, and uniqueness comes for free.
+
+② Reflection resistance. An attacker can't capture a record the server sent and replay it back at the server pretending it came from the client — it won't authenticate under client_key. With one shared key, that attack works.
+
+③ Limiting exposure to a third party 
+
+Everything used after the handshake descends from it:
+```sh
+Master Secret
+   ├── client_application_traffic_secret_0    your requests
+   ├── server_application_traffic_secret_0    responses
+   ├── exporter_master_secret                 keying for other protocols
+   └── resumption_master_secret               session tickets
+```   
+It genuinely is the master of the application phase
+
+```sh
+CONNECTION 1  (full handshake, ~1 RTT)
+     resumption_master_secret
+              │
+              ▼
+     NewSessionTicket × N  ──────────►  client stores the tickets
+                                        (opaque blobs, can't read them)
+
+CONNECTION 2  (later, maybe days later)
+     client sends a ticket in the pre_shared_key extension of ClientHello
+              │
+              ▼
+     server unwraps it (decrypt with STEK, or cache lookup) → recovers the PSK
+              │
+              ▼
+     PSK fills the Early Secret slot → handshake skipped → 1-RTT, or 0-RTT
+```
+
+Ticket lifetime is capped at 7 days by RFC 8446. Longer would widen the window in which a stolen ticket is useful.
+
+STEK(Session Ticket Encryption Key) rotation matters. If an attacker steals the server's ticket-encryption key, they can unwrap tickets, recover PSKs, and decrypt resumed sessions. Rotating it frequently limits that. This is the main way forward secrecy gets undermined in practice — not by breaking crypto, but by a long-lived ticket key sitting on disk.
+
+"still the same session but a different connection?" — that was TLS 1.2's model, and it was literally true there. In 1.2 resumption reused the same master_secret; the new connection genuinely shared cryptographic state with the old one. That's why "one session, many connections" was the standard phrasing.
+
+① A ticket should be used once. Present the same ticket on two connections and an observer sees the identical identity twice — those connections are now linkable to the same client. That's a tracking vector, so a client wants a fresh ticket per resumption. One ticket = one future resumption.
+
+② Browsers open connections in parallel. Several simultaneous connections to the same host each need their own ticket.
+
+TLS 1.3 has no multiplexing. That's HTTP/2 (or HTTP/3), a layer above.
+
+TLS is a byte-stream protocol. It takes bytes in, encrypts them into records, emits bytes.
+
+```sh
+  HTTP/1.1  →  TLS 1.3  →  TCP        no multiplexing anywhere
+  HTTP/2    →  TLS 1.3  →  TCP        multiplexing at the HTTP layer
+  HTTP/3    →  QUIC (TLS 1.3 inside) → UDP    multiplexing at the TRANSPORT layer
+```
+
+Encryption needs shared keys. Two parties who have never communicated must agree on a secret over a channel an attacker can read. That's the only reason for the TLS handshake
+
+`HTTP's statelessness is what makes connection pooling possible.`
+
+
+### TLS's two sub-layers
+TLS_HEADER_SIZE = 5 is the giveaway — that's the record header: type(1) + version(2) + length(2).
+
+```sh
+   [ IP ][ TCP ][ TLS RECORD LAYER ][ ────── payload ────── ]
+                  5-byte header:            │
+                  type, version, length     │
+                                            │
+              ┌─────────────┬───────────────┼────────────────┐
+              ▼             ▼               ▼                ▼
+         type 22        type 23         type 21          type 20
+        HANDSHAKE   application_data     alert      change_cipher_spec
+         ├ ClientHello    your HTTP
+         ├ ServerHello
+         ├ Certificate
+         └ Finished
+```         
+The handshake is content type 22 — a protocol carried by the record layer, exactly as your HTTP is content type 23 carried by the same record layer.
+
+```sh
+      packet                  direction       proto  type   HTTP inside?
+  --------------------------------------------------------------------------
+  ①   SYN                     client→server   TCP    —      no
+  ②   SYN-ACK                 server→client   TCP    —      no
+  ③   ACK                     client→server   TCP    —      no
+  ④   ClientHello             client→server   TLS    22     no
+  ⑤   ServerHello…Finished    server→client   TLS    22/23  no
+  ⑥   Finished                client→server   TLS    23     no
+  ══════════════════════════════════════════════════════════════════════════
+  ⑦   GET /account            client→server   TLS    23     YES ← first time
+  ⑧   200 OK                  server→client   TLS    23     YES
+```
+packets ①-⑥ contain ZERO bytes of HTTP.
+the GET does not exist on the wire until packet ⑦.
+
+`syn`, `ack`, `fin` are single bits in the TCP header — the entire TCP handshake is three packets that differ only in which of those bits are set.
+
+#### TCP: why three packets?
+Each direction needs its own sequence number synchronized:
+```sh
+  client ──► SYN          "my ISN is X"
+  client ◄── SYN-ACK      "my ISN is Y, and I ack X"    ← two messages merged
+  client ──► ACK          "I ack Y"
+```  
+Sequence numbers matter because TCP promises ordered delivery — both sides must agree where numbering starts. ISNs are randomized specifically to stop blind packet injection.
+
+```sh
+========================================================================
+  TCP + TLS 1.2 (full)   →  3 RTT of setup
+
+     t=0.0  →  SYN
+     t=1.0  ←  SYN-ACK                      ⟵ RTT 1
+     t=1.0  →  ACK + ClientHello
+     t=2.0  ←  ServerHello, Cert, SKE, Done ⟵ RTT 2
+     t=2.0  →  ClientKeyExchange, CCS, Finished
+     t=3.0  ←  CCS, Finished                ⟵ RTT 3
+     t=3.0  →  *** GET ***
+
+========================================================================
+  TCP + TLS 1.3 (full)   →  2 RTT of setup
+
+     t=0.0  →  SYN
+     t=1.0  ←  SYN-ACK                      ⟵ RTT 1
+     t=1.0  →  ACK + ClientHello (key_share)
+     t=2.0  ←  ServerHello,{EE,Cert,CV,Fin} ⟵ RTT 2
+     t=2.0  →  {Finished} + *** GET ***
+
+========================================================================
+  TCP + TLS 1.3 (resumed, 1-RTT)   →  2 RTT of setup
+
+     t=0.0  →  SYN
+     t=1.0  ←  SYN-ACK                      ⟵ RTT 1
+     t=1.0  →  ACK + ClientHello (PSK)
+     t=2.0  ←  ServerHello, {Finished}      ⟵ RTT 2   (no Cert! but same RTTs)
+     t=2.0  →  {Finished} + *** GET ***
+
+========================================================================
+  TCP + TLS 1.3 0-RTT   →  1 RTT of setup
+
+     t=0.0  →  SYN
+     t=1.0  ←  SYN-ACK                      ⟵ RTT 1
+     t=1.0  →  ACK + ClientHello (PSK) + *** GET *** as early data
+
+========================================================================
+  TCP Fast Open + TLS 1.3 0-RTT   →  0 RTT of setup
+
+     t=0.0  →  SYN + TFO cookie + ClientHello + *** GET ***   (all in packet 1)
+
+========================================================================
+  QUIC, first connection   →  1 RTT of setup
+
+     t=0.0  →  Initial: ClientHello in a CRYPTO frame
+     t=1.0  ←  ServerHello,{EE,Cert,CV,Fin} ⟵ RTT 1
+     t=1.0  →  {Finished} + *** GET ***
+
+========================================================================
+  QUIC 0-RTT   →  0 RTT of setup
+
+     t=0.0  →  Initial + 0-RTT: ClientHello + *** GET ***     (all in packet 1)
+
+========================================================================
+
+  scenario                         setup RTT    @22ms    @80ms   @250ms
+  TCP + TLS 1.2 (full)                     3     66ms    240ms    750ms
+  TCP + TLS 1.3 (full)                     2     44ms    160ms    500ms
+  TCP + TLS 1.3 (resumed, 1-RTT)           2     44ms    160ms    500ms
+  TCP + TLS 1.3 0-RTT                      1     22ms     80ms    250ms
+  TCP Fast Open + TLS 1.3 0-RTT            0      0ms      0ms      0ms
+  QUIC, first connection                   1     22ms     80ms    250ms
+  QUIC 0-RTT                               0      0ms      0ms      0ms
+```
+The 0-RTT rows are *setup overhead*, not time-to-first-byte — the request still takes ½ RTT to arrive and the response ½ RTT to come back. And both 0-RTT modes require a prior connection (for the PSK ticket, and for the TFO cookie), so no first-ever connection reaches them. 0-RTT early data is also replayable by design, so it's only safe for idempotent requests.
+
+Look at rows `2` and `3` — resuming TLS saves nothing at 2 RTTs. That's the crucial observation:
+```You can optimize TLS all you like, but TCP's round trip is separate and unavoidable. Two independent handshakes means two independent round trips.```
+
+That is precisely why QUIC exists. It:
+- runs over UDP, so there's no TCP handshake at all
+- merges transport parameters and the TLS 1.3 handshake into a single exchange (RFC 9001 — TLS handshake messages travel in QUIC CRYPTO frames)
+- reaches 1 RTT on a first connection and 0 RTT on resumption
+
+Resumption saves ZERO round trips. Rows 2 and 3 are identical — 2 RTT both. Look at their timelines: same shape, the only difference is Cert, CV missing from the server's flight.
+
+Resumption saves bytes and CPU, not latency. To save latency you need 0-RTT.
+
+```sh
+  0 ms ──────────────────────────────── 125.8 ms ──── 125.9 ms
+  │                                              │
+  │  DNS, TCP handshake, TLS handshake           │  ← 125.8 ms, ZERO HTTP
+  │                                              │
+                                                 └─► at this instant, in microseconds:
+                                                        HTTP created
+                                                        → encrypted
+                                                        → TCP header
+                                                        → IP header
+                                                        → Ethernet header
+```
+
+```sh
+  THE SAME OSI STACK, ONCE PER PACKET  (.. = empty, nothing at this layer)
+
+                        ①     ②    ③    ④     ⑤    ⑥     ⑦ 
+                                                                    
+  L7  Application       ..    ..    ..    ..    ..    ..     L7
+  --  TLS               ..    ..    ..    TL    TL    TL     TL
+  L4  Transport         L4    L4    L4    L4    L4    L4     L4
+  L3  Network           L3    L3    L3    L3    L3    L3     L3
+  L2  Data Link         L2    L2    L2    L2    L2    L2     L2
+  L1  Physical          L1    L1    L1    L1    L1    L1     L1
+  ------------------------------------------------------------
+                        ①    ②     ③    ④     ⑤    ⑥     ⑦ 
+
+     ① SYN            TCP handshake
+     ② SYN-ACK        TCP handshake
+     ③ ACK            TCP handshake
+     ④ ClientHello    TLS handshake
+     ⑤ ServerHello…   TLS handshake
+     ⑥ Finished       TLS handshake
+     ⑦ GET /account   YOUR REQUEST
+```
+packets ①-⑥ have NOTHING at layer 7. The row is empty.
+only packet ⑦ fills the whole stack — and by then the session is long established
+
+ the application contributes nothing to packets ①–⑥
+
+```sh
+ === file descriptor limits (this machine) ===
+   soft: 1048576    hard: unlimited
+
+=== ephemeral port range (source ports for OUTBOUND connections) ===
+   default range : 49152 - 65535   (16384 ports)
+   'hi' range    : 49152 - 65535   (16384 ports)
+
+=== what that means for a proxy ===
+   max SIMULTANEOUS outbound connections to ONE backend ip:port  = 16,384
+   ...because the 5-tuple (proto, srcIP, srcPORT, dstIP, dstPORT) must be unique
+   and only srcPORT is free to vary.
+
+   to exceed it:
+      2 backend ips   -> 32,768
+      4 backend ports -> 65,536
+      3 source ips    -> 49,152
+```      
+
+```sh
+CASE A — proxy → ONE backend (10.0.2.7:8080)
+
+   srcIP      srcPort   dstIP       dstPort
+   10.0.1.5 : 49152  →  10.0.2.7 : 8080     ok
+   10.0.1.5 : 49153  →  10.0.2.7 : 8080     ok
+   10.0.1.5 : 49154  →  10.0.2.7 : 8080     ok
+   ...
+   10.0.1.5 : 65535  →  10.0.2.7 : 8080     ok   ← the 16,384th
+   10.0.1.5 :   ??   →  10.0.2.7 : 8080     FAIL — no source ports left
+   ^^^^^^^^   ^^^^^     ^^^^^^^^   ^^^^
+    fixed     VARIES     fixed     fixed
+
+   only ONE of the four numbers can change -> 16,384 combinations. That's the cap.
+
+================================================================
+
+CASE B — proxy → TWO backends
+
+   10.0.1.5 : 49152  →  10.0.2.7 : 8080     ok
+   10.0.1.5 : 49152  →  10.0.2.8 : 8080     ok  ← SAME source port!
+                          ^^^^^^^^
+                          different dstIP makes it a DIFFERENT connection
+
+   now TWO numbers can vary -> 32,768 combinations.
+
+================================================================
+
+CASE C — server ACCEPTING on :443  (why inbound never runs out)
+
+   203.0.113.9  : 51234  →  10.0.1.5 : 443    ok
+   198.51.100.4 : 51234  →  10.0.1.5 : 443    ok  ← same client port, different client
+   203.0.113.9  : 51235  →  10.0.1.5 : 443    ok
+   ^^^^^^^^^^^^   ^^^^^     ^^^^^^^^   ^^^
+      VARIES      VARIES     fixed     fixed
+```
+two numbers vary, and one of them is the whole internet -> effectively unlimited.
+inbound is capped by file descriptors (~1,000,000 here), not by ports.
+
+
+An fd is an index into a per-process table. The table entry points to a kernel object:
+
+```sh
+   your process              kernel
+   ┌─────────────┐
+   │ fd 0 ───────┼────────► struct file ────► terminal
+   │ fd 1 ───────┼────────► struct file ────► terminal
+   │ fd 2 ───────┼────────► struct file ────► terminal
+   │ fd 3 ───────┼────────► struct file ────► inode  (/etc/hosts)
+   │ fd 4 ───────┼────────► struct file ────► socket (TCP connection)
+```   
+
+Each TCP connection = at least one fd. Run out and accept() fails with EMFILE — "Too many open files." 
+
+And an L7 proxy burns two per client — one for the frontend connection, one for the backend. That halves its effective ceiling, and it's a number people forget when sizing.
+
+
+## Frontend IP configuration
+
+The IP address of your Azure Load Balancer. It's the point of contact for clients. These IP addresses can be either:
+- Public IP Address
+- Private IP Address
+
+The nature of the IP address determines the type of load balancer created. Private IP address selection creates an internal load balancer. Public IP address selection creates a public load balancer.
+
+`source IP : source port  →  destination IP : destination port`
+No two connections may have all four the same
