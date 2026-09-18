@@ -375,13 +375,15 @@ Silicon dioxide (SiO2) can serve as an insulating dielectric,surface-passivation
 
 Silicon (100) wafers (prime grade, 100 mm diameter, n-type, phosphorous doped, resistivity = 5{10 ohm-cm) 
 
+UniversityWafer, Inc. sells all orientations including silicon 100, 111, 110, 112, 211, 511 et
+
+[silicon-wafer-orientation](https://www.universitywafer.com/silicon-wafer-orientation.html)
 
 ## Which N-Doped Silicon Wafer Has the Highest Electric Conductivity?
 
 ### Sb-doped silicon
 
 It is generally accepted that Sb-doped silicon has the highest electrical conductivity of all semiconductors. This material has a very narrow band gap of 1.12 eV, and the donor level of Sb doped into it is 0.039 eV below the bottom of the conduction band. This makes it an ideal material for transistors.
-
 
 
 ![alt text](image-34.png)
@@ -489,3 +491,74 @@ If you add the first two binary digits together:1 + 1 = 10 (which equals 2 in de
 
 - Add the third 1
 Now, you take that partial sum of 10 and add the third 1 to it: 10 + 1 = 11
+
+![alt text](image-36.png)
+
+
+![alt text](image-37.png)
+If you replace one of the silicon atoms in the lattice with an impurity atom known as a dopant, you can modify the electrical properties of the structure. By replacing a silicon atom with an atom that has five valence electrons, from column five of the periodic table, such as phosphorus, arsenic, or antimony, four of the electrons would be required for covalent bonding, leaving an extra electron "free" to wander the lattice. These dopant atoms are known as donors, because they "donate" their extra electron to the lattice, effectively increasing the number of negative charge carriers in the solid, which increases the material's conductivity (and decreases its resistivity).
+
+![alt text](image-38.png)
+
+In similar fashion, if you were to replace one of the silicon atoms in the lattice with an atom that has three valence electrons, from column three of the period table, such as boron, indium, gallium, or aluminum, three of the electrons would be used up in covalent bonding, leaving a hole where a bond was previously. Electrons can jump in and fill that hole, leaving a hole elsewhere, in effect allowing the hole to move, therefore you have created a positive charge carrier, which also increases the material's conductivity and decreases its resistivity. These dopant atoms are known as acceptors, because they accept an electron from the lattice.
+
+
+To put the Base-Collector junction into reverse bias, the Collector needs to be held at a much higher positive voltage than the Base.In a real-world amplifier circuit, you would have a second, much larger power source (often called VCC, like a +9V or +12V battery) connected between the Collector and the Emitter.
+
+William Shockley believed they could make an amplifier by using a notion called the field effect.  He theorilzed that an electric field erected (directly)perpendicular to a metal plate  near to the insulated from the surface of a slab of silicon should draw electrons out of the semi-conductor material and create a path of current
+
+in 1959, Atalla and Kahng at the same laboratory found the answer to the original problem: thermally grown silicon dioxide. Grow SiO₂ on silicon and the interface is astonishingly clean — the dangling bonds get tied up, and the density of interface states drops by orders of magnitude. Suddenly the gate field does penetrate
+
+
+![alt text](image-39.png)
+Energy band structures of Si and GaAs. Circles (o) indicate holes in
+the valence bands and dots (.) indicate electrons in the conductor bands.
+
+A detailed schematic of the energy band structures for
+silicon and gallium arsenide in which the energy is plotted against the crystal momentum for two crystal directions. For silicon, the minimum of the conduction band and the maximum of the valence band have different crystal momenta. Silicon is therefore an indirect bandgap semiconductor as a change in crystal momentum is required for an electron transition between the valence and conduction bands. On the contrary, GaAs is a direct bandgap semiconductor and generation of photons is more efficient.
+
+The arsenic atom forms covalent bonds with its four adjacent silicon
+atoms, and the fifth electron becomes a conduction electron, thereby giving rise to a positively charged arsenic atom. As a consequence, the silicon crystal becomes n-type and arsenic is called a donor. Boron, on the other hand, has only three outer shell electrons and is an acceptor in silicon. Impurities such as
+arsenic and boron have energy levels very close to the conduction band and valence band, respectively
+
+The structure of a material determines its properties. In biology, the structure of a protein determines its enzymatic activities; what it reacts with and what it doesn't. In chemistry, the chemical structure of atoms in a chemical molecule determines the how something reacts. In the mechanical world,the atomic structure of a material determines how stiff it is.. The atomic structure of a material determines its electronic properties
+
+When both donors and acceptors are present simultaneously, the impurity present at a higher concentration determines the type of conductivity in the semiconductor. The electron in an n-type semiconductor is called the majority carrier, whereas the hole in n-type semiconductor is termed the minority carrier. Conversely, in a p-type semiconductor, holes are majority carriers and electrons
+are minority carriers.
+
+In crystalline solids like silicon, carrier mobility and chemical etching rates change depending on the exposed crystal plane—such as the {100} versus {111} family of planes—because electron wavefunctions interact differently along different lattice vectors.
+
+Elemental semiconductor: Carbdon,Silicon and Germanium
+Compound Semiconductors:
+- SiC,SiGe
+- AlP,AlAs,AlSb,GaN,GaP,GaAs,GaSb,InP,InAs,InSb (column 3 and 5)
+- ZnS,ZnSe,ZnTe,CdS,CdSe,CdTe(Column 2 and 6)
+
+Elemental semiconductors can form lattices on their own because of their 4 valence electrons, which they use to form covalent bonds with four other atoms
+You could also take two column four elements and put them together into a lattice,assuming that they are of not too dramatically different sizes
+The further you go down the peridic table, the larger the atoms become.. Carbon and silicon are not as drastically different in sizes as carbon and germanium..You can also have silicon and germanium
+
+Because Carbon is substantially smaller than Silicon, SiC forms a distinct, highly rigid crystal structure (often Zinc Blende or hexagonal polytypes) with a wide bandgap (3.2eV), making it ideal for high-voltage, high-temperature power electronics.
+
+- Moving Down a Column: Atoms Get Bigger (Principal Quantum Number n)
+- Moving Left-to-Right Across a Row: Atoms Get Smaller (Nuclear Charge Zeff)
+
+A family of planes,denoted {abc}, includes all the planes that have the same atomic distributions on their surfaces
+- In a cubic lattice,there are three families of planes: {100},{110} and the {111} planes
+
+The large carrier concentration gradients at a p-n junction cause carrier diffusion. Holes from the p-side diffuse into the n-side, and electrons from the n-side diffuse into the p-side. This sets up an electric field, which in equilibrium,exactly counteracts these diffusion tendencies and thus permits no net transport
+of electrons or holes across the junction. When a small positive voltage is applied to the p-side, there will be a net
+movement of holes flowing from the p-side to the n-side, thereby creating a forward bias situation. Conversely, if a negative voltage is applied to the p-side, i.e. reverse bias condition, the p-n junction becomes an open circuit. A p-n junction therefore acts as a diode.
+
+In a MOSFET device, the channel current is controlled by a voltage applied to a gate that is separated from the channel by an insulator typically made of SiO2. It works as a switch in that
+when a positive voltage is applied to the gate, negative charges are attracted towards the gate insulator. If the voltage is large enough, enough negative charges accumulate underneath the gate dielectric to result in a conductive path between the source and drain. In the enhancement mode,the transistor is normally off, and no current flows between the source and drain for a gate voltage (VG) = 0 V. A conducting channel is then induced by applying a
+voltage of the appropriate polarity (positive for n-channel MOSFET or negative for p-channel MOSFET) to the gate. In the depletion-mode, a conducting channel already exists, and the device is on with no bias applied to the gate. The channel is depleted of mobile carriers by applying a gate voltage
+
+![alt text](image-40.png)
+
+## Intel 4004 Microprocessor
+The Intel 4004 was the first commercially available microprocessor, released in 1971.
+
+[Assembly Language Programming Manual](https://bitsavers.trailing-edge.com/components/intel/MCS4/MCS-4_Assembly_Language_Programming_Manual_Dec73.pdf)
+
+[revisiting the Intel 4004](https://www.hackster.io/Mayukhmali_Das/revisiting-intel-4004-microprocessor-37fed8)

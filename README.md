@@ -1599,3 +1599,843 @@ The nature of the IP address determines the type of load balancer created. Priva
 
 `source IP : source port  →  destination IP : destination port`
 No two connections may have all four the same
+
+
+## Global Settings
+You can configure global sbt settings in `~/.sbt/`:
+- `~/.sbt/1.0/global.sbt` - Global build settings
+- `~/.sbt/1.0/plugins/` - Global plugins
+- `~/.sbt/repositories` - Custom repository configuration
+
+
+## Layer 7 — HTTP: just bytes you write()
+There is no HTTP header structure in the kernel. It's ASCII text your application produces:
+
+```sh
+47 45 54 20 2F 20 48 54 54 50 2F 31 2E 31 0D 0A    GET / HTTP/1.1..
+48 6F 73 74 3A 20 65 78 61 6D 70 6C 65 2E 63 6F    Host: example.co
+6D 0D 0A 0D 0A                                     m....
+```
+37 bytes. You hand these to `write(fd, buf, 37)`. Everything below is the kernel's doing.
+
+Before any header is written, the kernel allocates an `sk_buff` with reserved headroom at the front. Then each layer walks the data pointer backwards. 
+
+```c
+void *skb_push(struct sk_buff *skb, unsigned int len)
+{
+	skb->data -= len;          /* move the start backwards */
+	skb->len  += len;
+	if (unlikely(skb->data < skb->head))
+		skb_under_panic(skb, len, __builtin_return_address(0));
+	return skb->data;          /* ← write your header here */
+}
+```
+That's the whole encapsulation mechanism: pointer subtraction. No copying, no reallocation, no memmove.
+
+
+```sh
+after tcp_sendmsg:
+  head                                    data                     tail
+   │◄────── headroom (MAX_HEADER) ───────►│◄──── HTTP 37 B ───────►│
+
+after tcp_transmit_skb — skb_push(20):
+  head                             data
+   │◄──── headroom ───────────────►│ TCP 20 │◄──── HTTP 37 ───────►│
+
+after __ip_queue_xmit — skb_push(20):
+  head                      data
+   │◄─── headroom ─────────►│ IP 20 │ TCP 20 │◄──── HTTP 37 ──────►│
+
+after eth_header — skb_push(14):
+  head              data
+   │◄── headroom ──►│Eth 14│ IP 20 │ TCP 20 │◄──── HTTP 37 ───────►│
+                    └──────────── 91 bytes on the wire ────────────┘
+```
+
+## Layer 4 — TCP header (20 bytes)
+Built in `tcp_transmit_skb`
+
+```sh
+	th->source		= inet->inet_sport;
+	th->dest		= inet->inet_dport;
+	th->seq			= htonl(tcb->seq);
+	...
+	th->check		= 0;
+```  
+```sh
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-------------------------------+-------------------------------+
+   0  |    Source Port = 1234         |   Destination Port = 80       |   04 D2 00 50
+      +-------------------------------+-------------------------------+
+   4  |                 Sequence Number = 0x1F2E3D4C                  |   1F 2E 3D 4C
+      +---------------------------------------------------------------+
+   8  |              Acknowledgment Number = 0x5A6B7C8D               |   5A 6B 7C 8D
+      +-------+-------+-------------- +-------------------------------+
+  12  | Off=5 | rsvd  | P S H , A C K |        Window = 64240         |   50 18 FA F0
+      +-------------------------------+-------------------------------+
+  16  |      Checksum (see below)     |    Urgent Pointer = 0         |   ?? ?? 00 00
+      +-------------------------------+-------------------------------+
+
+```      
+`Data Offset = 5 means 5 × 4 = 20 bytes `of header — no options. That's the field that says where TCP ends and your HTTP begins.
+
+Segment is now `57` bytes.
+
+
+## Layer 3 — IP header (20 bytes)
+Built in `__ip_queue_xmit`
+
+```c
+	iph->version  = 4;
+	iph->ttl      = ip_select_ttl(inet, &rt->dst);
+	iph->saddr    = saddr;
+	iph->protocol = sk->sk_protocol;      /* ← your circled field: 6 = TCP */
+```  
+
+```sh
+      +-------+-------+---------------+-------------------------------+
+   0  | Ver=4 | IHL=5 |    ToS = 0    |     Total Length = 77         |   45 00 00 4D
+      +-------------------------------+-------+-----------------------+
+   4  |    Identification = 0x1C46    |  DF   |  Fragment Offset = 0  |   1C 46 40 00
+      +---------------+---------------+-------+-----------------------+
+   8  |   TTL = 64    | Protocol = 6  |     Header Checksum           |   40 06 ?? ??
+      +---------------+---------------+-------------------------------+
+  12  |            Source Address = 10.0.0.5  (A)                     |   0A 00 00 05
+      +---------------------------------------------------------------+
+  16  |         Destination Address = 93.184.216.34  (B)              |   5D B8 D8 22
+      +---------------------------------------------------------------+
+```      
+`Protocol = 6 `is the demultiplexing key you circled. It's the only thing telling the receiving host that the next 20 bytes are a TCP header and not UDP (17) or ICMP (1). Without it, IP would have no idea what it's carrying
+
+Total Length = 77 covers IP header + everything after. Note it does not include the Ethernet header — each layer's length field describes only itself and its payload.
+
+`Packet is now 77 bytes`.
+
+## Layer 2 — Ethernet header (14 bytes)
+net/ethernet/eth.c:83 
+```c
+int eth_header(struct sk_buff *skb, struct net_device *dev,
+	       unsigned short type,
+	       const void *daddr, const void *saddr, unsigned int len)
+{
+	struct ethhdr *eth = skb_push(skb, ETH_HLEN);   /* make room */
+
+	eth->h_proto = htons(type);                      /* 0x0800 = IPv4 */
+	memcpy(eth->h_source, saddr, ETH_ALEN);
+	memcpy(eth->h_dest,   daddr, ETH_ALEN);
+
+      +-----------------------------------------------------------+
+   0  |  Destination MAC (next hop / router)   00:1A:2B:3C:4D:5E   |
+      +-----------------------------------------------------------+
+   6  |  Source MAC (your NIC)                 00:0C:29:AB:CD:EF   |
+      +---------------------------+-------------------------------+
+  12  |  EtherType = 0x0800 (IPv4)|                                   08 00
+      +---------------------------+
+```      
+`EtherType 0x0800` is the same idea as `Protocol = 6`, one layer down — the tag that says "the payload is IPv4." Every layer carries a demux tag for the layer above it.
+
+The destination MAC is the router's, not the server's. B is on another network; MACs are hop-by-hop while IPs are end-to-end. This MAC comes from ARP (`neigh_output`), and it gets rewritten at every hop — while the IP addresses you annotated as A and B stay constant for the entire journey.
+
+`Frame is 91 bytes`, plus a `4-byte CRC (FCS)` appended by the NIC = 95 bytes on the wire, preceded by an 8-byte preamble/SFD the hardware generates.
+
+## The full kernel path
+```sh
+write(fd, "GET / HTTP/1.1...", 37)
+  │
+  ├─ fdget(fd) ─────────────────► struct file        (the fd table lookup)
+  ├─ f_op->write_iter ──────────► sock_write_iter    net/socket.c
+  ├─ file->private_data ────────► struct socket
+  ├─ sock->ops->sendmsg ────────► inet_sendmsg       inet_stream_ops
+  ├─ tcp_sendmsg ───────────────► copies your 37 bytes into an skb
+  ├─ tcp_transmit_skb ──────────► skb_push(20)  writes TCP header   tcp_output.c:1545
+  ├─ tcp_v4_send_check ─────────► pseudo-header checksum            tcp_ipv4.c:665
+  ├─ __ip_queue_xmit ───────────► skb_push(20)  writes IP header    ip_output.c:164
+  ├─ ip_output → neigh_output ──► ARP resolves the next-hop MAC
+  ├─ eth_header ────────────────► skb_push(14)  writes Eth header   eth.c:83
+  └─ dev_queue_xmit → ndo_start_xmit → NIC DMAs the frame out
+```
+Two practical numbers this explains
+MSS = 1460. Ethernet's MTU is 1500 bytes of payload. Subtract 20 for IP and 20 for TCP → 1460 bytes of application data per segment. That's where the number comes from, and why adding TCP options (timestamps, SACK) or a VPN header lowers it.
+
+Your 37-byte GET is one packet; a 100 KB POST is ~69. TCP segments the byte stream at MSS boundaries and each chunk gets its own full set of headers
+
+
+```c
+/*
+ *	IEEE 802.3 Ethernet magic constants.  The frame sizes omit the preamble
+ *	and FCS/CRC (frame check sequence).
+ */
+
+#define ETH_ALEN	6		/* Octets in one ethernet addr	 */
+#define ETH_TLEN	2		/* Octets in ethernet type field */
+#define ETH_HLEN	14		/* Total octets in header.	 */
+#define ETH_ZLEN	60		/* Min. octets in frame sans FCS */
+#define ETH_DATA_LEN	1500		/* Max. octets in payload	 */
+#define ETH_FRAME_LEN	1514		/* Max. octets in frame sans FCS */
+#define ETH_FCS_LEN	4		/* Octets in the FCS		 */
+
+#define ETH_MIN_MTU	68		/* Min IPv4 MTU per RFC791	*/
+#define ETH_MAX_MTU	0xFFFFU		/* 65535, same as IP_MAX_MTU	*/
+```
+```sh
+#define ETH_HLEN	14	/* Total octets in header.	 */
+#define ETH_DATA_LEN	1500	/* Max. octets in payload	 */   ← this is the MTU
+#define ETH_FRAME_LEN	1514	/* Max. octets in frame sans FCS */   ← 14 + 1500
+#define ETH_FCS_LEN	4	/* Octets in the FCS		 */
+```
+```sh
+   8      6        6      2 │              1500              │  4  │    12
+┌──────┬───────┬───────┬────┼────────────────────────────────┼─────┼────────────┐
+│Pre-  │ Dst   │ Src   │Type│  IP packet (20 IP + 20 TCP +   │ FCS │ interframe │
+│amble │ MAC   │ MAC   │    │             1460 data)         │     │    gap     │
+└──────┴───────┴───────┴────┴────────────────────────────────┴─────┴────────────┘
+ ╰─ not counted ─╯╰──── ETH_HLEN 14 ────╯╰─── MTU = 1500 ───╯╰ 4 ╯
+                  ╰──────── ETH_FRAME_LEN = 1514 ───────────╯
+                  ╰────────── on the wire = 1518 ─────────────────╯
+                  ╰──────── wire time = 1538 bytes ────────────────────────────╯
+```                  
+So one maximum-size Ethernet frame is 1518 bytes transmitted (1538 including preamble and the mandatory inter-frame gap), carrying 1460 bytes of your HTTP.
+
+`The MSS math stands: 1500 − 20 (IP) − 20 (TCP) = 1460`.
+
+```c
+/**
+ *	skb_headroom - bytes at buffer head
+ *	@skb: buffer to check
+ *
+ *	Return the number of bytes of free space at the head of an &sk_buff.
+ */
+static inline unsigned int skb_headroom(const struct sk_buff *skb)
+{
+	return skb->data - skb->head;
+}
+
+/**
+ *	skb_tailroom - bytes at buffer end
+ *	@skb: buffer to check
+ *
+ *	Return the number of bytes of free space at the tail of an sk_buff
+ */
+static inline int skb_tailroom(const struct sk_buff *skb)
+{
+	return skb_is_nonlinear(skb) ? 0 : skb->end - skb->tail;
+}
+```
+
+Each `skb_push(skb, N)` does `skb->data -= N`. So the `headroom` drops by exactly that layer's header size:
+
+```sh
+64      headroom after skb_reserve()
+  − 20      TCP header    skb_push(skb, 20)   →  44
+  − 20      IP header     skb_push(skb, 20)   →  24
+  − 14      Ethernet      skb_push(skb, 14)   →  10
+```  
+44 is 64 − 20.
+
+Only one layer contributes data at all. The lower layers add nothing to the payload:
+
+| Layer           | Data it adds | Header it adds | Call used  |
+| --------------- | ------------ | -------------- | ---------- |
+| Your app (HTTP) | 37 bytes     | —              | `skb_put`  |
+| TCP             | none         | 20 bytes       | `skb_push` |
+| IP              | none         | 20 bytes       | `skb_push` |
+| Ethernet        | none         | 14 bytes       | `skb_push` |
+
+
+The Linux kernel avoids the massive CPU overhead of repeatedly copying data between network layers by using a structural wrapper called the `sk_buff` (socket buffer). Instead of moving the actual packet payload from one memory location to another, the kernel simply shifts pointers around a single, pre-allocated block of memory.
+
+When a packet is created, Linux allocates a contiguous block of memory large enough to hold the application data plus all the maximum possible headers (TCP, IP, Ethernet) it might need.
+
+The `sk_buff `tracks this memory space using four crucial pointers:
+- `head`: The absolute beginning of the allocated memory block.
+- `data`: The start of the currently valid packet content (headers + payload).
+- `tail`: The end of the currently valid packet content.
+- `end`: The absolute end of the allocated memory block.
+
+
+## The Zero-Copy Journey
+
+Instead of copying the payload to a new buffer to attach a header, Linux uses built-in helper functions to manipulate the `data` and `tail` pointers within the "headroom" (space between head and data) and "tailroom" (space between `tail` and `end`).
+- Allocation (`alloc_skb` & `skb_reserve`): The kernel allocates the memory block and sets all four pointers near the top. It then immediately shifts `data` and `tail` downward to create empty headroom for future headers.
+- Adding the Payload (`skb_put`): The application data is copied once into the buffer. The `tail` pointer is pushed down to accommodate the payload size.
+- Encapsulation (`skb_push`): As the packet travels down the network stack (TCP -> IP -> Ethernet), each layer calls `skb_push`. This slides the `data` pointer backward into the reserved headroom, creating space to write the new header directly in front of the existing data.
+- Decapsulation (`skb_pull`): When receiving a packet, it travels up the stack. Each layer reads its specific header, then calls `skb_pull` to slide the `data` pointer forward. This logically "strips" the header from the packet without erasing or copying any memory.
+
+By simply adjusting where `data` starts and `tail` ends, Linux can dynamically grow and shrink the packet as it traverses the OSI layers using a single, unified memory reference.
+
+
+# Tracking a 1,000-byte HTTP Payload Through the Linux Kernel
+
+Tracking a 1,000-byte HTTP payload through the kernel reveals exactly how pointers shift within the `sk_buff` memory block. To avoid copying data, Linux allocates a buffer larger than the payload to leave empty "headroom" for incoming headers.
+
+### 1. Allocation & Reservation: `skb_alloc` & `skb_reserve`
+The kernel allocates a **1,500-byte** memory block (matching standard network Maximum Transmission Unit sizes) and sets the `head` pointer to **byte 0** and `end` to **byte 1500**. It then reserves **128 bytes** of headroom by shifting both `data` and `tail` pointers down to **byte 128**.
+
+### 2. Injecting the Payload: `skb_put(1000)`
+The 1,000-byte HTTP response is copied into the buffer starting at the `data` pointer. To enclose this payload, the kernel calls `skb_put(1000)`, which pushes the `tail` pointer down 1,000 bytes to **byte 1128**.
+
+### 3. Adding the TCP Header: `skb_push(20)`
+The payload moves to the Transport Layer. Instead of moving the 1,000 bytes of data, the kernel calls `skb_push(20)`. This slides the `data` pointer backward into the empty headroom to **byte 108**. The **20-byte TCP header** is written directly into bytes 108 through 127.
+
+### 4. Adding the IP Header: `skb_push(20)`
+At the Network Layer, the kernel calls `skb_push(20)` again. The `data` pointer slides backward to **byte 88**. The **20-byte IPv4 header** is written into bytes 88 through 107.
+
+### 5. Adding the Ethernet Header: `skb_push(14)`
+Finally, at the Data Link Layer, `skb_push(14)` slides the `data` pointer backward one last time to **byte 74**. The **14-byte Ethernet header** (Destination MAC, Source MAC, and EtherType) is written into bytes 74 through 87.
+
+---
+
+> **Summary:** The packet is now fully constructed. The Network Interface Card (NIC) is instructed to read the memory block starting precisely at `data` (**byte 74**) and ending at `tail` (**byte 1128**), transmitting exactly **1,054 bytes** over the wire—all without ever moving the original 1,000 bytes of HTTP data in memory.
+
+Unused Tailroom: In the previous 1,000-byte payload example, the `tail` pointer stopped at byte 1128, while the `end` pointer remained at byte 1500. This leaves 372 bytes of empty, unused memory sitting at the back of the buffer.
+
+Hardware Ignorance: The Network Interface Card (NIC) uses Direct Memory Access (DMA) to fetch the packet directly from RAM. The kernel instructs the NIC to start reading exactly at the `data` pointer and stop exactly at the `tail` pointer. The hardware is completely blind to the end pointer and simply ignores the leftover 372 bytes.
+
+
+The hardware never learns where `end` is. A TX descriptor carries a `start address and a length`, nothing more. The length is `tail - data` for the linear part. `end` exists purely for the kernel's own bounds checking — it's what `skb_tailroom()` measures against, and what makes `skb_put()` panic if someone tries to append past the allocation. It's a guard rail, not a transmission boundary.
+
+MTU and Tunneling Optimization: VPNs (WireGuard, IPsec) and cloud overlays (VXLAN) prepend additional headers to packets. If an engineer does not account for this extra "headroom," the packet exceeds the 1,500-byte limit, forcing the kernel into expensive IP fragmentation. Understanding this structure allows engineers to properly tune the Maximum Segment Size (MSS) to prevent performance degradation.
+
+
+Everything is an offset from head. head never moves; it's the origin.
+
+Allocation is `alloc_skb_fclone(MAX_TCP_HEADER, gfp)` then `skb_reserve(skb, 192)` — so the payload starts at +192.
+
+### allocate and reserve
+```c
+	skb = alloc_skb_fclone(MAX_TCP_HEADER, gfp);   /* net/ipv4/tcp.c:910  */
+	skb_reserve(skb, MAX_TCP_HEADER);              /* net/ipv4/tcp.c:922  */
+```  
+
+| Pointer    | Offset | Meaning                        |
+| ---------- | ------ | ------------------------------ |
+| `head`     | +0     | origin, fixed forever          |
+| `data`     | +192   | slid forward by `skb_reserve`  |
+| `tail`     | +192   | same as data — buffer is empty |
+| `skb->len` | 0      | no packet yet                  |
+
+`skb_reserve` moved `data` and `tail` together. That's only legal on an `empty skb`, and it's what creates the 192 bytes of headroom.
+
+### payload in: skb_put(37)
+
+```c
+	err = skb_do_copy_data_nocache(sk, skb, from, skb_put(skb, copy), ...);
+	                                            /* include/net/sock.h:2302 */
+```
+
+| Pointer    | Before | After                  |
+| ---------- | ------ | ---------------------- |
+| `data`     | +192   | +192 (unchanged)       |
+| `tail`     | +192   | +229 ← moved right 37  |
+| `skb->len` | 0      | 37                     |
+
+Written at +192 … +228:
+```sh
+47 45 54 20 2F 20 48 54 54 50 2F 31 2E 31 0D 0A   "GET / HTTP/1.1.."
+48 6F 73 74 3A 20 65 78 61 6D 70 6C 65 2E 63 6F   "Host: example.co"
+6D 0D 0A 0D 0A                                    "m...."
+```
+`tail` will not move again. Every remaining step moves only `data`.
+
+### TCP: skb_push(20)
+```c
+	skb_push(skb, tcp_header_size);       /* net/ipv4/tcp_output.c:1533 */
+	skb_reset_transport_header(skb);      /* net/ipv4/tcp_output.c:1534 */
+```  
+
+| Pointer            | Before | After                |
+| ------------------ | ------ | -------------------- |
+| `data`             | +192   | +172 ← moved left 20 |
+| `tail`             | +229   | +229                 |
+| `skb->len`         | 37     | 57                   |
+| `transport_header` | —      | +172 (recorded)      |
+
+Written at +172 … +191:
+```sh
+04 D2  00 50  00 00 03 E8  00 00 13 88  50 18  FA F0  0F A0  00 00
+ 1234    80      seq 1000    ack 5000   off=5  win    cksum  urg
+                                        PSH|ACK
+```                                        
+
+ ### IP: skb_push(20)
+```c
+	skb_push(skb, sizeof(struct iphdr) + ...);   /* net/ipv4/ip_output.c:508 */
+	skb_reset_network_header(skb);               /* net/ipv4/ip_output.c:509 */
+```
+
+| Pointer          | Before | After                |
+| ---------------- | ------ | -------------------- |
+| `data`           | +172   | +152 ← moved left 20 |
+| `tail`           | +229   | +229                 |
+| `skb->len`       | 57     | 77                   |
+| `network_header` | —      | +152 (recorded)      |
+
+
+### Ethernet: skb_push(14)
+```c
+	struct ethhdr *eth = skb_push(skb, ETH_HLEN);   /* net/ethernet/eth.c:83 */
+```
+
+| Pointer      | Before | After                |
+| ------------ | ------ | -------------------- |
+| `data`       | +152   | +138 ← moved left 14 |
+| `tail`       | +229   | +229                 |
+| `skb->len`   | 77     | 91                   |
+| `mac_header` | —      | +138                 |
+
+Written at +138 … +151:
+
+```sh
+AA BB CC 00 00 01   AA BB CC 00 00 05   08 00
+   router MAC          A's MAC          IPv4
+```   
+
+```go
+mtu := cfg.MTU
+if mtu == 0 {
+    mtu = device.DefaultMTU  // 1420
+}
+tunDev, gNet, err := netstack.CreateNetTUN(localIPs, []netip.Addr{dnsIP}, mtu)
+```
+
+```go
+fmt.Fprintf(wgConf, "private_key=%s\n", cfg.LocalPrivateKey.ToHex())
+fmt.Fprintf(wgConf, "public_key=%s\n",  cfg.RemotePublicKey.ToHex())
+fmt.Fprintf(wgConf, "endpoint=%s\n",    endpointAddr)
+fmt.Fprintf(wgConf, "allowed_ip=%s\n",  cfg.RemoteNetwork)
+```
+
+Each peer is identified by a Curve25519 public key, and each public key is associated with a set of AllowedIPs. That association is used in both directions:
+- Outbound: look up the destination IP → find the peer → encrypt with that peer's session key → send to that peer's endpoint.
+- Inbound: decrypt → look at the inner source IP → if it isn't in that peer's AllowedIPs, drop it.
+
+`flyctl` generates a keypair locally — `internal/wireguard/wg.go:124-131`:
+
+```go
+func C25519pair() (string, string) {
+	var private [32]byte
+	rand.Read(private[:])
+	public, err := curve25519.X25519(private[:], curve25519.Basepoint)
+```  
+32 random bytes is the private key; the public key is that scalar multiplied by the curve basepoint. The private key never leaves the machine. Only the public key goes to the Fly API via `CreateWireGuardPeer`, which replies with the gateway's public key, the gateway's endpoint IP, and an IPv6 address for you.
+
+```sh
+C25519pair()  →  pubkey       ─── sent to Fly ──→  CreateWireGuardPeer(…, pubkey, …)
+              →  privatekey   ─── stays local                    │
+                                                                 ▼
+                                          data = CreatedWireGuardPeer{
+                                              Peerip, Pubkey, Endpointip
+                                          }
+```
+```sh
+OUTBOUND:  packet dst 10.0.0.1
+              │
+              └─→ longest-prefix match against all peers' AllowedIPs
+                     → matches server's 10.0.0.0/24
+                     → encrypt with server's session key, send to its Endpoint
+                  (no match → packet is dropped, no route)
+
+INBOUND:   UDP arrives, decrypt & authenticate → reveals inner packet
+              │
+              └─→ is inner SOURCE address inside THIS peer's AllowedIPs?
+                     yes → deliver to the network stack
+                     no  → DROP
+```
+`AllowedIPs` does two jobs at once,
+Outbound it's a routing table. Inbound it's an access control list. The same table.
+
+
+![alt text](image-49.png)
+
+
+WireGuard is a UDP-encapsulated, key-routed tunnel with exactly four message types on the wire and no negotiation of anything. There is no cipher suite list, no version bits to downgrade, no rekey renegotiation, no connection setup you can observe as a state machine with a dozen states.
+
+Everything is fixed at build time: X25519 for key agreement, ChaCha20-Poly1305 for the AEAD, BLAKE2s for hashing and keyed MACs, HKDF for key derivation, TAI64N for the replay-resistant timestamp. If any one of those primitives falls, the answer is a new protocol version, not a new negotiated parameter. That decision is what makes the whole thing fit in a few thousand lines.
+
+The transport is UDP and only UDP. There is no TCP mode, no TLS wrapper, no HTTP fallback — that is a deliberate omission, not a gap. It is also silent: an interface with no configured endpoint and no traffic emits nothing at all, and an unauthenticated packet arriving at the listening port produces no response whatsoever. Port scanners see a closed UDP port.
+
+Both peers are symmetric. There is no client and no server in the protocol; "server" only means "the peer whose Endpoint the other side wrote down." Either side may initiate a handshake at any time, and the roles reverse freely.
+
+## Cryptokey routing
+
+The one concept that everything else hangs off: a peer's public key is simultaneously its identity, its authentication, and its routing table entry. There is no separate authentication step where a certificate is checked against a name, and no separate routing decision that could disagree with the crypto.
+
+Each peer is configured with a set of AllowedIPs prefixes. Those prefixes go into a binary trie keyed on address bits. The trie is consulted twice, in opposite directions, and it means something different each time:
+
+![alt text](image-50.png)
+
+
+## A packet, from application to application
+
+Follow one TCP segment from a process on host A to a process on host B, where B is reachable only over the tunnel. This is the whole system in one pass; the sections after it zoom into the parts.
+- *The kernel routes it to the tunnel interface*
+Nothing WireGuard-specific yet. A route says `10.0.0.0/24 dev wg0`, so the IP stack hands the fully formed IP packet to the TUN device. WireGuard sees a plain IP packet — it is a layer-3 tunnel and carries no Ethernet framing.
+    
+- *Destination address selects a peer*
+The trie lookup on the destination address returns a peer, or nothing. Nothing means the packet is dropped with a "no key" error — this is why a misconfigured `AllowedIPs` shows up as silence rather than a connection error.
+    
+- *If no live keypair exists, the packet is staged and a handshake fires*
+The packet goes into a small bounded staging queue and a handshake initiation is sent. Traffic itself is what triggers key exchange; there is no connect step. If the queue is full, the oldest element is dropped to make room.
+    
+- *Handshake: 148 bytes out, 92 bytes back*
+One round trip completes a Noise IKpsk2 exchange. Both sides come out of it with a fresh pair of ChaCha20-Poly1305 keys and a pair of 32-bit session indices. 
+
+- *Payload is padded, encrypted, and framed*
+The inner packet is zero-padded up to a multiple of 16 bytes, then sealed with the sending key using the 64-bit message counter as the nonce. A 16-byte header carrying the type, the receiver's index and that counter goes in front; the 16-byte Poly1305 tag goes behind.
+
+- *Out over UDP to the peer's current endpoint*
+Sent from the configured `ListenPort` to whatever endpoint is currently recorded for that peer — either the configured one, or the source address of the last authenticated packet received from them.
+    
+- *B looks up the receiver index, not the source address*
+The 4-byte receiver index in the header indexes straight into a hash table of live keypairs. The datagram's source IP is irrelevant to finding the key — which is exactly what makes roaming free.
+
+- *Decrypt, then check the counter against the replay window*
+Authenticated decryption first; only a packet that verifies gets to advance any state. The counter is then checked against an RFC 6479 sliding window 8 128 bits wide, which tolerates reordering without permitting replay.
+    
+- *Verify the inner source address against the same peer*
+The decrypted packet's source IP must resolve, through the trie, back to the peer whose key just decrypted it. This is the anti-spoofing gate: peer B cannot inject traffic claiming to come from peer C.
+- *Endpoint is updated, timers are poked, packet is written to the TUN*
+Because the packet authenticated, B records A's current source address as A's endpoint — roaming, for free, with no signalling. Then the plaintext IP packet is written to the TUN and the kernel routes it normally.
+
+## The 1-RTT handshake
+WireGuard uses the Noise `IK` pattern with a second pre-shared-key mixin (`psk2`). `I` means the initiator's static key is transmitted, encrypted, in the first message. `K` means the responder's static key is already known to the initiator — which it always is, because you configured it as `PublicKey`.
+
+![alt text](image-51.png)
+
+One round trip, then data. The responder never speaks first and never sends transport data before receiving some — until an authenticated packet arrives it has no verified endpoint to reply to. That is why a peer behind NAT must be the one to initiate, and why `PersistentKeepalive` exists.
+
+
+X25519 is the one primitive here a cryptographically relevant quantum computer would break. The pre-shared key is mixed into the chain in a way that a quantum adversary with all recorded traffic still cannot invert — so a 32-byte secret distributed out of band today gives you post-quantum protection against store-now-decrypt-later, without changing the protocol. It costs one PresharedKey line per peer pair.
+
+## The wg(8) configuration file
+
+There are exactly three keys under [Interface] and five under [Peer] that WireGuard itself understands 
+The file is INI-style: one [Interface] section, then any number of [Peer] sections. Keys are case-insensitive. Comments start with `#`
+
+![alt text](image-52.png)
+
+```sh
+[Interface]
+PrivateKey = yAnz5TF+lXXJte14tji3zlMNq+hd2rYUIgJBgB3fBmk=
+ListenPort = 51820
+
+[Peer]
+PublicKey = xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=
+AllowedIPs = 10.0.0.2/32
+Endpoint = 198.51.100.7:51820
+```
+
+
+### Point to point
+
+Two hosts, one link. Symmetric except that only one of them needs to know where the other lives.
+```sh
+# host A — 10.0.0.1
+
+[Interface]
+PrivateKey = <A priv>
+Address    = 10.0.0.1/24
+ListenPort = 51820
+
+[Peer]
+PublicKey  = <B pub>
+AllowedIPs = 10.0.0.2/32
+
+# host B — 10.0.0.2, behind NAT
+
+[Interface]
+PrivateKey = <B priv>
+Address    = 10.0.0.2/24
+
+[Peer]
+PublicKey  = <A pub>
+AllowedIPs = 10.0.0.1/32
+Endpoint   = a.example.com:51820
+PersistentKeepalive = 25
+```
+
+## Hub and spoke — full tunnel gateway
+
+The classic VPN. The hub NATs client traffic out to the internet, so it needs forwarding and masquerading, which WireGuard itself does not provide.
+
+```sh
+## hub
+[Interface]
+PrivateKey = <hub priv>
+Address    = 10.0.0.1/24, fd00::1/64
+ListenPort = 51820
+PostUp   = sysctl -w net.ipv4.ip_forward=1
+PostUp   = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostUp   = iptables -A FORWARD -i %i -j ACCEPT
+PostDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT
+
+[Peer] # laptop
+PublicKey  = <laptop pub>
+AllowedIPs = 10.0.0.2/32, fd00::2/128
+
+[Peer] # phone
+PublicKey  = <phone pub>
+AllowedIPs = 10.0.0.3/32, fd00::3/128
+
+## spoke
+
+[Interface]
+PrivateKey = <laptop priv>
+Address    = 10.0.0.2/32, fd00::2/128
+DNS        = 10.0.0.1
+
+[Peer]
+PublicKey  = <hub pub>
+AllowedIPs = 0.0.0.0/0, ::/0
+Endpoint   = hub.example.com:51820
+PersistentKeepalive = 25
+```
+
+## Site to site
+
+Two routers joining two LANs. The distinguishing feature is that `AllowedIPs` carries subnets the peer does not itself own an address in.
+
+```sh
+## site A router — LAN 192.168.10.0/24
+
+[Interface]
+PrivateKey = <A priv>
+Address    = 10.0.0.1/30
+ListenPort = 51820
+PostUp   = sysctl -w net.ipv4.ip_forward=1
+
+[Peer]
+PublicKey  = <B pub>
+AllowedIPs = 10.0.0.2/32, 192.168.20.0/24
+Endpoint   = b.example.com:51820
+  
+## site B router — LAN 192.168.20.0/24
+
+[Interface]
+PrivateKey = <B priv>
+Address    = 10.0.0.2/30
+ListenPort = 51820
+PostUp   = sysctl -w net.ipv4.ip_forward=1
+
+[Peer]
+PublicKey  = <A pub>
+AllowedIPs = 10.0.0.1/32, 192.168.10.0/24
+Endpoint   = a.example.com:51820
+```
+
+## Full mesh
+
+Every node lists every other node. There is no controller and no discovery — n nodes means n−1 peer blocks each, which is exactly why orchestration tools exist. Each node needs a reachable endpoint, or a keepalive toward one that has it.
+
+```sh
+# node 1 of a three-node mesh
+[Interface]
+PrivateKey = <n1 priv>
+Address    = 10.0.0.1/24
+ListenPort = 51820
+
+[Peer]
+PublicKey    = <n2 pub>
+PresharedKey = <psk 1↔2>   # distinct per pair
+AllowedIPs   = 10.0.0.2/32
+Endpoint     = n2.example.com:51820
+
+[Peer]
+PublicKey    = <n3 pub>
+PresharedKey = <psk 1↔3>
+AllowedIPs   = 10.0.0.3/32
+Endpoint     = n3.example.com:51820
+```
+
+## Both peers behind NAT
+WireGuard performs no hole punching and has no rendezvous protocol. If neither side has a reachable endpoint, you need something outside WireGuard: a third node with a public address that both peer with, or an external coordination layer that discovers the mapped addresses and writes them in with `wg set … endpoint`. Once both sides have `PersistentKeepalive = 25` and correct endpoints, the sessions hold indefinitely.
+
+
+A packet only enters the tunnel because its destination matched that peer's `AllowedIPs`. So the set of inner destinations you can possibly observe is exactly that peer's `AllowedIPs`.
+
+| Pattern        | AllowedIPs for the peer          | Inner destination can be                |
+|----------------|-----------------------------------|------------------------------------------|
+| Point-to-point | `10.0.0.2/32`                     | only `10.0.0.2`                          |
+| Site-to-site   | `10.0.0.2/32, 192.168.20.0/24`    | `10.0.0.2`, or any host on the far LAN   |
+| Full tunnel    | `0.0.0.0/0`                       | anything at all                          |
+
+- `Outbound` — inner destination ∈ that peer's AllowedIPs. That's how the peer got selected.
+- `Inbound` — inner source ∈ that peer's AllowedIPs. That's the anti-spoofing check.
+
+Same table, read twice. Widen `AllowedIPs` and you widen both what you'll send to that peer and what you'll accept from it — which is why point-to-point with `10.0.0.2/32` can only ever carry `10.0.0.1 ↔ 10.0.0.2`, and adding `192.168.20.0/24` to that same peer turns it into site-to-site without changing anything else.
+
+
+## Forwarding vs. encapsulation
+The internet does hop-by-hop forwarding: one IP header, rewritten-in-place TTL, every router makes an independent decision. A tunnel does encapsulation: two IP headers, with the inner one frozen while the outer one gets forwarded normally.
+
+```sh
+internet hop      [ IP | TCP | data ]                 ← TTL decrements at every hop
+tunnel hop        [ IP | UDP | WG | IP | TCP | data ] ← inner header untouched across the whole path
+```
+
+The outer header is always public addresses. It is how the datagram crosses the internet. The inner header is whatever the tunnel is carrying — and AllowedIPs decides what that can be
+
+A peer's tunnel address is never how you reach it. You reach a peer at its `Endpoint`, in public space. `10.0.0.1` is only meaningful once the packet is already inside the tunnel.
+The inner header never gets translated in transit. It is inside the AEAD, so no NAT, firewall, or transit router can see or modify it. The only thing that can rewrite it is the far peer's own host, after decryption — which is exactly what a hub's `MASQUERADE` rule does.
+
+### What to put in AllowedIPs, by role
+
+| Your side | The peer | AllowedIPs on your side | Why |
+|-----------|----------|--------------------------|-----|
+| Client    | VPN server, full tunnel  | `0.0.0.0/0, ::/0`               | Everything goes to the server, and the server may originate from any address. |
+| Client    | VPN server, split tunnel | `10.0.0.0/24, 192.168.9.0/24`   | Only the networks you actually want reached over the tunnel. |
+| Server    | One client               | `10.0.0.2/32`                   | Exactly that client's tunnel address. A wider prefix here lets that client impersonate its neighbours. |
+| Server    | Site-to-site branch      | `10.0.0.3/32, 192.168.20.0/24`  | The peer's own address plus the LAN it routes for. |
+| Mesh node | Another mesh node        | `10.0.0.5/32`                   | Never overlap between mesh peers — the trie has one owner per prefix. |
+
+`at least one peer must be reachable, and the other must have that address configured.`
+
+put the `Endpoint` on `A` instead, pointing at `B`'s NAT:
+
+```
+# on Host A
+[Peer]
+PublicKey  = <B pub>
+AllowedIPs = 10.0.0.2/32
+Endpoint   = 203.0.113.9:51820   # B's NAT
+```
+`A` now has an endpoint, so it does transmit. The packet reaches B's router, which finds no matching entry in its translation table and drops it. `B` never sees it. Nothing on `A` indicates failure — it sent successfully, from its point of view.
+
+```go
+// CreateTUN creates a Device with the provided name and MTU.
+func CreateTUN(name string, mtu int) (Device, error) {
+	nfd, err := unix.Open(cloneDevicePath, unix.O_RDWR|unix.O_CLOEXEC, 0)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, fmt.Errorf("CreateTUN(%q) failed; %s does not exist", name, cloneDevicePath)
+		}
+		return nil, err
+	}
+
+	ifr, err := unix.NewIfreq(name)
+	if err != nil {
+		return nil, err
+	}
+	// IFF_VNET_HDR enables the "tun status hack" via routineHackListener()
+	// where a null write will return EINVAL indicating the TUN is up.
+	ifr.SetUint16(unix.IFF_TUN | unix.IFF_NO_PI | unix.IFF_VNET_HDR)
+	err = unix.IoctlIfreq(nfd, unix.TUNSETIFF, ifr)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unix.SetNonblock(nfd, true)
+	if err != nil {
+		unix.Close(nfd)
+		return nil, err
+	}
+
+	// Note that the above -- open,ioctl,nonblock -- must happen prior to handing it to netpoll as below this line.
+
+	fd := os.NewFile(uintptr(nfd), cloneDevicePath)
+	return CreateTUNFromFile(fd, mtu)
+}
+```
+
+`CreateTUN` opens `/dev/net/tun` and issues `TUNSETIFF` with the name you passed, so a real interface appears:
+```sh
+$ ip link show wg0
+3: wg0: <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> mtu 1420 qdisc fq_codel state UNKNOWN qlen 500
+    link/none
+
+$ ip -brief addr show wg0
+wg0    UNKNOWN    10.0.0.2/24
+```
+
+The MTU is 1420 because `main.go` passes `device.DefaultMTU`
+
+
+```go
+tunDev, gNet, err := netstack.CreateNetTUN(localIPs, []netip.Addr{dnsIP}, mtu)
+	if err != nil {
+		return nil, err
+	}
+```
+```go
+type netTun struct {
+	ep             *channel.Endpoint          // an in-memory packet queue
+	stack          *stack.Stack               // gVisor's TCP/IP stack
+	events         chan tun.Event
+	incomingPacket chan *buffer.View          // a Go channel
+	mtu            int
+	...
+}
+```
+
+Compare with `tun_linux.go`, which holds a real `fd` from `/dev/net/tun`. Here there's a channel and a struct pointer.
+
+Read and Write are channel operations, not syscalls
+```go
+func (tun *netTun) Read(buf [][]byte, sizes []int, offset int) (int, error) {
+	view, ok := <-tun.incomingPacket        // ← a channel receive
+	...
+}
+
+func (tun *netTun) Write(buf [][]byte, offset int) (int, error) {
+	...
+	switch packet[0] >> 4 {
+	case 4:
+		tun.ep.InjectInbound(header.IPv4ProtocolNumber, pkb)   // ← handed to gVisor
+	case 6:
+		tun.ep.InjectInbound(header.IPv6ProtocolNumber, pkb)
+	}
+}
+```
+
+`tun_linux.go` does a real `read(2)/write(2)` against the kernel. This does a channel receive and a function call. Same interface, no kernel.
+
+```go
+dev.stack.CreateNIC(1, dev.ep)                                   // the interface
+dev.stack.AddProtocolAddress(1, protoAddr, ...)                  // the address
+dev.stack.AddRoute(tcpip.Route{Destination: header.IPv4EmptySubnet, NIC: 1})  // the route
+dev.events <- tun.EventUp                                        // bring it up
+```
+```go
+if dev.hasV4 {
+	dev.stack.AddRoute(tcpip.Route{Destination: header.IPv4EmptySubnet, NIC: 1})
+}
+if dev.hasV6 {
+	dev.stack.AddRoute(tcpip.Route{Destination: header.IPv6EmptySubnet, NIC: 1})
+}
+```
+
+```sh
+        application
+             │   conn.Read()                    ← a *gonet.TCPConn, not a kernel socket
+   ┌─────────▼────────────────────────────┐
+   │  gVisor stack — in process memory    │
+   │  IP demux → TCP endpoint → recv buf  │
+   └─────────▲────────────────────────────┘
+             │   ep.InjectInbound(...)
+   ┌─────────┴────────────────────────────┐
+   │  netTun.Write()                      │  tun/netstack/tun.go
+   └─────────▲────────────────────────────┘
+             │   device.tun.device.Write()      device/receive.go:524
+   ┌─────────┴────────────────────────────┐
+   │  WireGuard: decrypt, replay window,  │
+   │  allowed-ips source check            │
+   └─────────▲────────────────────────────┘
+             │   recvmsg()                   ◀── THE ONLY SYSCALL
+   ┌─────────┴────────────────────────────┐
+   │  kernel UDP socket  :51820           │
+   └──────────────────────────────────────┘
+             ▲
+      encrypted datagram off the wire
+```
+
+- Read the inner packet, take its destination
+- `allowedips.Lookup(dst)` → peer
+- Encrypt with that peer's current keypair
+- `SendBuffers` reads `peer.endpoint.val` → outer destination
+- UDP write → kernel routes on that address
+
+
+`fly ssh console`, `fly proxy`, `fly postgres connect`, and `.internal DNS` lookups go over the tunnel. Nothing else on your machine does, and flyctl's own control-plane traffic doesn't either
+
