@@ -18,6 +18,9 @@ import scaleway.containers.models.CreateNamespaceRequest
 import scaleway.containers.models.Namespace
 import scaleway.containers.models.NamespaceEnums
 
+given namespaceStatusEq: CanEqual[NamespaceEnums.Status, NamespaceEnums.Status] = CanEqual.derived
+given containerStatusEq: CanEqual[ContainerEnums.Status, ContainerEnums.Status] = CanEqual.derived
+
 /**
   * Serverless Containers: a namespace, a container, and an explicit deploy.
   *

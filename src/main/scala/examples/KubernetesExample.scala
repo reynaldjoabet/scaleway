@@ -19,6 +19,8 @@ import scaleway.kubernetes.models.CreatePoolRequest
 import scaleway.kubernetes.models.CreatePoolRequestEnums
 import scaleway.kubernetes.models.PoolConfig
 
+given clusterStatusEq: CanEqual[ClusterEnums.Status, ClusterEnums.Status] = CanEqual.derived
+
 /**
   * Kapsule: a managed control plane plus the node pools that back it.
   *

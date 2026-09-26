@@ -14,6 +14,8 @@ import scaleway.instance.models.ServerActionRequest
 import scaleway.instance.models.ServerActionRequestEnums
 import scaleway.instance.models.ServerEnums
 
+given serverStateEq: CanEqual[ServerEnums.State, ServerEnums.State] = CanEqual.derived
+
 /**
   * Instances: boot a VM, wait for it, tear it down.
   *

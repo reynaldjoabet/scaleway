@@ -19,6 +19,8 @@ import scaleway.lb.models.CreateLbRequest
 import scaleway.lb.models.Lb
 import scaleway.lb.models.LbEnums
 
+given lbStatusEq: CanEqual[LbEnums.Status, LbEnums.Status] = CanEqual.derived
+
 // import scaleway.lb.models.ScalewayLbV1AclFrontendBackendLbSubscriberWebhookConfig
 /**
   * Load Balancer: one LB, one backend pool, one listener.
