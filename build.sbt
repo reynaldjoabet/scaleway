@@ -3,8 +3,6 @@ import Dependencies._
 ThisBuild / scalaVersion := "3.9.0"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 
-ThisBuild / crossScalaVersions := Seq("3.9.0")
-
 ThisBuild / scalacOptions := Seq(
   "-encoding",
   "UTF-8",
@@ -177,3 +175,8 @@ lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .dependsOn(modules.map(_ % "compile->compile;test->test") *)
   .aggregate(modules.map(m => LocalProject(m.id)) *)
+
+Global / mcpEnabled     := true        // default: false
+Global / mcpDisableInCI := true        // default: true; set false to allow startup in CI/Heroku
+Global / mcpPort        := 5010        // default: 5010
+Global / mcpHost        := "127.0.0.1" // default: loopback only
