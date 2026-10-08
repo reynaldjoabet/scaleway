@@ -176,7 +176,8 @@ lazy val root = (project in file("."))
   .dependsOn(modules.map(_ % "compile->compile;test->test") *)
   .aggregate(modules.map(m => LocalProject(m.id)) *)
 
-Global / mcpEnabled     := true        // default: false
-Global / mcpDisableInCI := true        // default: true; set false to allow startup in CI/Heroku
-Global / mcpPort        := 5010        // default: 5010
-Global / mcpHost        := "127.0.0.1" // default: loopback only
+//if(sbtVersion>2.)
+// Global / mcpEnabled     := true        // default: false
+// Global / mcpDisableInCI := true        // default: true; set false to allow startup in CI/Heroku
+// Global / mcpPort        := 5010        // default: 5010
+// Global / mcpHost        := "127.0.0.1" // default: loopback only
