@@ -83,12 +83,8 @@ val commonSettings = Seq(
   // HOW: emptying the directory list removes that supplier, leaving the
   // generator as the single source of truth.
   Compile / unmanagedSourceDirectories := Seq.empty,
-  libraryDependencies                 ++= Seq(
-    sttpJsoniter,
-    jsoniter,
-    jsoniterMacros,
-    jsoniterCirce
-  )
+  libraryDependencies                 ++=
+    Seq(http.sttp.jsoniter, json.jsoniter.circe) ++ json.jsoniter.core
 )
 
 def scalewayModule(id: String, spec: String, pkg: String): Project =
@@ -154,21 +150,19 @@ lazy val root = (project in file("."))
     name                 := "scaleway",
     semanticdbEnabled    := true,
     libraryDependencies ++= Seq(
-      sttpCore,
-      http4sBackend,
-      http4sDsl,
-      emberServer,
-      fs2,
-      chimney,
-      emberClient,
-      catsEffect,
-      pureconfig,
-      slf4j,
-      scribe,
-      scribeSlf4j,
-      scribeCats,
-      munit
-    ),
+      http.sttp.core,
+      http.sttp.backends.http4s,
+      core.fs2,
+      core.catsEffect,
+      domain.chimney,
+      // config and testing clash with sbt's own imports, hence the qualifier.
+      Dependencies.config.pureconfig.core,
+      logging.slf4j,
+      logging.scribe.core,
+      logging.scribe.slf4j,
+      logging.scribe.cats,
+      Dependencies.testing.munit
+    ) ++ http.http4s.core,
     buildInfoKeys    := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "scaleway"
   )
