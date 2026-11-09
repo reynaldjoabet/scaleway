@@ -23,12 +23,12 @@ object Dependencies {
     val jsoniter  = "2.40.1"
     val circe     = "0.14.16"
     val jackson3  = "3.2.2"
-    val jsonSmart = "2.6.0"
+    val jsonSmart = "2.6.1"
 
     // --- FP ---
     val catsEffect      = "3.7.1"
     val fs2             = "3.14.0"
-    val fs2Kafka        = "4.1.3"
+    val fs2Kafka        = "4.2.0"
     val chimney         = "2.1.0"
     val iron            = "3.3.2"
     val uuidGenerator   = "5.2.0"
@@ -51,7 +51,7 @@ object Dependencies {
     val password4j       = "1.8.4"
     val auth0            = "4.6.2"
     val nimbusJoseJwt    = "10.10"
-    val nimbusOauth2Oidc = "11.38.2"
+    val nimbusOauth2Oidc = "11.39"
     val vault            = "5.1.0"
     val authlete         = "4.49"
     val webauthn         = "2.10.1"
@@ -66,7 +66,7 @@ object Dependencies {
     val jedis    = "8.0.2"
 
     // --- Directory ---
-    val unboundid = "7.0.5"
+    val unboundid = "7.0.6"
 
     // --- Mail ---
     val jakartaMail = "2.1.5"
@@ -92,7 +92,7 @@ object Dependencies {
 
     // --- Cloud ---
     val awsV2         = "2.47.5"
-    val azureIdentity = "1.18.7"
+    val azureIdentity = "1.19.0"
     val azureKv       = "4.11.1"
 
   }
