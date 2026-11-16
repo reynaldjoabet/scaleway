@@ -11,7 +11,7 @@ object Dependencies {
     val zioLogging = "2.5.3"
     val zioConfig  = "4.0.7"
     val zioSchema  = "1.8.5"
-    val zioKafka   = "3.8.1"
+    val zioKafka   = "4.0.0"
 
     // --- HTTP ---
     val http4s  = "0.23.36"
@@ -53,7 +53,7 @@ object Dependencies {
     val nimbusJoseJwt    = "10.10"
     val nimbusOauth2Oidc = "11.39"
     val vault            = "5.1.0"
-    val authlete         = "4.49"
+    val authlete         = "4.51"
     val webauthn         = "2.10.1"
 
     // --- Logging ---
