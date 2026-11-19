@@ -95,15 +95,15 @@ case class LogsApi[Auth <: scaleway.iam.Authorization] private (baseUrl: String,
   def listLogs(orderBy: Option[String] = scala.None, organizationId: Option[String] = scala.None, pageSize: Option[Int] = scala.None, page: Option[Int] = scala.None, createdAfter: Option[OffsetDateTime] = scala.None, createdBefore: Option[OffsetDateTime] = scala.None, action: Option[String] = scala.None, resourceType: Option[String] = scala.None, search: Option[String] = scala.None)(using Auth <:< scaleway.iam.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], ListLogsResponse]] =
     val requestURL =
       uri"$baseUrl/iam/v1alpha1/logs"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("created_after", createdAfter, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("created_before", createdBefore, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("action", action, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("resource_type", resourceType, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("search", search, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("created_after", createdAfter, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("created_before", createdBefore, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("action", action, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("resource_type", resourceType, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("search", search, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

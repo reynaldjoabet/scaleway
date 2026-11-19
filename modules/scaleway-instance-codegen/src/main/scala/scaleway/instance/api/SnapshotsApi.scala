@@ -178,13 +178,13 @@ case class SnapshotsApi[Auth <: scaleway.instance.Authorization] private (baseUr
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/instance/v1/zones/${zonePathParam}/snapshots"
-        .addParams(FormSerializable.serialize("organization", organization, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project", project, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("base_volume_id", baseVolumeId, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("organization", organization, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project", project, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("base_volume_id", baseVolumeId, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

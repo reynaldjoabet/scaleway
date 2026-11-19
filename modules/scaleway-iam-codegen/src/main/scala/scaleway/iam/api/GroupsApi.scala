@@ -192,15 +192,15 @@ case class GroupsApi[Auth <: scaleway.iam.Authorization] private (baseUrl: Strin
   def listGroups(orderBy: Option[String] = scala.None, page: Option[Int] = scala.None, pageSize: Option[Int] = scala.None, organizationId: Option[String] = scala.None, name: Option[String] = scala.None, applicationIds: Seq[String], userIds: Seq[String], groupIds: Seq[String], tag: Option[String] = scala.None)(using Auth <:< scaleway.iam.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], ListGroupsResponse]] =
     val requestURL =
       uri"$baseUrl/iam/v1alpha1/groups"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("application_ids", applicationIds, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("user_ids", userIds, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("group_ids", groupIds, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("tag", tag, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("application_ids", applicationIds, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("user_ids", userIds, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("group_ids", groupIds, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("tag", tag, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

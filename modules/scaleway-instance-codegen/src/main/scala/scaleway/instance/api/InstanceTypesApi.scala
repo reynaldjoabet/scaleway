@@ -67,8 +67,8 @@ case class InstanceTypesApi[Auth <: scaleway.instance.Authorization] private (ba
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/instance/v1/zones/${zonePathParam}/products/servers/availability"
-        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
@@ -93,8 +93,8 @@ case class InstanceTypesApi[Auth <: scaleway.instance.Authorization] private (ba
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/instance/v1/zones/${zonePathParam}/products/servers"
-        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

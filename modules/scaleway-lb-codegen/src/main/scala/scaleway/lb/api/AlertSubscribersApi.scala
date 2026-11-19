@@ -147,12 +147,12 @@ case class AlertSubscribersApi[Auth <: scaleway.lb.Authorization] private (baseU
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/lb/v1/zones/${zonePathParam}/subscribers"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

@@ -124,9 +124,9 @@ case class PrivateNetworksApi[Auth <: scaleway.lb.Authorization] private (baseUr
     val lbIdPathParam = PathSerializable.serialize("lb_id", lbId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/lb/v1/zones/${zonePathParam}/lbs/${lbIdPathParam}/private-networks"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

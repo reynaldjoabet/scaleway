@@ -66,7 +66,7 @@ case class QuotasApi[Auth <: scaleway.iam.Authorization] private (baseUrl: Strin
     val quotumNamePathParam = PathSerializable.serialize("quotum_name", quotumName, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/iam/v1alpha1/quota/${quotumNamePathParam}"
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
@@ -92,11 +92,11 @@ case class QuotasApi[Auth <: scaleway.iam.Authorization] private (baseUrl: Strin
   def listQuota(organizationId: String, orderBy: Option[String] = scala.None, pageSize: Option[Int] = scala.None, page: Option[Int] = scala.None, quotumNames: Seq[String])(using Auth <:< scaleway.iam.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], ListQuotaResponse]] =
     val requestURL =
       uri"$baseUrl/iam/v1alpha1/quota"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("quotum_names", quotumNames, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("quotum_names", quotumNames, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

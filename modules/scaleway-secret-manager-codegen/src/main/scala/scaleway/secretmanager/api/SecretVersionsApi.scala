@@ -102,9 +102,9 @@ case class SecretVersionsApi[Auth <: scaleway.secretmanager.Authorization] priva
     val revisionPathParam = PathSerializable.serialize("revision", revision, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/secret-manager/v1beta1/regions/${regionPathParam}/secrets-by-path/versions/${revisionPathParam}/access"
-        .addParams(FormSerializable.serialize("secret_path", secretPath, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("secret_name", secretName, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("secret_path", secretPath, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("secret_name", secretName, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
@@ -266,9 +266,9 @@ case class SecretVersionsApi[Auth <: scaleway.secretmanager.Authorization] priva
     val secretIdPathParam = PathSerializable.serialize("secret_id", secretId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/secret-manager/v1beta1/regions/${regionPathParam}/secrets/${secretIdPathParam}/versions"
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

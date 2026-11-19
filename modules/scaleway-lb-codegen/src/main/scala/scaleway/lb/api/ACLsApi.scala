@@ -149,10 +149,10 @@ case class ACLsApi[Auth <: scaleway.lb.Authorization] private (baseUrl: String, 
     val frontendIdPathParam = PathSerializable.serialize("frontend_id", frontendId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/lb/v1/zones/${zonePathParam}/frontends/${frontendIdPathParam}/acls"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

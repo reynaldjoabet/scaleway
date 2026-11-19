@@ -106,11 +106,11 @@ case class JWTsApi[Auth <: scaleway.iam.Authorization] private (baseUrl: String,
   def listJWTs(orderBy: Option[String] = scala.None, audienceId: Option[String] = scala.None, pageSize: Option[Int] = scala.None, page: Option[Int] = scala.None, expired: Option[Boolean] = scala.None)(using Auth <:< scaleway.iam.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], ListJWTsResponse]] =
     val requestURL =
       uri"$baseUrl/iam/v1alpha1/jwts"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("audience_id", audienceId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("expired", expired, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("audience_id", audienceId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("expired", expired, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

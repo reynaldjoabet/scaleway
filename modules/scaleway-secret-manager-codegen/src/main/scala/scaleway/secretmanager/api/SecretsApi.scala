@@ -179,17 +179,17 @@ case class SecretsApi[Auth <: scaleway.secretmanager.Authorization] private (bas
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/secret-manager/v1beta1/regions/${regionPathParam}/secrets"
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("path", path, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("ephemeral", ephemeral, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("type", `type`, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("scheduled_for_deletion", scheduledForDeletion, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("path", path, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("ephemeral", ephemeral, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("type", `type`, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("scheduled_for_deletion", scheduledForDeletion, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

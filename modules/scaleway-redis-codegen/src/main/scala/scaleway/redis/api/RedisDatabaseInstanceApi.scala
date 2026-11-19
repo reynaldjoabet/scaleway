@@ -147,9 +147,9 @@ case class RedisDatabaseInstanceApi[Auth <: scaleway.redis.Authorization] privat
     val clusterIdPathParam = PathSerializable.serialize("cluster_id", clusterId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/redis/v1/zones/${zonePathParam}/clusters/${clusterIdPathParam}/metrics"
-        .addParams(FormSerializable.serialize("start_at", startAt, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("end_at", endAt, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("metric_name", metricName, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("start_at", startAt, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("end_at", endAt, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("metric_name", metricName, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
@@ -180,14 +180,14 @@ case class RedisDatabaseInstanceApi[Auth <: scaleway.redis.Authorization] privat
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/redis/v1/zones/${zonePathParam}/clusters"
-        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("version", version, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("version", version, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

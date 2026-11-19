@@ -175,12 +175,12 @@ case class PlacementGroupsApi[Auth <: scaleway.instance.Authorization] private (
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/instance/v1/zones/${zonePathParam}/placement_groups"
-        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization", organization, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project", project, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization", organization, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project", project, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

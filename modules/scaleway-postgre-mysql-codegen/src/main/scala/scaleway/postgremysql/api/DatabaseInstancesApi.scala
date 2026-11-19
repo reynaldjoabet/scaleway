@@ -257,9 +257,9 @@ case class DatabaseInstancesApi[Auth <: scaleway.postgremysql.Authorization] pri
     val instanceIdPathParam = PathSerializable.serialize("instance_id", instanceId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/rdb/v1/regions/${regionPathParam}/instances/${instanceIdPathParam}/metrics"
-        .addParams(FormSerializable.serialize("start_date", startDate, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("end_date", endDate, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("metric_name", metricName, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("start_date", startDate, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("end_date", endDate, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("metric_name", metricName, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
@@ -285,7 +285,7 @@ case class DatabaseInstancesApi[Auth <: scaleway.postgremysql.Authorization] pri
     val instanceIdPathParam = PathSerializable.serialize("instance_id", instanceId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/rdb/v1/regions/${regionPathParam}/instances/${instanceIdPathParam}/logs"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
@@ -340,14 +340,14 @@ case class DatabaseInstancesApi[Auth <: scaleway.postgremysql.Authorization] pri
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/rdb/v1/regions/${regionPathParam}/instances"
-        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("has_maintenances", hasMaintenances, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("has_maintenances", hasMaintenances, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

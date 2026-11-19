@@ -142,17 +142,17 @@ case class APIKeysApi[Auth <: scaleway.iam.Authorization] private (baseUrl: Stri
   def listAPIKeys(orderBy: Option[String] = scala.None, page: Option[Int] = scala.None, pageSize: Option[Int] = scala.None, organizationId: Option[String] = scala.None, editable: Option[Boolean] = scala.None, expired: Option[Boolean] = scala.None, accessKey: Option[String] = scala.None, description: Option[String] = scala.None, bearerId: Option[String] = scala.None, bearerType: Option[String] = scala.None, accessKeys: Seq[String])(using Auth <:< scaleway.iam.Authorization.ApiKey): sttp.client4.Request[Either[ResponseException[String], ListAPIKeysResponse]] =
     val requestURL =
       uri"$baseUrl/iam/v1alpha1/api-keys"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("editable", editable, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("expired", expired, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("access_key", accessKey, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("description", description, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("bearer_id", bearerId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("bearer_type", bearerType, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("access_keys", accessKeys, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("editable", editable, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("expired", expired, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("access_key", accessKey, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("description", description, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("bearer_id", bearerId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("bearer_type", bearerType, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("access_keys", accessKeys, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

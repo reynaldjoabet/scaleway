@@ -98,7 +98,7 @@ case class GatewaysApi[Auth <: scaleway.vpcgw.Authorization] private (baseUrl: S
     val gatewayIdPathParam = PathSerializable.serialize("gateway_id", gatewayId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/vpc-gw/v2/zones/${zonePathParam}/gateways/${gatewayIdPathParam}"
-        .addParams(FormSerializable.serialize("delete_ip", deleteIp, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("delete_ip", deleteIp, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.DELETE, requestURL)
@@ -156,17 +156,17 @@ case class GatewaysApi[Auth <: scaleway.vpcgw.Authorization] private (baseUrl: S
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/vpc-gw/v2/zones/${zonePathParam}/gateways"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("types", types, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("private_network_ids", privateNetworkIds, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("include_legacy", includeLegacy, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("types", types, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("private_network_ids", privateNetworkIds, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("include_legacy", includeLegacy, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

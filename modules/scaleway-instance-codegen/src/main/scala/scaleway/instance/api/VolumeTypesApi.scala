@@ -66,8 +66,8 @@ case class VolumeTypesApi[Auth <: scaleway.instance.Authorization] private (base
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/instance/v1/zones/${zonePathParam}/products/volumes"
-        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("per_page", perPage, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

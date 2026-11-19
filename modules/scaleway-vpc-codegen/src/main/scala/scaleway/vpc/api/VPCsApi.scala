@@ -175,15 +175,15 @@ case class VPCsApi[Auth <: scaleway.vpc.Authorization] private (baseUrl: String,
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/vpc/v2/regions/${regionPathParam}/vpcs"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("is_default", isDefault, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("routing_enabled", routingEnabled, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("is_default", isDefault, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("routing_enabled", routingEnabled, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

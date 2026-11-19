@@ -178,9 +178,9 @@ case class BackendsApi[Auth <: scaleway.lb.Authorization] private (baseUrl: Stri
     val lbIdPathParam = PathSerializable.serialize("lb_id", lbId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/lb/v1/zones/${zonePathParam}/lbs/${lbIdPathParam}/backend-stats"
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("backend_id", backendId, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("backend_id", backendId, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
@@ -209,10 +209,10 @@ case class BackendsApi[Auth <: scaleway.lb.Authorization] private (baseUrl: Stri
     val lbIdPathParam = PathSerializable.serialize("lb_id", lbId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/lb/v1/zones/${zonePathParam}/lbs/${lbIdPathParam}/backends"
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

@@ -65,7 +65,7 @@ case class StatsApi[Auth <: scaleway.lb.Authorization] private (baseUrl: String,
     val lbIdPathParam = PathSerializable.serialize("lb_id", lbId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/lb/v1/zones/${zonePathParam}/lbs/${lbIdPathParam}/stats"
-        .addParams(FormSerializable.serialize("backend_id", backendId, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("backend_id", backendId, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

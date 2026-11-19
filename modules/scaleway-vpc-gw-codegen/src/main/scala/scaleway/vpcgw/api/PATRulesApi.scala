@@ -147,12 +147,12 @@ case class PATRulesApi[Auth <: scaleway.vpcgw.Authorization] private (baseUrl: S
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/vpc-gw/v2/zones/${zonePathParam}/pat-rules"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("gateway_ids", gatewayIds, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("private_ips", privateIps, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("protocol", protocol, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("gateway_ids", gatewayIds, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("private_ips", privateIps, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("protocol", protocol, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

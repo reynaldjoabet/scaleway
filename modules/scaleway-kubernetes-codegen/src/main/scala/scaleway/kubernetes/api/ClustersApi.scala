@@ -100,7 +100,7 @@ case class ClustersApi[Auth <: scaleway.kubernetes.Authorization] private (baseU
     val clusterIdPathParam = PathSerializable.serialize("cluster_id", clusterId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/k8s/v1/regions/${regionPathParam}/clusters/${clusterIdPathParam}"
-        .addParams(FormSerializable.serialize("with_additional_resources", withAdditionalResources, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("with_additional_resources", withAdditionalResources, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.DELETE, requestURL)
@@ -150,7 +150,7 @@ case class ClustersApi[Auth <: scaleway.kubernetes.Authorization] private (baseU
     val clusterIdPathParam = PathSerializable.serialize("cluster_id", clusterId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/k8s/v1/regions/${regionPathParam}/clusters/${clusterIdPathParam}/kubeconfig"
-        .addParams(FormSerializable.serialize("redacted", redacted, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("redacted", redacted, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
@@ -231,16 +231,16 @@ case class ClustersApi[Auth <: scaleway.kubernetes.Authorization] private (baseU
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/k8s/v1/regions/${regionPathParam}/clusters"
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("type", `type`, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("private_network_id", privateNetworkId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("version", version, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("type", `type`, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("private_network_id", privateNetworkId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("version", version, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

@@ -170,9 +170,9 @@ case class SCIMApi[Auth <: scaleway.iam.Authorization] private (baseUrl: String,
     val scimIdPathParam = PathSerializable.serialize("scim_id", scimId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/iam/v1alpha1/scim/${scimIdPathParam}/tokens"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

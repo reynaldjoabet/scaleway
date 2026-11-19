@@ -70,12 +70,12 @@ case class RedisEngineVersionsApi[Auth <: scaleway.redis.Authorization] private 
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/redis/v1/zones/${zonePathParam}/cluster-versions"
-        .addParams(FormSerializable.serialize("include_disabled", includeDisabled, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("include_beta", includeBeta, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("include_deprecated", includeDeprecated, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("version", version, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("include_disabled", includeDisabled, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("include_beta", includeBeta, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("include_deprecated", includeDeprecated, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("version", version, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

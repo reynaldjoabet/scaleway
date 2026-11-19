@@ -65,9 +65,9 @@ case class MongoDBVersions[Auth <: scaleway.mongodb.Authorization] private (base
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/mongodb/v1/regions/${regionPathParam}/versions"
-        .addParams(FormSerializable.serialize("version", version, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("version", version, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

@@ -148,13 +148,13 @@ case class GatewayNetworksApi[Auth <: scaleway.vpcgw.Authorization] private (bas
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/vpc-gw/v2/zones/${zonePathParam}/gateway-networks"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("gateway_ids", gatewayIds, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("private_network_ids", privateNetworkIds, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("masquerade_enabled", masqueradeEnabled, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("gateway_ids", gatewayIds, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("private_network_ids", privateNetworkIds, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("masquerade_enabled", masqueradeEnabled, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

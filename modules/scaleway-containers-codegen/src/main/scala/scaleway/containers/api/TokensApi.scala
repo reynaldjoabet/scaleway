@@ -143,11 +143,11 @@ case class TokensApi[Auth <: scaleway.containers.Authorization] private (baseUrl
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/containers/v1beta1/regions/${regionPathParam}/tokens"
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("container_id", containerId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("namespace_id", namespaceId, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("container_id", containerId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("namespace_id", namespaceId, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

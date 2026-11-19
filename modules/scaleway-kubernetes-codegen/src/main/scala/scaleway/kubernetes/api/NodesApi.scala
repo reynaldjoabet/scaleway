@@ -69,7 +69,7 @@ case class NodesApi[Auth <: scaleway.kubernetes.Authorization] private (baseUrl:
     val nodeIdPathParam = PathSerializable.serialize("node_id", nodeId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/k8s/v1/regions/${regionPathParam}/nodes/${nodeIdPathParam}"
-        .addParams(FormSerializable.serialize("skip_drain", skipDrain, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("skip_drain", skipDrain, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.DELETE, requestURL)
@@ -124,12 +124,12 @@ case class NodesApi[Auth <: scaleway.kubernetes.Authorization] private (baseUrl:
     val clusterIdPathParam = PathSerializable.serialize("cluster_id", clusterId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/k8s/v1/regions/${regionPathParam}/clusters/${clusterIdPathParam}/nodes"
-        .addParams(FormSerializable.serialize("pool_id", poolId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("pool_id", poolId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("status", status, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

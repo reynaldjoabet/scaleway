@@ -364,7 +364,7 @@ case class KeysApi[Auth <: scaleway.keymanager.Authorization] private (baseUrl: 
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/key-manager/v1alpha1/regions/${regionPathParam}/algorithms"
-        .addParams(FormSerializable.serialize("usages", usages, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("usages", usages, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
@@ -396,15 +396,15 @@ case class KeysApi[Auth <: scaleway.keymanager.Authorization] private (baseUrl: 
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/key-manager/v1alpha1/regions/${regionPathParam}/keys"
-        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("usage", usage, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("scheduled_for_deletion", scheduledForDeletion, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("organization_id", organizationId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project_id", projectId, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("tags", tags, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("name", name, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("usage", usage, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("scheduled_for_deletion", scheduledForDeletion, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

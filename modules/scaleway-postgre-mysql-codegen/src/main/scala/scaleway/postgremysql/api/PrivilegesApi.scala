@@ -73,11 +73,11 @@ case class PrivilegesApi[Auth <: scaleway.postgremysql.Authorization] private (b
     val instanceIdPathParam = PathSerializable.serialize("instance_id", instanceId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/rdb/v1/regions/${regionPathParam}/instances/${instanceIdPathParam}/privileges"
-        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("database_name", databaseName, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("user_name", userName, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("order_by", orderBy, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("database_name", databaseName, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("user_name", userName, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

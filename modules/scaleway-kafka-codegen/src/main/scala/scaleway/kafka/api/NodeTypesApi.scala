@@ -65,9 +65,9 @@ case class NodeTypesApi[Auth <: scaleway.kafka.Authorization] private (baseUrl: 
     val regionPathParam = PathSerializable.serialize("region", region, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/kafka/v1alpha1/regions/${regionPathParam}/node-types"
-        .addParams(FormSerializable.serialize("include_disabled_types", includeDisabledTypes, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("include_disabled_types", includeDisabledTypes, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page", page, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("page_size", pageSize, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

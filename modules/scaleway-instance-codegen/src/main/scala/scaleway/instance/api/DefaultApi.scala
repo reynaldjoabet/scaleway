@@ -87,8 +87,8 @@ case class DefaultApi[Auth <: scaleway.instance.Authorization] private (baseUrl:
     val zonePathParam = PathSerializable.serialize("zone", zone, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/instance/v1/zones/${zonePathParam}/dashboard"
-        .addParams(FormSerializable.serialize("organization", organization, FormStyleFormat.FORM, true): _*)
-        .addParams(FormSerializable.serialize("project", project, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("organization", organization, FormStyleFormat.FORM, true)*)
+        .addParams(FormSerializable.serialize("project", project, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)

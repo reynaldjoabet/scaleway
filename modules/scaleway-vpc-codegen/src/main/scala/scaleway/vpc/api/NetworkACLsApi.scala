@@ -69,7 +69,7 @@ case class NetworkACLsApi[Auth <: scaleway.vpc.Authorization] private (baseUrl: 
     val vpcIdPathParam = PathSerializable.serialize("vpc_id", vpcId, PathStyleFormat.SIMPLE, false)
     val requestURL =
       uri"$baseUrl/vpc/v2/regions/${regionPathParam}/vpcs/${vpcIdPathParam}/acl-rules"
-        .addParams(FormSerializable.serialize("is_ipv6", isIpv6, FormStyleFormat.FORM, true): _*)
+        .addParams(FormSerializable.serialize("is_ipv6", isIpv6, FormStyleFormat.FORM, true)*)
 
     basicRequest
       .method(Method.GET, requestURL)
