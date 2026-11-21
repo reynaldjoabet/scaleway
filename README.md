@@ -1210,14 +1210,14 @@ So TLS 1.3 derives keys twice:
  HTTP/1.1 connections are persistent — after a response completes, the connection is perfectly reusable. Closing it would waste a TCP handshake (and a TLS handshake) on every request.
 
 ### Two different mechanisms
-① HTTP/1.1 keep-alive — reuse across time (what the demo shows)
+(1) HTTP/1.1 keep-alive — reuse across time (what the demo shows)
 
 ```sh
 backend conn B1:  [req1][resp1] [req2][resp2] [req3][resp3]
                    ─────────── sequential ───────────►
 One request at a time per connection. Reuse is temporal.
 ```
-② HTTP/2 multiplexing — reuse across streams (concurrent)
+(2) HTTP/2 multiplexing — reuse across streams (concurrent)
 
 ```sh
 backend conn B1:  [s1 req][s3 req][s1 resp][s5 req][s3 resp][s5 resp]
@@ -1285,15 +1285,15 @@ Both failures are silent. nginx defaults to HTTP/1.0 upstream, which has no pers
 - default was 100, raised to 1000 in nginx 1.19.10
 
 
-① Nonce uniqueness — the critical one
+(1) Nonce uniqueness — the critical one
 
 Each direction keeps its own sequence counter starting at 0, and the nonce is iv XOR seq. Share a key between directions and you get this
 
 A TLS connection is full-duplex — both sides send whenever they like, with no coordination. A single shared counter would require them to synchronize on every record, which is impossible. Separate keys let each side count independently with zero coordination, and uniqueness comes for free.
 
-② Reflection resistance. An attacker can't capture a record the server sent and replay it back at the server pretending it came from the client — it won't authenticate under client_key. With one shared key, that attack works.
+(2) Reflection resistance. An attacker can't capture a record the server sent and replay it back at the server pretending it came from the client — it won't authenticate under client_key. With one shared key, that attack works.
 
-③ Limiting exposure to a third party 
+(3) Limiting exposure to a third party 
 
 Everything used after the handshake descends from it:
 ```sh
@@ -1329,9 +1329,9 @@ STEK(Session Ticket Encryption Key) rotation matters. If an attacker steals the 
 
 "still the same session but a different connection?" — that was TLS 1.2's model, and it was literally true there. In 1.2 resumption reused the same master_secret; the new connection genuinely shared cryptographic state with the old one. That's why "one session, many connections" was the standard phrasing.
 
-① A ticket should be used once. Present the same ticket on two connections and an observer sees the identical identity twice — those connections are now linkable to the same client. That's a tracking vector, so a client wants a fresh ticket per resumption. One ticket = one future resumption.
+(1) A ticket should be used once. Present the same ticket on two connections and an observer sees the identical identity twice — those connections are now linkable to the same client. That's a tracking vector, so a client wants a fresh ticket per resumption. One ticket = one future resumption.
 
-② Browsers open connections in parallel. Several simultaneous connections to the same host each need their own ticket.
+(2) Browsers open connections in parallel. Several simultaneous connections to the same host each need their own ticket.
 
 TLS 1.3 has no multiplexing. That's HTTP/2 (or HTTP/3), a layer above.
 
@@ -1370,18 +1370,18 @@ The handshake is content type 22 — a protocol carried by the record layer, exa
 ```sh
       packet                  direction       proto  type   HTTP inside?
   --------------------------------------------------------------------------
-  ①   SYN                     client→server   TCP    —      no
-  ②   SYN-ACK                 server→client   TCP    —      no
-  ③   ACK                     client→server   TCP    —      no
-  ④   ClientHello             client→server   TLS    22     no
-  ⑤   ServerHello…Finished    server→client   TLS    22/23  no
-  ⑥   Finished                client→server   TLS    23     no
+  1   SYN                     client→server   TCP    —      no
+  2   SYN-ACK                 server→client   TCP    —      no
+  3   ACK                     client→server   TCP    —      no
+  4   ClientHello             client→server   TLS    22     no
+  5   ServerHello…Finished    server→client   TLS    22/23  no
+  6   Finished                client→server   TLS    23     no
   ══════════════════════════════════════════════════════════════════════════
-  ⑦   GET /account            client→server   TLS    23     YES ← first time
-  ⑧   200 OK                  server→client   TLS    23     YES
+  7   GET /account            client→server   TLS    23     YES ← first time
+  8   200 OK                  server→client   TLS    23     YES
 ```
-packets ①-⑥ contain ZERO bytes of HTTP.
-the GET does not exist on the wire until packet ⑦.
+packets (1)-(6) contain ZERO bytes of HTTP.
+the GET does not exist on the wire until packet (7).
 
 `syn`, `ack`, `fin` are single bits in the TCP header — the entire TCP handshake is three packets that differ only in which of those bits are set.
 
@@ -1489,7 +1489,7 @@ Resumption saves bytes and CPU, not latency. To save latency you need 0-RTT.
 ```sh
   THE SAME OSI STACK, ONCE PER PACKET  (.. = empty, nothing at this layer)
 
-                        ①     ②    ③    ④     ⑤    ⑥     ⑦ 
+                        1     2     3     4     5     6      7
                                                                     
   L7  Application       ..    ..    ..    ..    ..    ..     L7
   --  TLS               ..    ..    ..    TL    TL    TL     TL
@@ -1498,20 +1498,20 @@ Resumption saves bytes and CPU, not latency. To save latency you need 0-RTT.
   L2  Data Link         L2    L2    L2    L2    L2    L2     L2
   L1  Physical          L1    L1    L1    L1    L1    L1     L1
   ------------------------------------------------------------
-                        ①    ②     ③    ④     ⑤    ⑥     ⑦ 
+                        1     2     3     4     5     6      7
 
-     ① SYN            TCP handshake
-     ② SYN-ACK        TCP handshake
-     ③ ACK            TCP handshake
-     ④ ClientHello    TLS handshake
-     ⑤ ServerHello…   TLS handshake
-     ⑥ Finished       TLS handshake
-     ⑦ GET /account   YOUR REQUEST
+     (1) SYN            TCP handshake
+     (2) SYN-ACK        TCP handshake
+     (3) ACK            TCP handshake
+     (4) ClientHello    TLS handshake
+     (5) ServerHello…   TLS handshake
+     (6) Finished       TLS handshake
+     (7) GET /account   YOUR REQUEST
 ```
-packets ①-⑥ have NOTHING at layer 7. The row is empty.
-only packet ⑦ fills the whole stack — and by then the session is long established
+packets 1-6 have NOTHING at layer 7. The row is empty.
+only packet 7 fills the whole stack — and by then the session is long established
 
- the application contributes nothing to packets ①–⑥
+ the application contributes nothing to packets 1–6
 
 ```sh
  === file descriptor limits (this machine) ===
