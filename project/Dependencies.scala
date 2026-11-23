@@ -82,7 +82,7 @@ object Dependencies {
     val snakeyaml        = "2.7"
 
     // --- Observability ---
-    val micrometer = "1.17.2"
+    val micrometer = "1.18.0"
     val datadog    = "2.62.0"
     val kamon      = "2.8.1"
     val otel4s     = "1.2.0"
